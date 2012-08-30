@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.control.WheelController;
 
 public class Lab1 extends JFrame implements ActionListener, TaskController {
 
@@ -38,8 +39,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 	private JTextField textField1;
 	private JTextField textField2;
+	
+	private WheelController wheels;
 
-	private ProgramTask programTask;
+	private RotateTask programTask;
 	private SonarTask sonarTask;
 	private BothTask bothTask;
 
@@ -51,7 +54,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		programButton = new JButton("Run Sample Program!");
+		programButton = new JButton("Run Rotate!");
 		sonarButton = new JButton("Run Sonar Loop!");
 		bothButton = new JButton("Run both!");
 		stopButton = new JButton(">> stop <<");
@@ -156,7 +159,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 
 		// construct tasks
-		programTask = new ProgramTask(this);
+		programTask = new RotateTask(this);
 		sonarTask = new SonarTask(this);
 		bothTask = new BothTask(this);
 
@@ -285,10 +288,11 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	// as Tasks
 	//
 
-	class ProgramTask extends Task {
-
-		ProgramTask(TaskController tc) {
+	class RotateTask extends Task {
+		
+		RotateTask(TaskController tc) {
 			super(tc);
+			wheels = new WheelController();
 		}
 
 		public void taskRun() {
@@ -299,24 +303,28 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				robot.updateState();
 				robot.getSonars(sonars);
 
-				double frontSonar = sonars[0];
-				double backSonar = sonars[8];
-
-				System.out.println("Front sonar: " + frontSonar + 
-						"  Back sonar: " + backSonar);
-
-				if (robot.getBumpers()!=0) {
-					System.err.println("detecting bumping, stopping!");
-					robot.turnSonarsOff();
-					robot.setVel(0,0);
-					break;
-				}
-
-				if (frontSonar < backSonar) {
-					robot.setVel(-0.05, -0.05);
-				} else {
-					robot.setVel(0.05, 0.05);
-				}
+//				double frontSonar = sonars[0];
+//				double backSonar = sonars[8];
+//
+//				System.out.println("Front sonar: " + frontSonar + 
+//						"  Back sonar: " + backSonar);
+//
+//				if (robot.getBumpers()!=0) {
+//					System.err.println("detecting bumping, stopping!");
+//					robot.turnSonarsOff();
+//					robot.setVel(0,0);
+//					break;
+//				}
+//
+//				if (frontSonar < backSonar) {
+//					robot.setVel(-0.05, -0.05);
+//				} else {
+//					robot.setVel(0.05, 0.05);
+//				}
+				
+				wheels.setAVel(.1);//Debug
+				wheels.setLVel(.05);
+				wheels.updateWheels(robot);
 
 				try {
 					Thread.sleep(500);

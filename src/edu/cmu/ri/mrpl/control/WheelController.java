@@ -4,8 +4,8 @@ import edu.cmu.ri.mrpl.Robot;
 
 public class WheelController {
 
-	double lVel;
-	double aVel;
+	private double lVel;
+	private double aVel;
 
 	
 	public WheelController(){
@@ -21,6 +21,6 @@ public class WheelController {
 		aVel = angularVel;
 	}
 	public void updateWheels(Robot robot){
-		robot.setVel(lVel,lVel);
+		robot.setVel(lVel + aVel,lVel - aVel);
 	}
 }
