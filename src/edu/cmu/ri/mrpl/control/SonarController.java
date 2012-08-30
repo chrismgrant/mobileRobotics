@@ -1,13 +1,17 @@
 package edu.cmu.ri.mrpl.control;
 
+import edu.cmu.ri.mrpl.Robot;
+
 
 
 public class SonarController {
 	
 	double[] sonars;
+	Robot robot;
 	
-	public SonarController(){
+	public SonarController(Robot r){
 		sonars = new double[16];
+		robot = r;
 	}
 	
 	

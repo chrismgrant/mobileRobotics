@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.WheelController;
 
 public class Lab1 extends JFrame implements ActionListener, TaskController {
@@ -40,7 +41,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	private JTextField textField1;
 	private JTextField textField2;
 	
-	private WheelController wheels;
+	private WheelController wc;
+	private SonarController soc;
 
 	private RotateTask programTask;
 	private SonarTask sonarTask;
@@ -292,17 +294,19 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		
 		RotateTask(TaskController tc) {
 			super(tc);
-			wheels = new WheelController();
+			wc = new WheelController(robot);
+			soc = new SonarController(robot);
 		}
 
 		public void taskRun() {
 			robot.turnSonarsOn();
 
 			double[] sonars = new double[16];
+			int direction = 0;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
-
+				soc.updateSonars(sonars);
 //				double frontSonar = sonars[0];
 //				double backSonar = sonars[8];
 //
@@ -321,13 +325,12 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 //				} else {
 //					robot.setVel(0.05, 0.05);
 //				}
-				
-				wheels.setAVel(.1);//Debug
-				wheels.setLVel(.05);
-				wheels.updateWheels(robot);
-
+				direction = soc.getPosShortestSonar();
+				System.out.println("Shortest distance: " + direction);
+				wc.pointToRelativeDirection(robot,direction);
+				wc.updateWheels(robot);
 				try {
-					Thread.sleep(500);
+					Thread.sleep(250);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
