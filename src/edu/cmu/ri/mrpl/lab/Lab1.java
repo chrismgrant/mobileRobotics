@@ -329,7 +329,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 //				}
 				
 				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
-				System.out.println("Shortest distance: " + direction);
+				System.out.println("Direction: " + direction);
 				wc.pointToDirection(robot,direction);
 				wc.updateWheels(robot);
 				try {
@@ -358,18 +358,20 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
 			
 			double[] sonars = new double[16];
-			double speed = 0;
+			double speed = 0, target = 0;
+			
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				soc.updateSonars(sonars);
 				
 				speed = soc.getForwardSonarReading() - .5;
-				wc.setLVel(speed);
+				target = (speed > .5) ? .5 : speed;
+				wc.setLVel(target);
 				wc.updateWheels(robot);
 				sc.setSonars(sonars);
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch(InterruptedException iex) {
 					System.out.println("Sonar sleep interrupted");
 				}

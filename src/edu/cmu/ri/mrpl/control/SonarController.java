@@ -20,6 +20,7 @@ public class SonarController {
 			sonars[i] = (35*sonars[i]+65*sonarVals[i])/100; // Padding to dampen noise
 //			System.out.println("True sonar: "+sonarVals[0]+", Padded sonar: "+sonars[i]);
 		}
+		
 	}
 	public int getPosShortestSonar(){
 		int minInd = 0;

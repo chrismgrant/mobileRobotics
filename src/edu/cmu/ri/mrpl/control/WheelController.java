@@ -55,7 +55,7 @@ public class WheelController {
 		}
 		System.out.println("Target speed: " + targetAVel);
 		if (direction != 0 && direction != -1){
-			setAVel(targetAVel - getAVel(r));
+			setAVel(targetAVel );
 		} else {
 			setAVel(targetAVel);
 		}
