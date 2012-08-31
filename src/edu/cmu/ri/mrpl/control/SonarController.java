@@ -1,7 +1,7 @@
 package edu.cmu.ri.mrpl.control;
 
 import edu.cmu.ri.mrpl.Robot;
-
+import java.io.*;
 
 
 public class SonarController {
@@ -17,7 +17,7 @@ public class SonarController {
 	public void updateSonars(double[] sonarVals){
 		for (int i = 0; i < 16; i++){
 			sonars[i] = (35*sonars[i]+65*sonarVals[i])/100; // Padding to dampen noise
-//			System.out.println("True sonar: "+sonarVals[0]+", Padded sonar: "+sonars[i]);
+//			System.out.println("True sonar: "+sonarVals[i]+", Padded sonar: "+sonars[i]);
 		}
 		
 	}

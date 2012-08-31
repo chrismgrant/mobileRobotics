@@ -305,10 +305,17 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double direction = 0;
+			try {
+				FileWriter outFile = new FileWriter("Test");
+				PrintWriter out = new PrintWriter(outFile);
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				soc.updateSonars(sonars);
+				for(int i =0 ; i < 16; i ++){
+					out.print("sonar"+i+": "+sonars[i]+",");
+				}
+				out.println(" ");
 //				double frontSonar = sonars[0];
 //				double backSonar = sonars[8];
 //
@@ -337,6 +344,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
+			}
+			out.close();
+			}catch (IOException e){
+				e.printStackTrace();
 			}
 			robot.turnSonarsOff();
 			robot.setVel(0,0);
