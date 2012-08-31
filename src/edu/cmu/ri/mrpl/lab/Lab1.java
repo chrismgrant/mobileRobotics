@@ -296,8 +296,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		
 		RotateTask(TaskController tc) {
 			super(tc);
-			wc = new WheelController(robot);
-			soc = new SonarController(robot);
+			wc = new WheelController();
+			soc = new SonarController();
 		}
 
 		public void taskRun() {

@@ -4,17 +4,14 @@ import edu.cmu.ri.mrpl.Robot;
 
 public class WheelController {
 
-	private static double SPEED = .125;
+	private static double SPEED = 1.3;
 	private static double ROB_WIDTH = .355;
 	private double lVel;
 	private double aVel;
-	public Robot robot;
-
 	
-	public WheelController(Robot r){
+	public WheelController(){
 		lVel = 0;
 		aVel = 0;
-		robot = r;
 	}
 	/**
 	 * Sets linear velocity of robot
@@ -43,22 +40,19 @@ public class WheelController {
 	 * @param direction direction, from 0-2pi anticlockwise, in radians. -1 specifies no direction
 	 */
 	public void pointToDirection(Robot r, double direction){
-		double targetAVel;
-		if (direction <= -1){
+		double targetAVel, d = direction % (Math.PI + .00001);
+		boolean isNeg = (direction < Math.PI) ? false : true;
+		if (d <= -1){
 			targetAVel = 0;
-		} else if (direction < Math.PI) {
-			targetAVel = (direction) * SPEED;	
-		} else if (direction < 2*Math.PI) {
-			targetAVel = ((direction - 2 * Math.PI)) * SPEED;
+		} else if (d < Math.PI / 2){
+			targetAVel = (isNeg) ? -SPEED * Math.PI/2 : d * SPEED;
+		} else if (d < Math.PI){
+			targetAVel = (isNeg) ? (d - Math.PI) * SPEED : SPEED * Math.PI/2; 
 		} else {
 			targetAVel = 0;
 		}
 		System.out.println("Target speed: " + targetAVel);
-		if (direction != 0 && direction != -1){
-			setAVel(targetAVel );
-		} else {
-			setAVel(targetAVel);
-		}
+		setAVel(targetAVel);
 	}
 	/**
 	 * Returns the angular velocity of the robot
