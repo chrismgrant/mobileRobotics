@@ -5,7 +5,7 @@ import edu.cmu.ri.mrpl.Robot;
 public class WheelController {
 
 	private static double SPEED = .15;
-	private static double ROB_WIDTH = .33;
+	private static double ROB_WIDTH = .355;
 	private double lVel;
 	private double aVel;
 	public Robot robot;
@@ -25,19 +25,30 @@ public class WheelController {
 		aVel = angularVel;
 	}
 	public void updateWheels(Robot r){
-		r.setVel(lVel + aVel*ROB_WIDTH/2,lVel - aVel*ROB_WIDTH/2);
+		r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
 	}
-	public void pointToRelativeDirection(Robot r, int direction){
-		double targetAVal;
-		if (direction == -1){
-			targetAVal = 0;
+	/**
+	 * Points the robot in the direction specified. Utilizes current wheel speed for smooth turning
+	 * @param r robot object
+	 * @param direction direction, from 0-16 anticlockwise. -1 specifies no direction
+	 */
+	public void pointToDirection(Robot r, int direction){
+		double targetAVel;
+		if (direction <= -1){
+			targetAVel = 0;
 		} else if (direction < 8) {
-			targetAVal = -direction * SPEED * 22.5/2/Math.PI;	
+			targetAVel = direction * SPEED * 22.5/Math.PI;	
+		} else if (direction < 16) {
+			targetAVel = (direction - 16) * SPEED* 22.5/Math.PI;
 		} else {
-			targetAVal = (-direction + 16) * SPEED* 22.5/2/Math.PI;
+			targetAVel = 0;
 		}
-		System.out.println("Target speed: " + targetAVal);
-		setAVel(targetAVal + getAVel(r));
+		System.out.println("Target speed: " + targetAVel);
+		if (direction != 0 && direction != -1){
+			setAVel(targetAVel - getAVel(r));
+		} else {
+			setAVel(targetAVel);
+		}
 	}
 	/**
 	 * Returns the angular velocity of the robot

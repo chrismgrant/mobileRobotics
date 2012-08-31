@@ -327,9 +327,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 //				} else {
 //					robot.setVel(0.05, 0.05);
 //				}
+				
 				direction = soc.getPosShortestSonar();
 				System.out.println("Shortest distance: " + direction);
-				wc.pointToRelativeDirection(robot,direction);
+				wc.pointToDirection(robot,direction);
 				wc.updateWheels(robot);
 				try {
 					Thread.sleep(500);
