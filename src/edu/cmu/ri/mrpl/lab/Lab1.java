@@ -29,8 +29,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	private JButton connectButton;
 	private JButton disconnectButton;
 
-	private JButton programButton;
-	private JButton sonarButton;
+	private JButton rotateButton;
+	private JButton forwardButton;
 	private JButton bothButton;
 
 	private JButton stopButton;
@@ -45,7 +45,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	private SonarController soc;
 
 	private RotateTask programTask;
-	private SonarTask sonarTask;
+	private ForwardTask sonarTask;
 	private BothTask bothTask;
 
 	private Task curTask = null;
@@ -56,8 +56,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		programButton = new JButton("Run Rotate!");
-		sonarButton = new JButton("Run Sonar Loop!");
+		rotateButton = new JButton("Run Rotate!");
+		forwardButton = new JButton("Run Forward!");
 		bothButton = new JButton("Run both!");
 		stopButton = new JButton(">> stop <<");
 		quitButton = new JButton(">> quit <<");
@@ -70,8 +70,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		connectButton.addActionListener(this);
 		disconnectButton.addActionListener(this);
 
-		programButton.addActionListener(this);
-		sonarButton.addActionListener(this);
+		rotateButton.addActionListener(this);
+		forwardButton.addActionListener(this);
 		bothButton.addActionListener(this);
 		stopButton.addActionListener(this);
 		quitButton.addActionListener(this);
@@ -98,9 +98,9 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		box = Box.createHorizontalBox();
 		main.add(box);
 		box.add(Box.createHorizontalStrut(30));
-		box.add(programButton);
+		box.add(rotateButton);
 		box.add(Box.createHorizontalStrut(30));
-		box.add(sonarButton);
+		box.add(forwardButton);
 		box.add(Box.createHorizontalStrut(30));
 
 		main.add(Box.createVerticalStrut(30));
@@ -162,7 +162,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 		// construct tasks
 		programTask = new RotateTask(this);
-		sonarTask = new SonarTask(this);
+		sonarTask = new ForwardTask(this);
 		bothTask = new BothTask(this);
 
 
@@ -251,9 +251,9 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			stop();
 		} else if ( source==quitButton ) {
 			quit();
-		} else if ( source==programButton ) {
+		} else if ( source==rotateButton ) {
 			(new Thread(programTask)).start();
-		} else if ( source==sonarButton ) {
+		} else if ( source==forwardButton ) {
 			(new Thread(sonarTask)).start();
 		} else if ( source==bothButton ) {
 			(new Thread(bothTask)).start();
@@ -304,7 +304,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
 
 			double[] sonars = new double[16];
-			int direction = 0;
+			double direction = 0;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
@@ -328,12 +328,12 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 //					robot.setVel(0.05, 0.05);
 //				}
 				
-				direction = soc.getPosShortestSonar();
+				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
 				System.out.println("Shortest distance: " + direction);
 				wc.pointToDirection(robot,direction);
 				wc.updateWheels(robot);
 				try {
-					Thread.sleep(500);
+					Thread.sleep(200);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
@@ -347,22 +347,27 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		}
 	}
 
-	class SonarTask extends Task {
+	class ForwardTask extends Task {
 
-		SonarTask(TaskController tc) {
+		ForwardTask(TaskController tc) {
 			super(tc);
 		}
 
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-
+			
 			double[] sonars = new double[16];
+			double speed = 0;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
+				soc.updateSonars(sonars);
+				
+				speed = soc.getForwardSonarReading() - .5;
+				wc.setLVel(speed);
+				wc.updateWheels(robot);
 				sc.setSonars(sonars);
-
 				try {
 					Thread.sleep(500);
 				} catch(InterruptedException iex) {
@@ -384,7 +389,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		BothTask(TaskController tc) {
 			super(tc);
 		}
-
+		int counter = 25, a = 1;
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
@@ -395,23 +400,15 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				robot.getSonars(sonars);
 				sc.setSonars(sonars);
 
-				double frontSonar = sonars[0];
-				double backSonar = sonars[8];
-
-				System.out.println("Front sonar: " + frontSonar + 
-						"  Back sonar: " + backSonar);
-
-				if (robot.getBumpers()!=0) {
-					System.err.println("detecting bumping, stopping!");
-					break;
-				}
-
-				if (frontSonar < backSonar) {
-					robot.setVel(-0.05, -0.05);
+				if (counter > 0){
+					wc.setAVel(a);
+					counter--;
 				} else {
-					robot.setVel(0.05, 0.05);
+					counter = 25;
+					a = -a;	
 				}
-
+				System.out.println("Counter: "+counter+", avel: "+wc.getAVel(robot)+", target: "+a);
+				wc.updateWheels(robot);
 				try {
 					Thread.sleep(500);
 				} catch(InterruptedException iex) {
