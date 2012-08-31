@@ -17,7 +17,8 @@ public class SonarController {
 	
 	public void updateSonars(double[] sonarVals){
 		for (int i = 0; i < 16; i++){
-			sonars[i] = (9*sonars[i]+sonarVals[i])/10; // Padding to dampen noise
+			sonars[i] = (45*sonars[i]+55*sonarVals[i])/100; // Padding to dampen noise
+			System.out.println("True sonar: "+sonarVals[0]+", Padded sonar: "+sonars[i]);
 		}
 	}
 	public int getPosShortestSonar(){
@@ -29,6 +30,7 @@ public class SonarController {
 				minInd = i;
 			}
 		}
+		System.out.println("Shortest length: " + minVal);
 		return minInd;
 	}
 }

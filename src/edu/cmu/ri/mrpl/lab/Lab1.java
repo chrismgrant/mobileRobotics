@@ -257,6 +257,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			(new Thread(sonarTask)).start();
 		} else if ( source==bothButton ) {
 			(new Thread(bothTask)).start();
+		} else if ( source==button3) {
+			
 		}
 	}
 
@@ -330,7 +332,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				wc.pointToRelativeDirection(robot,direction);
 				wc.updateWheels(robot);
 				try {
-					Thread.sleep(250);
+					Thread.sleep(500);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
