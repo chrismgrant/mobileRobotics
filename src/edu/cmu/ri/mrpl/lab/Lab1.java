@@ -305,31 +305,14 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double direction = 0;
+			wc.setLVel(0);
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				soc.updateSonars(sonars);
-//				double frontSonar = sonars[0];
-//				double backSonar = sonars[8];
-//
-//				System.out.println("Front sonar: " + frontSonar + 
-//						"  Back sonar: " + backSonar);
-//
-//				if (robot.getBumpers()!=0) {
-//					System.err.println("detecting bumping, stopping!");
-//					robot.turnSonarsOff();
-//					robot.setVel(0,0);
-//					break;
-//				}
-//
-//				if (frontSonar < backSonar) {
-//					robot.setVel(-0.05, -0.05);
-//				} else {
-//					robot.setVel(0.05, 0.05);
-//				}
 				
 				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
-				System.out.println("Direction: " + direction);
+				System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
 				wc.pointToDirection(robot,direction);
 				wc.updateWheels(robot);
 				try {
