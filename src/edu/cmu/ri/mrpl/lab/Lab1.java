@@ -17,7 +17,9 @@ import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.control.BumperController;
 import edu.cmu.ri.mrpl.control.SonarController;
+import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.WheelController;
 
 public class Lab1 extends JFrame implements ActionListener, TaskController {
@@ -43,6 +45,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	
 	private WheelController wc;
 	private SonarController soc;
+	private BumperController bc;
+	private TrackerController trc;
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
@@ -298,6 +302,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
+			bc = new BumperController();
 		}
 
 		public void taskRun() {
@@ -306,6 +311,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			double[] sonars = new double[16];
 			double direction = 0;
 			wc.setLVel(0);
+			wc.setAVel(0);
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
@@ -313,10 +319,11 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				
 				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
 				System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
+				System.out.println("Target direction: " + direction);
 				wc.pointToDirection(robot,direction);
-				wc.updateWheels(robot);
+				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
-					Thread.sleep(200);
+					Thread.sleep(100);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
@@ -334,12 +341,16 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 		ForwardTask(TaskController tc) {
 			super(tc);
+			wc = new WheelController();
+			soc = new SonarController();
+			bc = new BumperController();
 		}
 
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-			
+			wc.setAVel(0);
+			wc.setLVel(0);
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
 			
@@ -349,9 +360,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				soc.updateSonars(sonars);
 				
 				speed = soc.getForwardSonarReading() - .5;
-				target = (speed > .5) ? .5 : speed;
+				target = (speed > .5) ? .5 : ((Math.abs(speed)<=.03)? 0 : speed);
+				
 				wc.setLVel(target);
-				wc.updateWheels(robot);
+				wc.updateWheels(robot, bc.isBumped(robot));
 				sc.setSonars(sonars);
 				try {
 					Thread.sleep(100);
@@ -373,29 +385,36 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 		BothTask(TaskController tc) {
 			super(tc);
+			wc = new WheelController();
+			soc = new SonarController();
+			bc = new BumperController();
+			trc = new TrackerController();
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-
+			wc.setAVel(0);
+			wc.setLVel(0);
 			double[] sonars = new double[16];
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				sc.setSonars(sonars);
-
-				if (counter > 0){
-					wc.setAVel(a);
-					counter--;
-				} else {
-					counter = 25;
-					a = -a;	
-				}
-				System.out.println("Counter: "+counter+", avel: "+wc.getAVel(robot)+", target: "+a);
-				wc.updateWheels(robot);
+				soc.updateSonars(sonars);
+				trc.updateTrackers(soc.getSonarReadings());
+//				if (counter > 0){
+//					wc.setAVel(a);
+//					counter--;
+//				} else {
+//					counter = 25;
+//					a = -a;	
+//				}
+//				System.out.println("Counter: "+counter+", avel: "+wc.getAVel(robot)+", target: "+a);
+				System.out.println("Tracker Direction: " + trc.getActiveDirection());
+				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch(InterruptedException iex) {
 					System.out.println("\"Both\" sleep interrupted");
 				}
