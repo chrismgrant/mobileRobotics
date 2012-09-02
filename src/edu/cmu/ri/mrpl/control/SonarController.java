@@ -9,31 +9,37 @@ import java.text.NumberFormat;
 public class SonarController {
 	
 	private double[][] sonars;
+	private double[] avgSonars;
 	private NumberFormat filterFormat;
-	private static double SONAR_TOLERANCE = 0.08;
+	private static double SONAR_TOLERANCE = 0.05;
 	private int current;
 	
 	public SonarController(){
-		sonars = new double[30][16];
+		sonars = new double[10][16];
 		for (int i = 0; i < sonars.length; i++){
 			for (int j = 0; j < sonars[i].length; j++){
 				sonars[i][j] = Double.POSITIVE_INFINITY;
 			}
 		}
+		avgSonars = new double[16];
+		for (int i = 0; i < avgSonars.length; i++){
+			avgSonars[i] = Double.POSITIVE_INFINITY;
+		}
 		current = 0;
 		filterFormat = new DecimalFormat("#0.00");
 	}
 	
-	
 	public void updateSonars(double[] sonarVals){
 		current = (current == (sonars.length - 1)) ? 0 : current+1;
-		for (int i = 0; i < 16; i++){
+		for (int i = 0; i < avgSonars.length; i++){
 			if (isOutOfRange(sonarVals[i])){
 				sonars[current][i] = Double.POSITIVE_INFINITY;
 			} else {
 				sonars[current][i] = (isNoise(sonarVals[i], i)) ? sonars[current][i] : filter(sonarVals[i]);
 			}
-			System.out.println(sonarVals[i] + ", "+sonars[current][i]);
+			avgSonars[i] = getAvgReading(i);
+			System.out.println(sonarVals[i] + ", "+avgSonars[i]);
+
 		}
 	}
 	private double filter(double input){
@@ -56,9 +62,9 @@ public class SonarController {
 	public int getPosShortestSonar(){
 		int minInd = 0;
 		double minVal = Double.POSITIVE_INFINITY;
-		for (int i = 0; i < 16; i++){
-			if (minVal > sonars[current][i]){
-				minVal = sonars[current][i];
+		for (int i = 0; i < avgSonars.length; i++){
+			if (minVal > avgSonars[i]){
+				minVal = avgSonars[i];
 				minInd = i;
 			}
 		}
@@ -67,10 +73,10 @@ public class SonarController {
 		return minInd;
 	}
 	public double[] getSonarReadings(){
-		return sonars[current];
+		return avgSonars;
 	}
 	public double getForwardSonarReading(){
-		return Math.min(Math.min(sonars[current][0],sonars[current][1]*Math.cos(Math.PI/8)),sonars[current][15]*Math.cos(Math.PI/8));
+		return Math.min(Math.min(avgSonars[0],avgSonars[1]*Math.cos(Math.PI/8)),avgSonars[15]*Math.cos(Math.PI/8));
 	}
 //	public int determineClosestObject(double[] sonarVals){
 //		

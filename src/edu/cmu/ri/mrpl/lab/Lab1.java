@@ -323,7 +323,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				wc.pointToDirection(robot,direction);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
-					Thread.sleep(100);
+					Thread.sleep(50);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
