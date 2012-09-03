@@ -407,14 +407,14 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				robot.getSonars(sonars);
 				sc.setSonars(sonars);
 				soc.updateSonars(sonars);
-				trc.updateTrackers(soc.getSonarReadings());
-				direction = trc.getActiveDirection() * 22.5 * Math.PI/180;
+				trc.updateTracker(soc.getSonarReadings());
+				direction = trc.getFollowDirection() * 22.5 * Math.PI/180;
 				wc.pointToDirection(direction);
-				wc.shadowTracker(trc.getActiveTracker(), .5);
+				wc.shadowTracker(trc.getFollowTracker(), .5);
 //				wc.setCurv(2);
 //				wc.setLVel(.5);
-				System.out.println("Tracker Direction: " + trc.getActiveDirection());
-				System.out.println("Tracker distance: " + trc.getActiveDistance());
+				System.out.println("Tracker Direction: " + trc.getFollowDirection());
+				System.out.println("Tracker distance: " + trc.getFollowDistance());
 				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
 					Thread.sleep(50);

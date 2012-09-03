@@ -13,11 +13,11 @@ public class SonarController {
 	private int[] debounceBuffer;
 	private double[] avgSonars;
 	private NumberFormat filterFormat;
-	private static double SONAR_RANGE = 2.5;
-	private static double SONAR_TOLERANCE = 0.025;
-	private static int SONAR_NOISE_FILTER = 8;
-	private static double DEBOUNCE_TOLERANCE = SONAR_TOLERANCE;
-	private static int DEBOUNCE_SUSTAIN = 0;
+	private static final double SONAR_RANGE = 2.5;
+	private static final double SONAR_TOLERANCE = 0.025;
+	private static final int SONAR_NOISE_FILTER = 8;
+	private static final double DEBOUNCE_TOLERANCE = SONAR_TOLERANCE;
+	private static final int DEBOUNCE_SUSTAIN = 0;
 	private int current;
 	
 	public SonarController(){

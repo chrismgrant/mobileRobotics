@@ -4,9 +4,9 @@ import edu.cmu.ri.mrpl.Robot;
 
 public class WheelController {
 
-	private static double BRAKING_COEFFICIENT = 1;
-	private static double SPEED = 1;
-	private static double ROB_WIDTH = .355;
+	private static final double BRAKING_COEFFICIENT = 1;
+	private static final double SPEED = 1;
+	private static final double ROB_WIDTH = .355;
 	private double lVel;
 	private double aVel;
 	private double curv;
