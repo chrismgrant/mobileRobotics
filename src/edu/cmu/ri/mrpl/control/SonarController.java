@@ -16,8 +16,8 @@ public class SonarController {
 	private static final double SONAR_RANGE = 2.5;
 	private static final double SONAR_TOLERANCE = 0.025;
 	private static final int SONAR_NOISE_FILTER = 8;
-	private static final double DEBOUNCE_TOLERANCE = 0.01;
-	private static final int DEBOUNCE_SUSTAIN = 0;
+	private static final double DEBOUNCE_TOLERANCE = 0.05;
+	private static final int DEBOUNCE_SUSTAIN = 1;
 	private int current;
 	
 	public SonarController(){
@@ -41,8 +41,10 @@ public class SonarController {
 		current = (current == (sonars.length - 1)) ? 0 : current+1;
 		for (int i = 0; i < avgSonars.length; i++){
 			if (isNoise(sonarVals[i],i)){//If sonarvals is different, add to debounce buffer. else, feed to noise filter;
+				System.out.print("u");
 				sonars[current][i] = filter(sonarVals[i]);
 			} else {
+				System.out.print("d");
 				debounce(filter(sonarVals[i]), i);
 			} 
 			
@@ -50,11 +52,11 @@ public class SonarController {
 			System.out.println(sonarVals[i] + ", "+avgSonars[i]);
 
 		}
-		System.out.println("["+debounceBuffer[0]+","+debounceBuffer[1]+","+debounceBuffer[2]+","+debounceBuffer[3]+","+debounceBuffer[4]+",]");
+//		System.out.println("["+debounceBuffer[0]+","+debounceBuffer[1]+","+debounceBuffer[2]+","+debounceBuffer[3]+","+debounceBuffer[4]+",]");
 	}
 	private void debounce(double sonarVal, int index){
 		if (Math.abs(debounceVal[index] - sonarVal) > DEBOUNCE_TOLERANCE){//Set new debouncer
-			overwriteSonars(sonarVal, index);	
+//			overwriteSonars(sonarVal, index);	
 			debounceVal[index] = sonarVal;
 			debounceBuffer[index] = 0;
 			System.out.print("#");
@@ -82,9 +84,9 @@ public class SonarController {
 		return Double.valueOf(filterFormat.format(input));
 	}
 	private boolean isNoise(double sonarVal, int index){
-		System.out.print((Math.abs(sonarVal - sonars[current][index]))+", ");
+//		System.out.print((Math.abs(sonarVal - sonars[current][index]))+", ");
 		Double d = sonarVal;
-		return (d.isInfinite() && sonars[current][index] < SONAR_RANGE) || (Math.abs(sonarVal - d) <= SONAR_TOLERANCE);
+		return (d.isInfinite() && sonars[current][index] < SONAR_RANGE) || (Math.abs(sonarVal - sonars[current][index]) <= SONAR_TOLERANCE);
 	}
 	private double getAvgReading(int index){
 		double sum = 0;
