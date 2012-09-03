@@ -323,7 +323,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
 				System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
 				System.out.println("Target direction: " + direction);
-				wc.pointToDirection(robot,direction);
+				wc.pointToDirection(direction);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
 					Thread.sleep(50);
@@ -370,7 +370,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				wc.updateWheels(robot, bc.isBumped(robot));
 				sc.setSonars(sonars);
 				try {
-					Thread.sleep(100);
+					Thread.sleep(50);
 				} catch(InterruptedException iex) {
 					System.out.println("Sonar sleep interrupted");
 				}
@@ -401,25 +401,23 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc.setAVel(0);
 			wc.setLVel(0);
 			double[] sonars = new double[16];
+			double direction = -1;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				sc.setSonars(sonars);
 				soc.updateSonars(sonars);
 				trc.updateTrackers(soc.getSonarReadings());
-//				if (counter > 0){
-//					wc.setAVel(a);
-//					counter--;
-//				} else {
-//					counter = 25;
-//					a = -a;	
-//				}
-//				System.out.println("Counter: "+counter+", avel: "+wc.getAVel(robot)+", target: "+a);
+				direction = trc.getActiveDirection() * 22.5 * Math.PI/180;
+				wc.pointToDirection(direction);
+				wc.shadowTracker(trc.getActiveTracker(), .5);
+//				wc.setCurv(2);
+//				wc.setLVel(.5);
 				System.out.println("Tracker Direction: " + trc.getActiveDirection());
 				System.out.println("Tracker distance: " + trc.getActiveDistance());
 				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
-					Thread.sleep(100);
+					Thread.sleep(50);
 				} catch(InterruptedException iex) {
 					System.out.println("\"Both\" sleep interrupted");
 				}

@@ -1,27 +1,53 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.util.ArrayList;
+
 public class Tracker {
 
 	double dist;
-	int angIdx;
+	ArrayList<Integer> angIdx;
+	int size;
 	
-	public Tracker(double distance, int angleIndex){
+	public Tracker(double distance, ArrayList<Integer> angleIndex){
 		updatePos(distance, angleIndex);
+		size = 0;
 	}
-	
-	public Tracker(){
-		updatePos(0.0,0);
-	}
-	
-	public void updatePos(double distance, int angleIndex){
+	/**
+	 * Update the position of the tracker
+	 * @param distance distance from robot, in meters
+	 * @param angleIndex index of sonar on sensor
+	 */
+	public void updatePos(double distance, ArrayList<Integer> angleIndex){
 		dist = distance;
 		angIdx = angleIndex;
 	}
+	/**
+	 * Gets distance from robot
+	 * @return distance, in meters
+	 */
 	public double getDistance(){
 		return dist;
 	}
+	/**
+	 * Gets index of sonar on sensor
+	 * @return sonar index
+	 */
 	public int getAngleIndex(){
-		return angIdx;
+		return angIdx.get(0);
+	}
+	/**
+	 * Gets x position relative to 0,0 of robot
+	 * @return relative x position, in meters
+	 */
+	public double getX(){
+		return dist * Math.cos(angIdx.get(0)*22.5/180*Math.PI);
+	}
+	/**
+	 * Gets y position relative to 0,0 of robot
+	 * @return relative y position, in meters
+	 */
+	public double getY(){
+		return dist * Math.sin(angIdx.get(0)*22.5/180*Math.PI); 
 	}
 	/**
 	 * Returns the error between saved distance and new distance
@@ -37,7 +63,7 @@ public class Tracker {
 	 * @return Index difference between sonars.
 	 */
 	public int getAngleError(int angleIndex){
-		int delta = angleIndex - angIdx;
+		int delta = angleIndex - angIdx.get(0);
 		if (delta > 8) {return delta - 16;}
 		else if (delta < -8) {return delta + 16;}
 		else {return delta;}

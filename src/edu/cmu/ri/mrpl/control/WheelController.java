@@ -4,6 +4,7 @@ import edu.cmu.ri.mrpl.Robot;
 
 public class WheelController {
 
+	private static double BRAKING_COEFFICIENT = 1;
 	private static double SPEED = 1;
 	private static double ROB_WIDTH = .355;
 	private double lVel;
@@ -48,13 +49,13 @@ public class WheelController {
 		} else {
 			r.setVel(0,0);
 		}
+		System.out.println("L: "+lVel+", A: "+aVel+", c: "+curv);
 	}
 	/**
 	 * Points the robot in the direction specified. Utilizes current wheel speed for smooth turning
-	 * @param r robot object
 	 * @param direction direction, from 0-2pi anticlockwise, in radians. -1 specifies no direction
 	 */
-	public void pointToDirection(Robot r, double direction){
+	public void pointToDirection(double direction){
 		double targetAVel, d = direction % (Math.PI);
 		boolean isNeg = (direction < Math.PI) ? false : true;
 		if (d <= -1){
@@ -84,5 +85,42 @@ public class WheelController {
 		double speed = (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
 		System.out.println("Current speed: " + speed + ", right wheel speed: " + r.getVelRight() + ", left wheel speed: " + r.getVelLeft());
 		return speed;
+	}
+	/**
+	 * Shadows a tracker, maintaining a constant distance from the tracker
+	 * @param t target tracker
+	 * @param distance distance to maintain while shadowing, in meters
+	 */
+	public void shadowTracker(Tracker t, double distance){
+		try{
+			
+			setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
+			setLVel(Math.pow(t.getDistance() - distance, 1) / BRAKING_COEFFICIENT);
+			if (getLVel() < .1){
+				pointToDirection(t.getAngleIndex()*22.5/180*Math.PI);
+			}
+		}catch(NullPointerException e){
+			setCurv(0);
+			setLVel(0);
+		}
+		
+	}
+	public void moveToPoint(double x, double y){
+		
+	}
+	public void moveToTracker(Tracker t){
+		try{
+			setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
+			setLVel(Math.pow(t.getDistance(),1) / BRAKING_COEFFICIENT);
+			if (getLVel() < .1){
+				pointToDirection(t.getAngleIndex()*22.5/180*Math.PI);
+			}
+		} catch (NullPointerException e){
+			setCurv(0);
+			setLVel(0);
+		}
+	}
+	private double calculateRadiusOfTurning(double x, double y){
+		return (Math.pow(x, 2)+Math.pow(y,2))/(2*y);
 	}
 }
