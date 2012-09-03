@@ -27,7 +27,9 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 	private Robot robot;
 	private SonarConsole sc;
+	private SonarConsole sc2;
 	private JFrame scFrame;
+	private JFrame sc2Frame;
 
 	private JButton connectButton;
 	private JButton disconnectButton;
@@ -52,19 +54,19 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
-	private BothTask bothTask;
+	private TrackTask bothTask;
 
 	private Task curTask = null;
 
 	public Lab1() {
-		super("Kick Ass Sample Robot App");
+		super("Lab1");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
 		rotateButton = new JButton("Run Rotate!");
 		forwardButton = new JButton("Run Forward!");
-		bothButton = new JButton("Run both!");
+		bothButton = new JButton("Run Track!");
 		stopButton = new JButton(">> stop <<");
 		quitButton = new JButton(">> quit <<");
 
@@ -165,11 +167,16 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		scFrame.add(sc);
 		scFrame.pack();
 
+		sc2Frame = new JFrame("Live Sonar Console");
+		sc2Frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		sc2 = new SonarConsole();
+		sc2Frame.add(sc2);
+		sc2Frame.pack();
 
 		// construct tasks
 		programTask = new RotateTask(this);
 		sonarTask = new ForwardTask(this);
-		bothTask = new BothTask(this);
+		bothTask = new TrackTask(this);
 
 
 
@@ -234,6 +241,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			public void run() {
 				scFrame.setLocationByPlatform(true);
 				scFrame.setVisible(true);
+				sc2Frame.setLocationByPlatform(true);
+				sc2Frame.setVisible(true);
 			}
 		});
 	}
@@ -243,6 +252,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				scFrame.setVisible(false);
+				sc2Frame.setVisible(false);
 			}
 		});
 	}
@@ -309,30 +319,40 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		}
 
 		public void taskRun() {
+			showSC();
 			robot.turnSonarsOn();
 
 			double[] sonars = new double[16];
 			double direction = 0;
 			wc.setLVel(0);
 			wc.setAVel(0);
-			while(!shouldStop()) {
-				robot.updateState();
-				robot.getSonars(sonars);
-				soc.updateSonars(sonars);
-				bac.updateBearing(wc.getLVel(), wc.getAVel());
-				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
-				System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
-				System.out.println("Target direction: " + direction);
-				wc.pointToDirection(direction);
-				wc.updateWheels(robot, bc.isBumped(robot));
-				try {
-					Thread.sleep(50);
-				} catch(InterruptedException iex) {
-					System.out.println("sample program sleep interrupted");
+			try{
+				FileWriter outFile = new FileWriter("TrackData");
+				PrintWriter out = new PrintWriter(outFile);
+				while(!shouldStop()) {
+					robot.updateState();
+					robot.getSonars(sonars);
+					soc.updateSonars(sonars);
+					sc.setSonars(soc.getSonarReadings());
+					sc2.setSonars(sonars);
+					bac.updateBearing(wc.getLVel(), wc.getAVel());
+					direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
+					System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
+					System.out.println("Target direction: " + direction);
+					wc.pointToDirection(direction);
+					wc.updateWheels(robot, bc.isBumped(robot));
+					try {
+						Thread.sleep(50);
+					} catch(InterruptedException iex) {
+						System.out.println("sample program sleep interrupted");
+					}
 				}
+			} catch (IOException e){
+				e.printStackTrace();
 			}
 			robot.turnSonarsOff();
 			robot.setVel(0,0);
+			hideSC();
 		}
 
 		public String toString() {
@@ -357,25 +377,30 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc.setLVel(0);
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
-			
-			while(!shouldStop()) {
-				robot.updateState();
-				robot.getSonars(sonars);
-				soc.updateSonars(sonars);
-				bac.updateBearing(wc.getLVel(), wc.getAVel());
-				speed = soc.getForwardSonarReading() - .5;
-				target = (speed > .5) ? .5 : ((Math.abs(speed)<=.03)? 0 : speed);
-				
-				wc.setLVel(target);
-				wc.updateWheels(robot, bc.isBumped(robot));
-				sc.setSonars(sonars);
-				try {
-					Thread.sleep(50);
-				} catch(InterruptedException iex) {
-					System.out.println("Sonar sleep interrupted");
+			try{
+				FileWriter outFile = new FileWriter("ForwardData");
+				PrintWriter out = new PrintWriter(outFile);
+				while(!shouldStop()) {
+					robot.updateState();
+					robot.getSonars(sonars);
+					soc.updateSonars(sonars);
+					bac.updateBearing(wc.getLVel(), wc.getAVel());
+					speed = soc.getForwardSonarReading() - .5;
+					target = (speed > .5) ? .5 : ((Math.abs(speed)<=.03)? 0 : speed);
+					
+					wc.setLVel(target);
+					wc.updateWheels(robot, bc.isBumped(robot));
+					sc.setSonars(soc.getSonarReadings());
+					sc2.setSonars(sonars);
+					try {
+						Thread.sleep(50);
+					} catch(InterruptedException iex) {
+						System.out.println("Sonar sleep interrupted");
+					}
 				}
+			} catch (IOException e){
+				e.printStackTrace();
 			}
-
 			robot.turnSonarsOff();
 			hideSC();
 		}
@@ -385,9 +410,9 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		}
 	}
 
-	class BothTask extends Task {
+	class TrackTask extends Task {
 
-		BothTask(TaskController tc) {
+		TrackTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
@@ -402,26 +427,34 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc.setLVel(0);
 			double[] sonars = new double[16];
 			double direction = -1;
-			while(!shouldStop()) {
-				robot.updateState();
-				robot.getSonars(sonars);
-				sc.setSonars(sonars);
-				soc.updateSonars(sonars);
-				trc.updateTracker(soc.getSonarReadings());
-				direction = trc.getFollowDirection() * 22.5 * Math.PI/180;
-				wc.pointToDirection(direction);
-				wc.shadowTracker(trc.getFollowTracker(), .5);
-//				wc.setCurv(2);
-//				wc.setLVel(.5);
-				System.out.println("Tracker Direction: " + trc.getFollowDirection());
-				System.out.println("Tracker distance: " + trc.getFollowDistance());
-				wc.updateWheels(robot, bc.isBumped(robot));
-				try {
-					Thread.sleep(50);
-				} catch(InterruptedException iex) {
-					System.out.println("\"Both\" sleep interrupted");
+			try{
+				FileWriter outFile = new FileWriter("TrackData");
+				PrintWriter out = new PrintWriter(outFile);
+				while(!shouldStop()) {
+					robot.updateState();
+					robot.getSonars(sonars);
+					soc.updateSonars(sonars);
+					sc.setSonars(soc.getSonarReadings());
+					sc2.setSonars(sonars);
+					trc.updateTracker(soc.getSonarReadings());
+					direction = trc.getFollowDirection() * 22.5 * Math.PI/180;
+					wc.pointToDirection(direction);
+					wc.shadowTracker(trc.getFollowTracker(), .5);
+//					wc.setCurv(2);
+//					wc.setLVel(.5);
+					System.out.println("Tracker Direction: " + trc.getFollowDirection());
+					System.out.println("Tracker distance: " + trc.getFollowDistance());
+					wc.updateWheels(robot, bc.isBumped(robot));
+					try {
+						Thread.sleep(50);
+					} catch(InterruptedException iex) {
+						System.out.println("\"Both\" sleep interrupted");
+					}
 				}
+			} catch (IOException e){
+				e.printStackTrace();
 			}
+			
 
 			robot.turnSonarsOff();
 			robot.setVel(0.0f, 0.0f);

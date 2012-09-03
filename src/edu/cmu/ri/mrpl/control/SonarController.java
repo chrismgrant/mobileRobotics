@@ -16,7 +16,7 @@ public class SonarController {
 	private static final double SONAR_RANGE = 2.5;
 	private static final double SONAR_TOLERANCE = 0.025;
 	private static final int SONAR_NOISE_FILTER = 8;
-	private static final double DEBOUNCE_TOLERANCE = SONAR_TOLERANCE;
+	private static final double DEBOUNCE_TOLERANCE = 0.01;
 	private static final int DEBOUNCE_SUSTAIN = 0;
 	private int current;
 	
@@ -83,8 +83,8 @@ public class SonarController {
 	}
 	private boolean isNoise(double sonarVal, int index){
 		System.out.print((Math.abs(sonarVal - sonars[current][index]))+", ");
-		Double d = sonars[current][index];
-		return (d.isInfinite() && sonarVal < SONAR_RANGE) || (Math.abs(sonarVal - d) <= SONAR_TOLERANCE);
+		Double d = sonarVal;
+		return (d.isInfinite() && sonars[current][index] < SONAR_RANGE) || (Math.abs(sonarVal - d) <= SONAR_TOLERANCE);
 	}
 	private double getAvgReading(int index){
 		double sum = 0;
