@@ -9,18 +9,26 @@ import java.text.NumberFormat;
 public class SonarController {
 	
 	private double[][] sonars;
+	private double[] debounceVal;
+	private int[] debounceBuffer;
 	private double[] avgSonars;
 	private NumberFormat filterFormat;
+	private static double SONAR_RANGE = 2.5;
 	private static double SONAR_TOLERANCE = 0.05;
+	private static int SONAR_NOISE_FILTER = 10;
+	private static double DEBOUNCE_TOLERANCE = SONAR_TOLERANCE;
+	private static int DEBOUNCE_SUSTAIN = 0;
 	private int current;
 	
 	public SonarController(){
-		sonars = new double[10][16];
+		sonars = new double[SONAR_NOISE_FILTER][16];
 		for (int i = 0; i < sonars.length; i++){
 			for (int j = 0; j < sonars[i].length; j++){
 				sonars[i][j] = Double.POSITIVE_INFINITY;
 			}
 		}
+		debounceVal = new double[16];
+		debounceBuffer = new int[16];
 		avgSonars = new double[16];
 		for (int i = 0; i < avgSonars.length; i++){
 			avgSonars[i] = Double.POSITIVE_INFINITY;
@@ -32,22 +40,51 @@ public class SonarController {
 	public void updateSonars(double[] sonarVals){
 		current = (current == (sonars.length - 1)) ? 0 : current+1;
 		for (int i = 0; i < avgSonars.length; i++){
-			if (isOutOfRange(sonarVals[i])){
-				sonars[current][i] = Double.POSITIVE_INFINITY;
+			if (isNoise(sonarVals[i],i)){//If sonarvals is different, add to debounce buffer. else, feed to noise filter;
+				sonars[current][i] = filter(sonarVals[i]);
 			} else {
-				sonars[current][i] = (isNoise(sonarVals[i], i)) ? sonars[current][i] : filter(sonarVals[i]);
-			}
+				debounce(filter(sonarVals[i]), i);
+			} 
+			
 			avgSonars[i] = getAvgReading(i);
 			System.out.println(sonarVals[i] + ", "+avgSonars[i]);
 
+		}
+		System.out.println("["+debounceBuffer[0]+","+debounceBuffer[1]+","+debounceBuffer[2]+","+debounceBuffer[3]+","+debounceBuffer[4]+",]");
+	}
+	private void debounce(double sonarVal, int index){
+		if (Math.abs(debounceVal[index] - sonarVal) > DEBOUNCE_TOLERANCE){//Set new debouncer
+			overwriteSonars(sonarVal, index);	
+			debounceVal[index] = sonarVal;
+			debounceBuffer[index] = 0;
+			System.out.print("#");
+		} else if (debounceBuffer[index] < DEBOUNCE_SUSTAIN) {//Update debouncer
+			debounceBuffer[index]++;
+			System.out.print("+");
+		} else {//Record debouncer
+			debounceBuffer[index]++;
+			System.out.print("*");
+			overwriteSonars(sonarVal, index);
+		}
+	}
+	private void overwriteSonars(double sonarVal, int index){
+		if (isOutOfRange(sonarVal)){
+			for (int i = 0; i < sonars.length; i++){
+				sonars[i][index] = Double.POSITIVE_INFINITY;
+			}
+		} else {
+			for (int i = 0; i < sonars.length; i++){
+				sonars[i][index] = sonarVal;
+			}
 		}
 	}
 	private double filter(double input){
 		return Double.valueOf(filterFormat.format(input));
 	}
 	private boolean isNoise(double sonarVal, int index){
-		double filterVal = filter(sonarVal);
-		return (filterVal <= getAvgReading(index) + SONAR_TOLERANCE) && (filterVal >= getAvgReading(index) - SONAR_TOLERANCE);
+		System.out.print((Math.abs(sonarVal - sonars[current][index]))+", ");
+		Double d = sonars[current][index];
+		return (d.isInfinite() && sonarVal < SONAR_RANGE) || (Math.abs(sonarVal - d) <= SONAR_TOLERANCE);
 	}
 	private double getAvgReading(int index){
 		double sum = 0;
@@ -57,7 +94,7 @@ public class SonarController {
 		return sum / sonars.length;
 	}
 	private boolean isOutOfRange(double sonarVal){
-		return (sonarVal > 3.5) ? true : false;
+		return (sonarVal > SONAR_RANGE) ? true : false;
 	}
 	public int getPosShortestSonar(){
 		int minInd = 0;

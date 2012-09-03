@@ -8,10 +8,12 @@ public class WheelController {
 	private static double ROB_WIDTH = .355;
 	private double lVel;
 	private double aVel;
+	private double curv;
 	
 	public WheelController(){
 		lVel = 0;
 		aVel = 0;
+		curv = 0;
 	}
 	/**
 	 * Sets linear velocity of robot
@@ -26,6 +28,15 @@ public class WheelController {
 	 */
 	public void setAVel(double angularVel){
 		aVel = angularVel;
+	}
+	/**
+	 * Sets curvature of robot path
+	 * Overwrites setAVel
+	 * @param curvature
+	 */
+	public void setCurv(double curvature){
+		curv = curvature;
+		aVel = curv * lVel;
 	}
 	/**
 	 * Sends velocity command to robot
@@ -58,12 +69,18 @@ public class WheelController {
 		System.out.println("Target speed: " + targetAVel);
 		setAVel(targetAVel);
 	}
+	public double getLVel(){
+		return lVel;
+	}
+	public double getAVel(){
+		return aVel;
+	}
 	/**
 	 * Returns the angular velocity of the robot
 	 * @param r robot object
 	 * @return angular velocity in radians per second
 	 */
-	public double getAVel(Robot r){
+	public double getRobAVel(Robot r){
 		double speed = (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
 		System.out.println("Current speed: " + speed + ", right wheel speed: " + r.getVelRight() + ", left wheel speed: " + r.getVelLeft());
 		return speed;

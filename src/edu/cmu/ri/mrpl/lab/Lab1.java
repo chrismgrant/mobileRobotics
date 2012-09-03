@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.control.BearingController;
 import edu.cmu.ri.mrpl.control.BumperController;
 import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
@@ -47,6 +48,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 	private SonarController soc;
 	private BumperController bc;
 	private TrackerController trc;
+	private BearingController bac;
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
@@ -303,6 +305,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
+			bac = new BearingController();
 		}
 
 		public void taskRun() {
@@ -316,7 +319,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				robot.updateState();
 				robot.getSonars(sonars);
 				soc.updateSonars(sonars);
-				
+				bac.updateBearing(wc.getLVel(), wc.getAVel());
 				direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
 				System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
 				System.out.println("Target direction: " + direction);
@@ -344,6 +347,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
+			bac = new BearingController();
 		}
 
 		public void taskRun() {
@@ -358,7 +362,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 				robot.updateState();
 				robot.getSonars(sonars);
 				soc.updateSonars(sonars);
-				
+				bac.updateBearing(wc.getLVel(), wc.getAVel());
 				speed = soc.getForwardSonarReading() - .5;
 				target = (speed > .5) ? .5 : ((Math.abs(speed)<=.03)? 0 : speed);
 				
@@ -412,6 +416,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 //				}
 //				System.out.println("Counter: "+counter+", avel: "+wc.getAVel(robot)+", target: "+a);
 				System.out.println("Tracker Direction: " + trc.getActiveDirection());
+				System.out.println("Tracker distance: " + trc.getActiveDistance());
 				wc.updateWheels(robot, bc.isBumped(robot));
 				try {
 					Thread.sleep(100);
