@@ -7,12 +7,12 @@ public class Tracker {
 
 	double dist;
 	ArrayList<Integer> angIdx;
-	int size;
+//	int size;
 	boolean lost;
 	
 	public Tracker(double distance, ArrayList<Integer> angleIndex){
 		updatePos(distance, angleIndex);
-		size = 0;
+//		size = 0;
 		lost = false;
 	}
 	/**

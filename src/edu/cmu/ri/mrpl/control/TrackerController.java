@@ -12,6 +12,7 @@ public class TrackerController {
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .3;
 	private static final double DISTANCE_CLOSE_RANGE = .5;
+	private static final double FAST_ANGULAR_SPEED = .5;
 	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;
@@ -116,16 +117,16 @@ public class TrackerController {
 	 * @param sonarReadings array of sonar readings to determine tracker position.
 	 * @return Updated tracker. Null if tracker not initially found.
 	 */
-	public Tracker updateTracker(double[] sonarReadings){
+	public Tracker updateTracker(double[] sonarReadings, double angularVelocity){
 		if (follow == null){//If tracker isn't set, find tracker
 
-			ArrayList<Integer> hasObject = new ArrayList<Integer>();
+			ArrayList<Integer> hasObject = new ArrayList<Integer>();//Get all non-infinite sonar readings
 			for (int i = 0; i < sonarReadings.length; i++){
 				if (sonarReadings[i] < DISTANCE_MAX){
 					hasObject.add(i);
 				}
 			}
-			double minDist = Double.POSITIVE_INFINITY;
+			double minDist = Double.POSITIVE_INFINITY; //Find smallest sonar reading
 			int minDir = -1;
 			for (int a : hasObject){
 				if (sonarReadings[a] < minDist){
@@ -154,6 +155,13 @@ public class TrackerController {
 				adjacentDirections.add(adjacentDirection(lastDirection,3));
 				adjacentDirections.add(adjacentDirection(lastDirection,-3));
 			}
+			if (angularVelocity > FAST_ANGULAR_SPEED){
+				adjacentDirections.add(adjacentDirection(lastDirection,3));
+				adjacentDirections.add(adjacentDirection(lastDirection,4));
+			} else if (angularVelocity < -FAST_ANGULAR_SPEED){
+				adjacentDirections.add(adjacentDirection(lastDirection,-3));
+				adjacentDirections.add(adjacentDirection(lastDirection,-4));
+			}
 			
 			double sumDistance = 0;
 			ArrayList<Integer> newDirection = new ArrayList<Integer>();
@@ -169,7 +177,7 @@ public class TrackerController {
 			if (newDirection.size()>0){
 				follow.updatePos(sumDistance / newDirection.size(), newDirection);
 			}
-			if (isLost == 5){
+			if (isLost == ((lastDistance < DISTANCE_CLOSE_RANGE) ? 7 : 5)){
 				ArrayList<Integer> dirTemp = new ArrayList<Integer>();
 				dirTemp.add(0);
 				follow.updatePos(.5, dirTemp);
