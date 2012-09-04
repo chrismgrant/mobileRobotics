@@ -10,10 +10,10 @@ import java.util.Stack;
 public class TrackerController {
 
 	private static final double DISTANCE_MAX = 2.2;
-	private static final double DISTANCE_TOLERANCE = .3;
+	private static final double DISTANCE_TOLERANCE = .35;
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
-	private static final int LOST_COUNTER_THRESHOLD = 5;
+	private static final int LOST_COUNTER_THRESHOLD = 3;
 	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;

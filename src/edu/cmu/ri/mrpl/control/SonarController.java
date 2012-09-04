@@ -17,7 +17,7 @@ public class SonarController {
 	private static final double SONAR_TOLERANCE = 0.025;
 	private static final int SONAR_NOISE_FILTER = 8;
 	private static final double DEBOUNCE_TOLERANCE = 0.1;
-	private static final int DEBOUNCE_SUSTAIN = 1;
+	private static final int DEBOUNCE_SUSTAIN = 0;
 	private int current;
 	
 	public SonarController(){
