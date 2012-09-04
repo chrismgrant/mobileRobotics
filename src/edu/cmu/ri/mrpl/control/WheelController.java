@@ -96,7 +96,7 @@ public class WheelController {
 		try{
 			if (!t.isLost()){
 				setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
-				setLVel(determineLVelCap(t.getDistance(false),distance,SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+				setLVel(determineLVelCap(t.getDistance(false) - distance,SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
 					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
 				}	
@@ -118,7 +118,7 @@ public class WheelController {
 		try{
 			if (!t.isLost()){
 				setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
-				setLVel(determineLVelCap(t.getDistance(false),0,SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+				setLVel(determineLVelCap(t.getDistance(false),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
 					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
 				}
@@ -132,7 +132,7 @@ public class WheelController {
 	private double calculateRadiusOfTurning(double x, double y){
 		return (Math.pow(x, 2)+Math.pow(y,2))/(2*y);
 	}
-	public double determineLVelCap(double distance, double boundary, double maxSpeed, double minSpeed){
-		return (distance > boundary) ? maxSpeed : ((Math.abs(distance)<=minSpeed)? 0 : distance);
+	public double determineLVelCap(double distance, double maxSpeed, double minSpeed){
+		return (distance > maxSpeed) ? maxSpeed : ((Math.abs(distance)<=minSpeed)? 0 : distance);
 	}
 }
