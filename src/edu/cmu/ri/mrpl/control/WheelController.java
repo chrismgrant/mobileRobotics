@@ -92,11 +92,11 @@ public class WheelController {
 	 * @param t target tracker
 	 * @param distance distance to maintain while shadowing, in meters
 	 */
-	public void shadowTracker(Tracker t, double distance){
+	public void shadowTracker(Tracker t, double frontSonar, double distance){
 		try{
 			if (!t.isLost()){
 				setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
-				setLVel(determineLVelCap(t.getDistance(false) - distance,SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+				setLVel(determineLVelCap(Math.min(t.getDistance(false) - distance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
 					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
 				}	
@@ -114,11 +114,11 @@ public class WheelController {
 	public void moveToPoint(double x, double y){
 		
 	}
-	public void moveToTracker(Tracker t){
+	public void moveToTracker(Tracker t, double frontSonar){
 		try{
 			if (!t.isLost()){
 				setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
-				setLVel(determineLVelCap(t.getDistance(false),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+				setLVel(determineLVelCap(Math.min(t.getDistance(false), frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
 					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
 				}
