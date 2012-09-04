@@ -327,8 +327,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc.setLVel(0);
 			wc.setAVel(0);
 			try{
-				FileWriter outFile = new FileWriter("TrackData");
-				PrintWriter out = new PrintWriter(outFile);
+				FileWriter outFileRawSonar = new FileWriter("RotRawSonarData");
+				FileWriter outFileFiltSonar = new FileWriter("RotFiltSonarData");
+				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
+				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
@@ -347,6 +349,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 						System.out.println("sample program sleep interrupted");
 					}
 				}
+				outRawSonar.close();
+				outFiltSonar.close();
 			} catch (IOException e){
 				e.printStackTrace();
 			}
@@ -378,8 +382,10 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
 			try{
-				FileWriter outFile = new FileWriter("ForwardData");
-				PrintWriter out = new PrintWriter(outFile);
+				FileWriter outFileRawSonar = new FileWriter("FwdRawSonarData");
+				FileWriter outFileFiltSonar = new FileWriter("FwdFiltSonarData");
+				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
+				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
@@ -387,7 +393,14 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					bac.updateBearing(wc.getLVel(), wc.getAVel());
 					speed = soc.getForwardSonarReading() - .5;
 					target = (speed > .5) ? .5 : ((Math.abs(speed)<=.03)? 0 : speed);
-					
+					for(int i =0 ; i < 16; i ++){
+					 	outRawSonar.print(sonars[i]+",");
+					 	outRawSonar.println(";");
+					}
+					for(int i =0 ; i < 16; i ++){
+					 	outFiltSonar.print(soc.getSonarReadings()[i]+",");
+					 	outFiltSonar.println(";");
+					}
 					wc.setLVel(target);
 					wc.updateWheels(robot, bc.isBumped(robot));
 					sc.setSonars(soc.getSonarReadings());
@@ -398,6 +411,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 						System.out.println("Sonar sleep interrupted");
 					}
 				}
+				outRawSonar.close();
+				outFiltSonar.close();
 			} catch (IOException e){
 				e.printStackTrace();
 			}
@@ -428,15 +443,28 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			double[] sonars = new double[16];
 			double direction = -1;
 			try{
-				FileWriter outFile = new FileWriter("TrackData");
-				PrintWriter out = new PrintWriter(outFile);
+				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
+				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
+				FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
+				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
+				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
+				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
 					soc.updateSonars(sonars);
+					for(int i =0 ; i < 16; i ++){
+					 	outRawSonar.print(sonars[i]+",");
+					 	outRawSonar.println(";");
+					}
+					for(int i =0 ; i < 16; i ++){
+					 	outFiltSonar.print(soc.getSonarReadings()[i]+",");
+					 	outFiltSonar.println(";");
+					}
 					sc.setSonars(soc.getSonarReadings());
 					sc2.setSonars(sonars);
 					trc.updateTracker(soc.getSonarReadings());
+					outFollowTracker.println(trc.getFollowDirection(true)+","+trc.getFollowDistance(true)+";");
 					direction = trc.getFollowDirection(false) * 22.5 * Math.PI/180;
 					wc.pointToDirection(direction);
 					if (direction < Math.PI/2 || direction > 3*Math.PI/2){
@@ -453,11 +481,14 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 						System.out.println("\"Both\" sleep interrupted");
 					}
 				}
+				outRawSonar.close();
+				outFiltSonar.close();
+				outFollowTracker.close();
 			} catch (IOException e){
 				e.printStackTrace();
 			}
 			
-
+			
 			robot.turnSonarsOff();
 			robot.setVel(0.0f, 0.0f);
 			hideSC();
