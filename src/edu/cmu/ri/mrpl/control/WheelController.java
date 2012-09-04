@@ -58,7 +58,7 @@ public class WheelController {
 	public void pointToDirection(double direction){
 		double targetAVel, d = direction % (Math.PI);
 		boolean isNeg = (direction < Math.PI) ? false : true;
-		if (d <= -1){
+		if (d < 0){
 			targetAVel = 0;
 		} else if (d < Math.PI / 2){
 			targetAVel = (isNeg) ? -SPEED * Math.PI/2 : d * SPEED;
@@ -93,12 +93,17 @@ public class WheelController {
 	 */
 	public void shadowTracker(Tracker t, double distance){
 		try{
-			
-			setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
-			setLVel(Math.pow(t.getDistance() - distance, 1) / BRAKING_COEFFICIENT);
-			if (getLVel() < .1){
-				pointToDirection(t.getAngleIndex()*22.5/180*Math.PI);
+			if (!t.isLost()){
+				setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
+				setLVel(Math.pow(t.getDistance(false) - distance, 1) / BRAKING_COEFFICIENT);
+				if (getLVel() < .1){
+					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
+				}	
+			} else {
+				setCurv(0);
+				setLVel(0);
 			}
+			
 		}catch(NullPointerException e){
 			setCurv(0);
 			setLVel(0);
@@ -110,11 +115,14 @@ public class WheelController {
 	}
 	public void moveToTracker(Tracker t){
 		try{
-			setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
-			setLVel(Math.pow(t.getDistance(),1) / BRAKING_COEFFICIENT);
-			if (getLVel() < .1){
-				pointToDirection(t.getAngleIndex()*22.5/180*Math.PI);
+			if (!t.isLost()){
+				setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
+				setLVel(Math.pow(t.getDistance(false),1) / BRAKING_COEFFICIENT);
+				if (getLVel() < .1){
+					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
+				}
 			}
+			
 		} catch (NullPointerException e){
 			setCurv(0);
 			setLVel(0);

@@ -1,5 +1,6 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.Toolkit;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Stack;
 public class TrackerController {
 
 	private static final double DISTANCE_MAX = 2.2;
-	private static final double DISTANCE_TOLERANCE = .25;
+	private static final double DISTANCE_TOLERANCE = .3;
 	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;
@@ -26,13 +27,13 @@ public class TrackerController {
 	public void setActive(Tracker t){
 		active = t;
 	}
-	public int getActiveDirection(){
+	public int getActiveDirection(boolean ignoreLost){
 		if (active == null) {return -1;}
-		else {return active.getAngleIndex();}
+		else {return active.getAngleIndex(ignoreLost);}
 	}
-	public double getActiveDistance(){
+	public double getActiveDistance(boolean ignoreLost){
 		if (active == null) {return -1;}
-		else {return active.getDistance();}
+		else {return active.getDistance(ignoreLost);}
 	}
 	public Tracker getActiveTracker(){
 		return active;
@@ -51,15 +52,15 @@ public class TrackerController {
 		int lastDirection;
 		while (iter.hasNext()){
 			next = iter.next();
-			lastDirection = next.getAngleIndex();
+			lastDirection = next.getAngleIndex(true);
 			int[] adjacentDirections = {
 					adjacentDirection(lastDirection,0),
 					adjacentDirection(lastDirection,1),
 					adjacentDirection(lastDirection,-1),
 					adjacentDirection(lastDirection,2),
-					adjacentDirection(lastDirection,-2)
-//					adjacentDirection(lastDirection,3),
-//					adjacentDirection(lastDirection,-3)
+					adjacentDirection(lastDirection,-2),
+					adjacentDirection(lastDirection,3),
+					adjacentDirection(lastDirection,-3)
 			};
 			double sumDistance = 0;
 			ArrayList<Integer> newDirection = new ArrayList<Integer>();
@@ -75,9 +76,9 @@ public class TrackerController {
 			}
 			
 			if (active == null){
-				if (((closest == null) ? 5 : closest.getDistance()) > next.getDistance()) {closest = next;}
+				if (((closest == null) ? 5 : closest.getDistance(true)) > next.getDistance(true)) {closest = next;}
 			}
-			if (next.getDistance() > DISTANCE_MAX){
+			if (next.getDistance(true) > DISTANCE_MAX){
 				toRemove.push(next);
 			}
 		}
@@ -98,11 +99,11 @@ public class TrackerController {
 	private int adjacentDirection(int lastDirection, int delta){
 		if (delta >= 0){
 			int d = (lastDirection >= 16-delta) ? lastDirection - 16 + delta: lastDirection + delta;
-//			System.out.println(d);
+			System.out.print(d+",");
 			return d;
 		} else {
 			int d = (lastDirection < -delta) ? 16 + delta + lastDirection : lastDirection + delta;
-//			System.out.println(d);
+			System.out.print(d+",");
 			return d;
 		}
 	}
@@ -138,8 +139,8 @@ public class TrackerController {
 			}
 			return follow;
 		} else {//If tracker is set, update position
-			boolean[] accounted = new boolean[16];
-			int lastDirection = follow.getAngleIndex();
+			int isLost = 0;
+			int lastDirection = follow.getAngleIndex(true);
 			int[] adjacentDirections = {
 					adjacentDirection(lastDirection,0),
 					adjacentDirection(lastDirection,1),
@@ -152,25 +153,33 @@ public class TrackerController {
 			double sumDistance = 0;
 			ArrayList<Integer> newDirection = new ArrayList<Integer>();
 			for (int dir : adjacentDirections){
-				if (follow.getDistanceError(sonarReadings[dir]) < DISTANCE_TOLERANCE){
+				System.out.print(dir);
+				if (follow.getDistanceError(sonarReadings[dir]) < 4*DISTANCE_TOLERANCE/3 && follow.getDistanceError(sonarReadings[dir]) > -2*DISTANCE_TOLERANCE/3){
 					sumDistance += sonarReadings[dir];
 					newDirection.add(dir);
-					accounted[dir] = true;
+				} else if (follow.getDistanceError(sonarReadings[dir]) > 4*DISTANCE_TOLERANCE/3){
+					isLost++;
 				}
 			}
 			if (newDirection.size()>0){
 				follow.updatePos(sumDistance / newDirection.size(), newDirection);
 			}
+			if (isLost == 5){
+				ArrayList<Integer> dirTemp = new ArrayList<Integer>();
+				dirTemp.add(0);
+				follow.updatePos(.5, dirTemp);
+				follow.lost();
+			}
 			return follow;
 		}
 	}
-	public double getFollowDistance(){
+	public double getFollowDistance(boolean ignoreLost){
 		if (follow == null) {return -1;}
-		else {return follow.getDistance();}
+		else {return follow.getDistance(ignoreLost);}
 	}
-	public int getFollowDirection(){
+	public int getFollowDirection(boolean ignoreLost){
 		if (follow == null) {return -1;}
-		else {return follow.getAngleIndex();}
+		else {return follow.getAngleIndex(ignoreLost);}
 	}
 	public Tracker getFollowTracker(){
 		return follow;

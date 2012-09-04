@@ -1,5 +1,6 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.Toolkit;
 import java.util.ArrayList;
 
 public class Tracker {
@@ -7,10 +8,12 @@ public class Tracker {
 	double dist;
 	ArrayList<Integer> angIdx;
 	int size;
+	boolean lost;
 	
 	public Tracker(double distance, ArrayList<Integer> angleIndex){
 		updatePos(distance, angleIndex);
 		size = 0;
+		lost = false;
 	}
 	/**
 	 * Update the position of the tracker
@@ -20,20 +23,31 @@ public class Tracker {
 	public void updatePos(double distance, ArrayList<Integer> angleIndex){
 		dist = distance;
 		angIdx = angleIndex;
+		if (lost) {lost = false;}
+	}
+	public void lost(){
+		if (!lost) {Toolkit.getDefaultToolkit().beep();}     
+		lost = true;
+	}
+	public void found(){
+		lost = false;
+	}
+	public boolean isLost(){
+		return lost;
 	}
 	/**
 	 * Gets distance from robot
 	 * @return distance, in meters
 	 */
-	public double getDistance(){
-		return dist;
+	public double getDistance(boolean ignoreLost){
+		return (lost && !ignoreLost) ? -1 : dist;
 	}
 	/**
 	 * Gets index of sonar on sensor
 	 * @return sonar index
 	 */
-	public int getAngleIndex(){
-		return angIdx.get(0);
+	public int getAngleIndex(boolean ignoreLost){
+		return (lost && !ignoreLost) ? -1 : angIdx.get(0);
 	}
 	/**
 	 * Gets x position relative to 0,0 of robot
@@ -55,7 +69,7 @@ public class Tracker {
 	 * @return error as (d'-d)/d, where d' is new distance
 	 */
 	public double getDistanceError(double distance){
-		return (distance - dist)/dist; 
+		return (distance - dist); 
 	}
 	/**
 	 * Returns error between last known angleIndex and specified angleIndex
