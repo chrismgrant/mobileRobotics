@@ -12,15 +12,18 @@ public class TrackerController {
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .3;
 	private static final double DISTANCE_CLOSE_RANGE = .5;
-	private static final double FAST_ANGULAR_SPEED = .5;
+	private static final double FAST_ANGULAR_SPEED = .3;
+	private static final int LOST_COUNTER_THRESHOLD = 5;
 	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;
+	private int followLostCounter;
 	
 	public TrackerController(){
 		trackers = new HashSet<Tracker>();
 		active = null;
 		follow = null;
+		followLostCounter = 0;
 	}
 	
 	public void addTracker(double distance, ArrayList<Integer> angleIndex){
@@ -178,10 +181,16 @@ public class TrackerController {
 				follow.updatePos(sumDistance / newDirection.size(), newDirection);
 			}
 			if (isLost == ((lastDistance < DISTANCE_CLOSE_RANGE) ? 7 : 5)){
-				ArrayList<Integer> dirTemp = new ArrayList<Integer>();
-				dirTemp.add(0);
-				follow.updatePos(.5, dirTemp);
-				follow.lost();
+				if (followLostCounter < LOST_COUNTER_THRESHOLD){
+					followLostCounter++;
+				} else {
+					ArrayList<Integer> dirTemp = new ArrayList<Integer>();
+					dirTemp.add(0);
+					follow.updatePos(.5, dirTemp);
+					follow.lost();
+				}
+			} else {
+				followLostCounter = 0;
 			}
 			return follow;
 		}
