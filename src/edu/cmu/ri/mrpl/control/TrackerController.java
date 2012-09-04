@@ -11,6 +11,7 @@ public class TrackerController {
 
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .3;
+	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;
@@ -141,15 +142,19 @@ public class TrackerController {
 		} else {//If tracker is set, update position
 			int isLost = 0;
 			int lastDirection = follow.getAngleIndex(true);
-			int[] adjacentDirections = {
-					adjacentDirection(lastDirection,0),
-					adjacentDirection(lastDirection,1),
-					adjacentDirection(lastDirection,-1),
-					adjacentDirection(lastDirection,2),
-					adjacentDirection(lastDirection,-2)
-//					adjacentDirection(lastDirection,3),
-//					adjacentDirection(lastDirection,-3)
-			};
+			double lastDistance = follow.getDistance(true);
+			ArrayList<Integer> adjacentDirections = new ArrayList<Integer>();
+			adjacentDirections.add(adjacentDirection(lastDirection,0));
+			adjacentDirections.add(adjacentDirection(lastDirection,1));
+			adjacentDirections.add(adjacentDirection(lastDirection,-1));
+			adjacentDirections.add(adjacentDirection(lastDirection,2));
+			adjacentDirections.add(adjacentDirection(lastDirection,-2));
+
+			if (lastDistance < DISTANCE_CLOSE_RANGE){
+				adjacentDirections.add(adjacentDirection(lastDirection,3));
+				adjacentDirections.add(adjacentDirection(lastDirection,-3));
+			}
+			
 			double sumDistance = 0;
 			ArrayList<Integer> newDirection = new ArrayList<Integer>();
 			for (int dir : adjacentDirections){

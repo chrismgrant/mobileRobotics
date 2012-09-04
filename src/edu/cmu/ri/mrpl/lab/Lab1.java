@@ -476,7 +476,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					System.out.println("Tracker distance: " + trc.getFollowDistance(false));
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
-						Thread.sleep(50);
+						Thread.sleep(25);
 					} catch(InterruptedException iex) {
 						System.out.println("\"Both\" sleep interrupted");
 					}
