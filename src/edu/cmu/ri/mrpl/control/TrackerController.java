@@ -49,7 +49,7 @@ public class TrackerController {
 	 * @param sonarReadings readings of all 16 sonars, in meters
 	 */
 	public void updateTrackers(double[] sonarReadings){
-//		System.out.println(trackers.size());
+//		//System.out.println(trackers.size());
 		Iterator<Tracker> iter = trackers.iterator();
 		boolean[] accounted = new boolean[16];
 		Tracker next, closest = null;
@@ -104,11 +104,11 @@ public class TrackerController {
 	private int adjacentDirection(int lastDirection, int delta){
 		if (delta >= 0){
 			int d = (lastDirection >= 16-delta) ? lastDirection - 16 + delta: lastDirection + delta;
-			System.out.print(d+",");
+			//System.out.print(d+",");
 			return d;
 		} else {
 			int d = (lastDirection < -delta) ? 16 + delta + lastDirection : lastDirection + delta;
-			System.out.print(d+",");
+			//System.out.print(d+",");
 			return d;
 		}
 	}
@@ -169,7 +169,7 @@ public class TrackerController {
 			double sumDistance = 0;
 			ArrayList<Integer> newDirection = new ArrayList<Integer>();
 			for (int dir : adjacentDirections){
-				System.out.print(dir);
+				//System.out.print(dir);
 				if (follow.getDistanceError(sonarReadings[dir]) < 4*DISTANCE_TOLERANCE/3 && follow.getDistanceError(sonarReadings[dir]) > -2*DISTANCE_TOLERANCE/3){
 					sumDistance += sonarReadings[dir];
 					newDirection.add(dir);
@@ -186,7 +186,9 @@ public class TrackerController {
 				} else {
 					ArrayList<Integer> dirTemp = new ArrayList<Integer>();
 					dirTemp.add(0);
-					follow.updatePos(.5, dirTemp);
+					if (follow.getDistance(true) > DISTANCE_MAX){
+						follow.updatePos(.5, dirTemp);
+					}
 					follow.lost();
 				}
 			} else {

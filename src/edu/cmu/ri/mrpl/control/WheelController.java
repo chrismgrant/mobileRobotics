@@ -50,7 +50,7 @@ public class WheelController {
 		} else {
 			r.setVel(0,0);
 		}
-		System.out.println("L: "+lVel+", A: "+aVel+", c: "+curv);
+		//System.out.println("L: "+lVel+", A: "+aVel+", c: "+curv);
 	}
 	/**
 	 * Points the robot in the direction specified. Utilizes current wheel speed for smooth turning
@@ -68,7 +68,7 @@ public class WheelController {
 		} else {
 			targetAVel = 0;
 		}
-		System.out.println("Target speed: " + targetAVel);
+		//System.out.println("Target speed: " + targetAVel);
 		setAVel(targetAVel);
 	}
 	public double getLVel(){
@@ -84,7 +84,7 @@ public class WheelController {
 	 */
 	public double getRobAVel(Robot r){
 		double speed = (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
-		System.out.println("Current speed: " + speed + ", right wheel speed: " + r.getVelRight() + ", left wheel speed: " + r.getVelLeft());
+		//System.out.println("Current speed: " + speed + ", right wheel speed: " + r.getVelRight() + ", left wheel speed: " + r.getVelLeft());
 		return speed;
 	}
 	/**

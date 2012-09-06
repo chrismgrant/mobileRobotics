@@ -1,0 +1,20 @@
+GROUP CODING GUIDELINES
+
+1. Document
+	Try to document all methods. Eclipse offers the "/**<return>" shortcut to setup Javadoc-friendly comments.
+	If too busy to document all the methods, at least document the ones that may be confusing or ambiguous. 
+
+2. Modules
+	The project is set up in modules: Every distinct part of the robot has its own controller, which talks to the lab code.
+	If a controller needs subclasses, those subclasses are only visible to the parent controller. Other controllers should not be aware of the subclasses.
+	Controllers should not be able to directly access another controller's data. This should be done by routing through the lab code.
+	This setup will ease debugging, since code becomes more localized and logically organized.
+	
+3. Constants
+	If you need a constant in a code, wrap it in a static final and put it at the top of the class.
+	This allows for faster number tweaking, and we won't need to search through the codebase every time we change a number.
+	Also, if you find yourself copy-pasting snippets of code around different parts of the class, wrap that code in a function.
+	Makes debugging or behavior tweaks easier if there's only one place the code lives. 
+
+4. Coding mindset
+	Try to write code so that if you gave the code to someone else, they should be able to debug it easily.
