@@ -53,14 +53,14 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 	static final int DEFAULT_ROOM_SIZE = 4;
 
 	public Lab2() {
-		super("Kick Ass Sample Robot App - Points Console");
+		super("Lab 2");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		programButton = new JButton("Run Sample Program!");
-		sonarButton = new JButton("Run Sonar Loop!");
-		bothButton = new JButton("Run both!");
+		programButton = new JButton("Run Reactive Wander!");
+		sonarButton = new JButton("Run Visualizer!");
+		bothButton = new JButton("Run Stateful Wander!");
 		stopButton = new JButton(">> stop <<");
 		quitButton = new JButton(">> quit <<");
 
@@ -396,44 +396,55 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
 
 			double[] sonars = new double[16];
-			
-			while(!shouldStop()) {
-				robot.updateState();
-				robot.getSonars(sonars);
-				sc.setSonars(sonars);
-
-				double frontSonar = sonars[0];
-				double backSonar = sonars[8];
-
-				System.out.println("Front sonar: " + frontSonar + 
-						"  Back sonar: " + backSonar);
-
-				if (robot.getBumpers()!=0) {
-					System.err.println("detecting bumping, stopping!");
-					break;
+			try{
+				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
+				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
+				FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
+				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
+				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
+				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
+				while(!shouldStop()) {
+					robot.updateState();
+					robot.getSonars(sonars);
+					sc.setSonars(sonars);
+	
+					double frontSonar = sonars[0];
+					double backSonar = sonars[8];
+	
+					System.out.println("Front sonar: " + frontSonar + 
+							"  Back sonar: " + backSonar);
+	
+					if (robot.getBumpers()!=0) {
+						System.err.println("detecting bumping, stopping!");
+						break;
+					}
+					
+					// PMF: Putting points in Robot Frame for PointsConsole
+					pc.setReference(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
+					for( int i = 0; i < sonars.length; ++i){
+						Angle a = new Angle(22.5*i*Math.PI/180.0);
+						RealPose2D sonar = new RealPose2D(sonars[i],0.0,0.0);
+						RealPose2D sonarToRobot = new RealPose2D(0.19*Math.cos(a.angleValue()),0.19*Math.sin(a.angleValue()),a.angleValue());
+						pc.addPoint(RealPose2D.multiply(sonarToRobot, sonar));
+					}
+					pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
+					// PMF: End using PointsConsole 
+					
+					robot.setVel(0.75,0.5);
+								
+	
+					try {
+						Thread.sleep(500);
+					} catch(InterruptedException iex) {
+						System.out.println("\"Both\" sleep interrupted");
+					}
 				}
-				
-				// PMF: Putting points in Robot Frame for PointsConsole
-				pc.setReference(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
-				for( int i = 0; i < sonars.length; ++i){
-					Angle a = new Angle(22.5*i*Math.PI/180.0);
-					RealPose2D sonar = new RealPose2D(sonars[i],0.0,0.0);
-					RealPose2D sonarToRobot = new RealPose2D(0.19*Math.cos(a.angleValue()),0.19*Math.sin(a.angleValue()),a.angleValue());
-					pc.addPoint(RealPose2D.multiply(sonarToRobot, sonar));
-				}
-				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
-				// PMF: End using PointsConsole 
-				
-				robot.setVel(0.75,0.5);
-							
-
-				try {
-					Thread.sleep(500);
-				} catch(InterruptedException iex) {
-					System.out.println("\"Both\" sleep interrupted");
-				}
+				outRawSonar.close();
+				outFiltSonar.close();
+				outFollowTracker.close();
+			} catch (IOException e){
+				e.printStackTrace();
 			}
-
 			robot.turnSonarsOff();
 			robot.setVel(0.0f, 0.0f);
 			hideSC();

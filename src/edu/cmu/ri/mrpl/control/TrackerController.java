@@ -1,11 +1,12 @@
 package edu.cmu.ri.mrpl.control;
 
-import java.awt.Toolkit;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
+
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
 public class TrackerController {
 
@@ -197,15 +198,37 @@ public class TrackerController {
 			return follow;
 		}
 	}
+	/**
+	 * Gets distance between robot and follow tracker
+	 * @param ignoreLost ignore whether tracker is lost
+	 * @return distance, in meter
+	 */
 	public double getFollowDistance(boolean ignoreLost){
 		if (follow == null) {return -1;}
 		else {return follow.getDistance(ignoreLost);}
 	}
+	/**
+	 * Gets position of follow tracker
+	 * @return RealPoint2D of tracker's position
+	 */
+	public RealPoint2D getFollowPoint(){
+		if (follow == null) {return null;}
+		else return new RealPoint2D(follow.getX(),follow.getY());
+	}
+	/**
+	 * Gets direction of follow tracker
+	 * @param ignoreLost ignore whether tracker is lost
+	 * @return index of sonar tracker is closest to
+	 */
 	public int getFollowDirection(boolean ignoreLost){
 		if (follow == null) {return -1;}
 		else {return follow.getAngleIndex(ignoreLost);}
 	}
-	public Tracker getFollowTracker(){
-		return follow;
+	/**
+	 * Gets if follow tracker is lost
+	 * @return whether tracker is lost
+	 */
+	public boolean isFollowLost(){
+		return (follow == null)?true:follow.isLost();
 	}
 }

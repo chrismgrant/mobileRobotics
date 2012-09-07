@@ -1,6 +1,7 @@
 package edu.cmu.ri.mrpl.control;
 
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
 public class WheelController {
 
@@ -71,34 +72,50 @@ public class WheelController {
 		//System.out.println("Target speed: " + targetAVel);
 		setAVel(targetAVel);
 	}
+	/**
+	 * Gets target linear velocity of robot
+	 * @return target linear velocity, m/s
+	 */
 	public double getLVel(){
 		return lVel;
 	}
+	/**
+	 * Gets target angular velocity of robot
+	 * @return target angular velocity, radians/s
+	 */
 	public double getAVel(){
 		return aVel;
 	}
 	/**
-	 * Returns the angular velocity of the robot
-	 * @param r robot object
-	 * @return angular velocity in radians per second
+	 * Gets encoded linear velocity of robot
+	 * @param r robot
+	 * @return encoded linear velocity, m/s
 	 */
-	public double getRobAVel(Robot r){
-		double speed = (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
-		//System.out.println("Current speed: " + speed + ", right wheel speed: " + r.getVelRight() + ", left wheel speed: " + r.getVelLeft());
-		return speed;
+	public static double getRLVel(Robot r){
+		return (r.getVelLeft()+r.getVelRight())/2;
 	}
 	/**
-	 * Shadows a tracker, maintaining a constant distance from the tracker
-	 * @param t target tracker
-	 * @param distance distance to maintain while shadowing, in meters
+	 * Gets encoded angular velocity of robot
+	 * @param r robot 
+	 * @return angular velocity, radians per second
 	 */
-	public void shadowTracker(Tracker t, double frontSonar, double distance){
+	public static double getRobAVel(Robot r){
+		return (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
+	}
+	/**
+	 * Shadows a point, maintaining a constant distance from the tracker
+	 * @param p target point, robot-centric
+	 * @param isLost whether reporting point is lost
+	 * @param frontSonar distance front sonar is recording
+	 * @param distance distance to maintain while shadowing, in meters. Set to zero to move to point
+	 */
+	public void shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double distance){
 		try{
-			if (!t.isLost()){
-				setCurv(1/calculateRadiusOfTurning(t.getX(),t.getY()));
-				setLVel(determineLVelCap(Math.min(t.getDistance(false) - distance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+			if (!isLost){
+				setCurv(1/calculateRadiusOfTurning(p));
+				setLVel(getCappedLVel(Math.min(p.distance(0,0) - distance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
-					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
+					pointToDirection(Math.atan2(p.getY(), p.getX()));
 				}	
 			} else {
 				setCurv(0);
@@ -111,28 +128,23 @@ public class WheelController {
 		}
 		
 	}
-	public void moveToPoint(double x, double y){
-		
+	
+	/**
+	 * Determines radius of turning for a given point. Useful for determining curvature of path
+	 * @param p Target point to turn to
+	 * @return radius in m of how far to turn
+	 */
+	public static double calculateRadiusOfTurning(RealPoint2D p){
+		return (Math.pow(p.getX(), 2)+Math.pow(p.getY(),2))/(2*p.getY());
 	}
-	public void moveToTracker(Tracker t, double frontSonar){
-		try{
-			if (!t.isLost()){
-				setCurv(1/calculateRadiusOfTurning(t.getX(), t.getY()));
-				setLVel(determineLVelCap(Math.min(t.getDistance(false), frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
-				if (getLVel() < .1){
-					pointToDirection(t.getAngleIndex(false)*22.5/180*Math.PI);
-				}
-			}
-			
-		} catch (NullPointerException e){
-			setCurv(0);
-			setLVel(0);
-		}
-	}
-	private double calculateRadiusOfTurning(double x, double y){
-		return (Math.pow(x, 2)+Math.pow(y,2))/(2*y);
-	}
-	public double determineLVelCap(double distance, double maxSpeed, double minSpeed){
+	/**
+	 * Returns the linear velocity cap when approaching an object, to clamp max speed and halt oscillation
+	 * @param distance distance from object to approach
+	 * @param maxSpeed maximum speed for robot
+	 * @param minSpeed minimum speed, below which the robot will simply stop
+	 * @return speed to travel for appropriate distance
+	 */
+	public static double getCappedLVel(double distance, double maxSpeed, double minSpeed){
 		return (distance > maxSpeed) ? maxSpeed : ((Math.abs(distance)<=minSpeed)? 0 : distance);
 	}
 }

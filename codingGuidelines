@@ -18,3 +18,6 @@ GROUP CODING GUIDELINES
 
 4. Coding mindset
 	Try to write code so that if you gave the code to someone else, they should be able to debug it easily.
+	
+5. Git
+	Pull before you push. No one likes commit paradoxes.

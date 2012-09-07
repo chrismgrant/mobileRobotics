@@ -468,7 +468,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					direction = trc.getFollowDirection(false) * 22.5 * Math.PI/180;
 					wc.pointToDirection(direction);
 					if (direction < Math.PI/2 || direction > 3*Math.PI/2){
-						wc.shadowTracker(trc.getFollowTracker(), soc.getForwardSonarReading(), .5);
+						wc.shadowPoint(trc.getFollowPoint(),trc.isFollowLost(), soc.getForwardSonarReading(), .5);
 					}
 //					wc.setCurv(2);
 //					wc.setLVel(.5);
