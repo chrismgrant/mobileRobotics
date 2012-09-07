@@ -98,7 +98,10 @@ public class SonarController {
 	private boolean isOutOfRange(double sonarVal){
 		return (sonarVal > SONAR_RANGE) ? true : false;
 	}
-	public int getPosShortestSonar(){
+	private boolean isWithinRange (double sonarVal){
+		return (sonarVal < SONAR_RANGE) ? true:false;
+	}
+	public int getPositionShortestSonar(){
 		int minInd = 0;
 		double minVal = Double.POSITIVE_INFINITY;
 		for (int i = 0; i < avgSonars.length; i++){

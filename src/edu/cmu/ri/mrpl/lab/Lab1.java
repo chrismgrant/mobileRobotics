@@ -338,8 +338,8 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					sc.setSonars(soc.getSonarReadings());
 					sc2.setSonars(sonars);
 					bac.updateBearing(wc.getLVel(), wc.getAVel());
-					direction = soc.getPosShortestSonar() * 22.5 * Math.PI/180;
-					System.out.println("Shortest sensor: " + soc.getPosShortestSonar());
+					direction = soc.getPositionShortestSonar() * 22.5 * Math.PI/180;
+					System.out.println("Shortest sensor: " + soc.getPositionShortestSonar());
 					System.out.println("Target direction: " + direction);
 					wc.pointToDirection(direction);
 					wc.updateWheels(robot, bc.isBumped(robot));
