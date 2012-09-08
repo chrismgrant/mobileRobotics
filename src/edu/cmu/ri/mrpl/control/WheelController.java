@@ -103,6 +103,22 @@ public class WheelController {
 		return (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
 	}
 	/**
+	 * Gets encoded velocity of robot left wheel
+	 * @param r robot
+	 * @return linear velocity, m/s
+	 */
+	public static double getRobLeftWheelVel(Robot r){
+		return (r.getVelLeft());
+	}
+	/**
+	 * Gets encoded velocity of robot right wheel
+	 * @param r robot
+	 * @return linear velocity, m/s
+	 */
+	public static double getRobRightWheelVel(Robot r){
+		return (r.getVelRight());
+	}
+	/**
 	 * Shadows a point, maintaining a constant distance from the tracker
 	 * @param p target point, robot-centric
 	 * @param isLost whether reporting point is lost

@@ -463,17 +463,17 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					}
 					sc.setSonars(soc.getSonarReadings());
 					sc2.setSonars(sonars);
-					trc.updateTracker(soc.getSonarReadings(), wc.getAVel());
-					outFollowTracker.println(trc.getFollowDirection(true)+","+trc.getFollowDistance(true)+";");
-					direction = trc.getFollowDirection(false) * 22.5 * Math.PI/180;
-					wc.pointToDirection(direction);
-					if (direction < Math.PI/2 || direction > 3*Math.PI/2){
-						wc.shadowPoint(trc.getFollowPoint(),trc.isFollowLost(), soc.getForwardSonarReading(), .5);
-					}
-//					wc.setCurv(2);
-//					wc.setLVel(.5);
-					System.out.println("Tracker Direction: " + trc.getFollowDirection(false));
-					System.out.println("Tracker distance: " + trc.getFollowDistance(false));
+//					trc.updateTracker(soc.getSonarReadings(), wc.getAVel());
+//					outFollowTracker.println(trc.getFollowDirection(true)+","+trc.getFollowDistance(true)+";");
+//					direction = trc.getFollowDirection(false) * 22.5 * Math.PI/180;
+//					wc.pointToDirection(direction);
+//					if (direction < Math.PI/2 || direction > 3*Math.PI/2){
+//						wc.shadowPoint(trc.getFollowPoint(),trc.isFollowLost(), soc.getForwardSonarReading(), .5);
+//					}
+////					wc.setCurv(2);
+////					wc.setLVel(.5);
+//					System.out.println("Tracker Direction: " + trc.getFollowDirection(false));
+//					System.out.println("Tracker distance: " + trc.getFollowDistance(false));
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
 						Thread.sleep(25);

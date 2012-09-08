@@ -1,28 +1,31 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.awt.Toolkit;
-import java.util.ArrayList;
+
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
 public class Tracker {
 
-	double dist;
-	ArrayList<Integer> angIdx;
-//	int size;
-	boolean lost;
-	
-	public Tracker(double distance, ArrayList<Integer> angleIndex){
-		updatePos(distance, angleIndex);
-//		size = 0;
+	private boolean lost;
+	private RealPoint2D worldCoord;
+	private RealPoint2D robotCoord;
+	/**
+	 * Creates a tracker
+	 * @param trackerPos Position of tracker relative to robot
+	 * @param robotPos Position of robot relative to world
+	 */
+	public Tracker(RealPoint2D trackerPos, RealPoint2D robotPos){
+		updatePos(trackerPos, robotPos);
 		lost = false;
 	}
 	/**
-	 * Update the position of the tracker
-	 * @param distance distance from robot, in meters
-	 * @param angleIndex index of sonar on sensor
+	 * Updates position of the tracker
+	 * @param trackerPos
+	 * @param robotPos
 	 */
-	public void updatePos(double distance, ArrayList<Integer> angleIndex){
-		dist = distance;
-		angIdx = angleIndex;
+	public void updatePos(RealPoint2D trackerPos, RealPoint2D robotPos){
+		worldCoord = (RealPoint2D) trackerPos.clone();
+		worldCoord.add(robotPos);
 		if (lost) {lost = false;}
 	}
 	public void lost(){
@@ -37,49 +40,78 @@ public class Tracker {
 	}
 	/**
 	 * Gets distance from robot
+	 * @param ignoreLost whether to ignore if tracker is lost
 	 * @return distance, in meters
 	 */
 	public double getDistance(boolean ignoreLost){
-		return (lost && !ignoreLost) ? -1 : dist;
+		return (lost && !ignoreLost) ? -1 : robotCoord.distance(0, 0);
 	}
 	/**
 	 * Gets index of sonar on sensor
+	 * @param ignoreLost whether to ignore if tracker is lost
 	 * @return sonar index
 	 */
-	public int getAngleIndex(boolean ignoreLost){
-		return (lost && !ignoreLost) ? -1 : angIdx.get(0);
+	public double getDirection(boolean ignoreLost){
+		return (lost && !ignoreLost) ? -1 : Math.atan2(robotCoord.getY(), robotCoord.getX());
 	}
 	/**
 	 * Gets x position relative to 0,0 of robot
 	 * @return relative x position, in meters
 	 */
 	public double getX(){
-		return dist * Math.cos(angIdx.get(0)*22.5/180*Math.PI);
+		return robotCoord.getX();
 	}
 	/**
 	 * Gets y position relative to 0,0 of robot
 	 * @return relative y position, in meters
 	 */
 	public double getY(){
-		return dist * Math.sin(angIdx.get(0)*22.5/180*Math.PI); 
+		return robotCoord.getY(); 
+	}
+	/**
+	 * Gets x position relative to 0,0 of world
+	 * @return absolute x position, in meters
+	 */
+	public double getWX(){
+		return worldCoord.getX();
+	}
+	/**
+	 * Gets y position relative to 0,0 of world
+	 * @return absolute y position, in meters
+	 */
+	public double getWY(){
+		return worldCoord.getY();
+	}
+	/**
+	 * Gets RealPoint2D of tracker relative to robot
+	 * @return relative position
+	 */
+	public RealPoint2D getRPos(){
+		return robotCoord;
+	}
+	/**
+	 * Gets RealPoint2D of tracker relative to world
+	 * @return absolute position
+	 */
+	public RealPoint2D getWPos(){
+		return worldCoord;
 	}
 	/**
 	 * Returns the error between saved distance and new distance
-	 * @param distance double indicating distance of new object
-	 * @return error as (d'-d)/d, where d' is new distance
+	 * @param newPoint point of new object relative to robot
+	 * @return error as (d'-d), where d' is new distance
 	 */
-	public double getDistanceError(double distance){
-		return (distance - dist); 
+	public double getDeltaDistance(RealPoint2D newPoint){
+		return robotCoord.distance(newPoint); 
 	}
 	/**
 	 * Returns error between last known angleIndex and specified angleIndex
-	 * @param angleIndex Index of sonar sensor
-	 * @return Index difference between sonars.
+	 * @param newPoint point of new object relative to robot
+	 * @return Angular difference th'-th, where th' is new angle.
 	 */
-	public int getAngleError(int angleIndex){
-		int delta = angleIndex - angIdx.get(0);
-		if (delta > 8) {return delta - 16;}
-		else if (delta < -8) {return delta + 16;}
-		else {return delta;}
+	public double getDeltaAngle(RealPoint2D newPoint){
+		double oldTh = Math.atan2(robotCoord.getY(), robotCoord.getX());
+		double newTh = Math.atan2(robotCoord.getY(), robotCoord.getX());
+		return newTh - oldTh;
 	}
 }
