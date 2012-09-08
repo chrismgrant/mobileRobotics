@@ -4,4 +4,14 @@
 Test
 *data
 out.txt
-.class
+*.class
+
+ForwardData
+
+TrackData
+
+TrackFiltSonarData
+
+TrackFollowData
+
+TrackRawSonarData
