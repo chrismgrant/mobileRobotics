@@ -2,3 +2,6 @@
 .classpath
 .classpath
 Test
+*data
+out.txt
+.class
