@@ -10,14 +10,17 @@ public class PathFinder extends Path {
 	double theta;
 	double objectPositionX;
 	double objectPositionY;
+	boolean objectInFront = false;
 	public PathFinder(double xr, double yr, double theta, double xo, double yo){
 		currentPositionX = xr;
 		currentPositionY = yr;
 		objectPositionX = xo;
 		objectPositionY = yo;
 		if ((objectPositionX > minDistance) || (objectPositionY > minDistance)){
-			
-			
+						
+		}
+		else{
+			objectInFront = true;
 		}
 	}
 	public double getRobotX(){
