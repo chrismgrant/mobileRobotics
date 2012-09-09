@@ -2,6 +2,8 @@ package edu.cmu.ri.mrpl.control;
 
 import java.util.Date;
 
+import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+
 public class BearingController {
 
 	private double x, y, direction;
@@ -35,5 +37,8 @@ public class BearingController {
 	}
 	public double getDirection(){
 		return direction;
+	}
+	public RealPose2D getPose(){
+		return new RealPose2D(x,y,direction);
 	}
 }

@@ -9,9 +9,11 @@ import fj.F2;
 
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.kinematics2D.Units;
 
 public class TrackerController {
 
+	private static final double SONAR_ROBOT_RADIUS = .381;
 	private static final int TRACKER_DECAY = 10;
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .35;
@@ -40,13 +42,18 @@ public class TrackerController {
 		follow = null;
 		followLostCounter = 0;
 	}
+	/**
+	 * Adds trackers from 16 sonar readings
+	 * @param sonarReadings standard 16-array of sonar readings
+	 * @param robotPose pose of Robot
+	 */
 	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose){
 		RealPoint2D position;
 		double x,y,th;
 		for (int i = 0; i < sonarReadings.length; i++){
-			th = i * 22.5*Math.PI/180;
-			x = Math.cos(th)*sonarReadings[i];
-			y = Math.sin(th)*sonarReadings[i];
+			th = i * 22.5*Units.degToRad;
+			x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+			y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 			position = new RealPoint2D(x,y);
 			addTracker(position, robotPose);
 		}

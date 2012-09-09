@@ -91,7 +91,7 @@ public class WheelController {
 	 * @param r robot
 	 * @return encoded linear velocity, m/s
 	 */
-	public static double getRLVel(Robot r){
+	public static double getRobLVel(Robot r){
 		return (r.getVelLeft()+r.getVelRight())/2;
 	}
 	/**

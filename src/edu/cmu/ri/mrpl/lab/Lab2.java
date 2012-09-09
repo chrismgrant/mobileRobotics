@@ -15,6 +15,12 @@ import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
+import edu.cmu.ri.mrpl.control.BearingController;
+import edu.cmu.ri.mrpl.control.BumperController;
+import edu.cmu.ri.mrpl.control.SonarController;
+import edu.cmu.ri.mrpl.control.TrackerController;
+import edu.cmu.ri.mrpl.control.VisualizeController;
+import edu.cmu.ri.mrpl.control.WheelController;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 
 /**
@@ -25,14 +31,17 @@ import edu.cmu.ri.mrpl.gui.PointsConsole;
 public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 	private Robot robot;
-	private SonarConsole sc;
+	private SonarConsole sc1;
+	private SonarConsole sc2;
+
 	private PointsConsole pc; // Added for displaying points. PMF
 	private JFrame scFrame;
+	private JFrame sc2Frame;
 
 	private JButton connectButton;
 	private JButton disconnectButton;
 
-	private JButton programButton;
+	private JButton reactButton;
 	private JButton sonarButton;
 	private JButton bothButton;
 
@@ -44,7 +53,14 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 	private JTextField textField1;
 	private JTextField textField2;
 
-	private ProgramTask programTask;
+	private WheelController wc;
+	private SonarController soc;
+	private BumperController bc;
+	private TrackerController trc;
+	private BearingController bac;
+	private VisualizeController vc;
+	
+	private ReactTask reactTask;
 	private SonarTask sonarTask;
 	private BothTask bothTask;
 
@@ -58,7 +74,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		programButton = new JButton("Run Reactive Wander!");
+		reactButton = new JButton("Run Reactive Wander!");
 		sonarButton = new JButton("Run Visualizer!");
 		bothButton = new JButton("Run Stateful Wander!");
 		stopButton = new JButton(">> stop <<");
@@ -72,7 +88,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		connectButton.addActionListener(this);
 		disconnectButton.addActionListener(this);
 
-		programButton.addActionListener(this);
+		reactButton.addActionListener(this);
 		sonarButton.addActionListener(this);
 		bothButton.addActionListener(this);
 		stopButton.addActionListener(this);
@@ -100,7 +116,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		box = Box.createHorizontalBox();
 		main.add(box);
 		box.add(Box.createHorizontalStrut(30));
-		box.add(programButton);
+		box.add(reactButton);
 		box.add(Box.createHorizontalStrut(30));
 		box.add(sonarButton);
 		box.add(Box.createHorizontalStrut(30));
@@ -157,10 +173,16 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		// construct the SonarConsole, but don't make it visible
 		scFrame = new JFrame("Sonar Console");
 		scFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		sc = new SonarConsole();
-		scFrame.add(sc);
+		sc1 = new SonarConsole();
+		scFrame.add(sc1);
 		scFrame.pack();
 
+		sc2Frame = new JFrame("Sonar Console");
+		sc2Frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		sc2 = new SonarConsole();
+		sc2Frame.add(sc2);
+		sc2Frame.pack();
+		
 		// PMF: Creating a new points console for displaying robot-relative points.
 		// takes arguments( top-left-x, top-left-y, window-width,window-height)
 		// next set the bounds of the viewport.
@@ -169,7 +191,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		// PMF: End new code for Points console
 		
 		// construct tasks
-		programTask = new ProgramTask(this);
+		reactTask = new ReactTask(this);
 		sonarTask = new SonarTask(this);
 		bothTask = new BothTask(this);
 
@@ -243,6 +265,8 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			public void run() {
 				scFrame.setLocationByPlatform(true);
 				scFrame.setVisible(true);
+				sc2Frame.setLocationByPlatform(true);
+				sc2Frame.setVisible(true);
 			}
 		});
 	}
@@ -252,6 +276,8 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				scFrame.setVisible(false);
+				sc2Frame.setVisible(false);
+
 			}
 		});
 	}
@@ -266,8 +292,8 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			stop();
 		} else if ( source==quitButton ) {
 			quit();
-		} else if ( source==programButton ) {
-			(new Thread(programTask)).start();
+		} else if ( source==reactButton ) {
+			(new Thread(reactTask)).start();
 		} else if ( source==sonarButton ) {
 			(new Thread(sonarTask)).start();
 		} else if ( source==bothButton ) {
@@ -305,9 +331,9 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 	// as Tasks
 	//
 
-	class ProgramTask extends Task {
+	class ReactTask extends Task {
 
-		ProgramTask(TaskController tc) {
+		ReactTask(TaskController tc) {
 			super(tc);
 		}
 
@@ -357,6 +383,12 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 		SonarTask(TaskController tc) {
 			super(tc);
+			wc = new WheelController();
+			soc = new SonarController();
+			bc = new BumperController();
+			trc = new TrackerController();
+			vc = new VisualizeController();
+			bac = new BearingController();
 		}
 
 		public void taskRun() {
@@ -367,8 +399,12 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
-				sc.setSonars(sonars);
-
+				sc1.setSonars(sonars);
+				soc.updateSonars(sonars);
+				sc2.setSonars(soc.getSonarReadings());
+				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
+//				vc.updateRobotPos(pc, robotPose)
+//				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				try {
 					Thread.sleep(500);
 				} catch(InterruptedException iex) {
@@ -406,7 +442,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
-					sc.setSonars(sonars);
+					sc1.setSonars(sonars);
 	
 					double frontSonar = sonars[0];
 					double backSonar = sonars[8];
@@ -419,16 +455,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 						break;
 					}
 					
-					// PMF: Putting points in Robot Frame for PointsConsole
-					pc.setReference(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
-					for( int i = 0; i < sonars.length; ++i){
-						Angle a = new Angle(22.5*i*Math.PI/180.0);
-						RealPose2D sonar = new RealPose2D(sonars[i],0.0,0.0);
-						RealPose2D sonarToRobot = new RealPose2D(0.19*Math.cos(a.angleValue()),0.19*Math.sin(a.angleValue()),a.angleValue());
-						pc.addPoint(RealPose2D.multiply(sonarToRobot, sonar));
-					}
-					pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
-					// PMF: End using PointsConsole 
+					
 					
 					robot.setVel(0.75,0.5);
 								
