@@ -22,7 +22,7 @@ public class BearingController {
 		Angle th = new Angle(pose.getTh());
 		lastClock = clock.getTime();
 		clock.setTime(System.currentTimeMillis());
-		Angle dth = new Angle(angularVelocity * (clock.getTime() - lastClock) / 1000);
+		Angle dth = new Angle(angularVelocity * (clock.getTime() - lastClock) /1000);
 		th = new Angle(th.add(dth));
 		double dr = linearVelocity * (clock.getTime() - lastClock) / 1000;
 		double dx = dr * Math.cos(th.angleValue());
@@ -41,7 +41,7 @@ public class BearingController {
 		return pose.getTh();
 	}
 	public RealPose2D getPose(){
-		return pose;
+		return pose.clone();
 	}
 	public static RealPose2D getRPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());

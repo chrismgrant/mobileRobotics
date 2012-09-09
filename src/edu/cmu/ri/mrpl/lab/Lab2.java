@@ -171,13 +171,13 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		this.setVisible(true);
 
 		// construct the SonarConsole, but don't make it visible
-		scFrame = new JFrame("Sonar Console");
+		scFrame = new JFrame("Live Sonar Console");
 		scFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		sc1 = new SonarConsole();
 		scFrame.add(sc1);
 		scFrame.pack();
 
-		sc2Frame = new JFrame("Sonar Console");
+		sc2Frame = new JFrame("Filter Sonar Console");
 		sc2Frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		sc2 = new SonarConsole();
 		sc2Frame.add(sc2);
@@ -405,12 +405,12 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 				System.out.println(soc.getSonarReadings()[0]);
-				trc.addTrackersFromSonar(sonars, bac.getPose());
+				trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				
-				vc.updateRobotPos(pc, bac.getRPose(robot));
+				vc.updateRobotPos(pc, bac.getPose());
 				vc.addPoints(pc, trc.getNewTrackerRPos());
 				vc.updateVisualizer(pc, robot);
 				
