@@ -3,7 +3,9 @@ package edu.cmu.ri.mrpl.control;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import fj.F2;
 import fj.data.List;
+import static fj.data.List.list;
 
 public class SonarController {
 	
@@ -116,34 +118,38 @@ public class SonarController {
 	 * @return Forward sonar reading, in meters
 	 */
 	public double getForwardSonarReading(){
-		return Math.min(Math.min(avgSonars[0],avgSonars[1]*Math.cos(Math.PI/8)),avgSonars[15]*Math.cos(Math.PI/8));
+		return getMinSonarReading(list(0,1,15), avgSonars);
 	}
 	/**
 	 * Get min of left-facing sonars
 	 * @return Left sonar reading, in meters
 	 */
 	public double getLeftSonarReading(){
-		return Math.min(Math.min(avgSonars[3],avgSonars[4]*Math.cos(Math.PI/8)),avgSonars[2]*Math.cos(Math.PI/8));
+		return getMinSonarReading(list(3,4,2), avgSonars);
 	}
 	/**
 	 * Get min of right-facing sonars
 	 * @return Right sonar reading, in meters
 	 */
 	public double getRightSonarReading(){
-		return Math.min(Math.min(avgSonars[13],avgSonars[14]*Math.cos(Math.PI/8)),avgSonars[12]*Math.cos(Math.PI/8));
+		return getMinSonarReading(list(13,14,12),avgSonars);
 	}
-//	private double getMinSonarReading(List<Integer> dirs){
-//		return dirs.list(0.0, new F<Integer, F<List<Integer>, Double>>(){
-//			public F<List<Integer>, Double> f(Integer i, List<Integer> l){
-//				F<List<Integer>, Double> f2 = new F<List<Integer>, Double>(){
-//					public Double f(List<Integer> l){
-//						return Math.min(avgSonars[l.head()], avgSonars[f(l.tail())]);
-//					}
-//				}
-//				return Math.min(avgSonars[i], f(l.head(),l.tail()));
-//			}
-//		});
-//	}
+	private static double getMinSonarReading(List<Integer> dirs, final double[] readings){
+		return dirs.foldLeft(new F2<Double, Integer, Double>() {
+			public Double f(Double d, Integer i){
+				return Math.min(d, readings[i]);
+			}
+		},Double.POSITIVE_INFINITY);
+	}
+	public static double getFrontReadings(double[] sonars){
+		return getMinSonarReading(list(0,1,15), sonars);
+	}
+	public static double getLeftReadings(double[] sonars) {
+		return getMinSonarReading(list(3,4,2), sonars);
+	}
+	public static double getRightReadings(double[] sonars){
+		return getMinSonarReading(list(13,14,12), sonars);
+	}
 //	public int determineClosestObject(double[] sonarVals){
 //		
 //	}

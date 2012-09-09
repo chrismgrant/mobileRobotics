@@ -123,13 +123,13 @@ public class WheelController {
 	 * @param p target point, robot-centric
 	 * @param isLost whether reporting point is lost
 	 * @param frontSonar distance front sonar is recording
-	 * @param distance distance to maintain while shadowing, in meters. Set to zero to move to point
+	 * @param shadowDistance distance to maintain while shadowing, in meters. Set to zero to move to point
 	 */
-	public void shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double distance){
+	public void shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double shadowDistance){
 		try{
 			if (!isLost){
 				setCurv(1/calculateRadiusOfTurning(p));
-				setLVel(getCappedLVel(Math.min(p.distance(0,0) - distance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
+				setLVel(getCappedLVel(Math.min(p.distance(0,0) - shadowDistance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
 				if (getLVel() < .1){
 					pointToDirection(Math.atan2(p.getY(), p.getX()));
 				}	

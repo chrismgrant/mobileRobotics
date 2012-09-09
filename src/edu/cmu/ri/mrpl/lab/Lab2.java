@@ -17,6 +17,7 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 import edu.cmu.ri.mrpl.control.BearingController;
 import edu.cmu.ri.mrpl.control.BumperController;
+import edu.cmu.ri.mrpl.control.PathFinder;
 import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.VisualizeController;
@@ -59,6 +60,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 	private TrackerController trc;
 	private BearingController bac;
 	private VisualizeController vc;
+	private PathFinder pf;
 	
 	private ReactTask reactTask;
 	private SonarTask sonarTask;
@@ -335,34 +337,25 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 		ReactTask(TaskController tc) {
 			super(tc);
+//			pf = new PathFinder();
 		}
 
 		public void taskRun() {
 			robot.turnSonarsOn();
 
 			double[] sonars = new double[16];
+			double near = 1;
+			double avel = 0, lvel = 0, front, left, right;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
-
-				double frontSonar = sonars[0];
-				double backSonar = sonars[8];
-
-				System.out.println("Front sonar: " + frontSonar + 
-						"  Back sonar: " + backSonar);
-
-				if (robot.getBumpers()!=0) {
-					System.err.println("detecting bumping, stopping!");
-					robot.turnSonarsOff();
-					robot.setVel(0,0);
-					break;
-				}
-
-				if (frontSonar < backSonar) {
-					robot.setVel(-0.05, -0.05);
-				} else {
-					robot.setVel(0.05, 0.05);
-				}
+				front = soc.getFrontReadings(sonars);
+				left = soc.getLeftReadings(sonars);
+				right = soc.getRightReadings(sonars);
+				pf.get(pf.size()-1);
+//				wc.setAVel(angularVel);
+				
+				
 
 				try {
 					Thread.sleep(500);
@@ -404,7 +397,6 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				sc2.setSonars(soc.getSonarReadings());
 				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
-				System.out.println(soc.getSonarReadings()[0]);
 				trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
@@ -414,8 +406,6 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				vc.addPoints(pc, trc.getNewTrackerRPos());
 				vc.updateVisualizer(pc, robot);
 				
-				wc.setAVel(1);
-				wc.setLVel(.5);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
 				try {
