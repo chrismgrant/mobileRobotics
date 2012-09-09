@@ -402,11 +402,24 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				sc1.setSonars(sonars);
 				soc.updateSonars(sonars);
 				sc2.setSonars(soc.getSonarReadings());
+				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
+				System.out.println(soc.getSonarReadings()[0]);
+				trc.addTrackersFromSonar(sonars, bac.getPose());
+				
 //				vc.updateRobotPos(pc, robotPose)
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
+				
+				vc.updateRobotPos(pc, bac.getRPose(robot));
+				vc.addPoints(pc, trc.getNewTrackerRPos());
+				vc.updateVisualizer(pc, robot);
+				
+				wc.setAVel(1);
+				wc.setLVel(.5);
+				wc.updateWheels(robot, bc.isBumped(robot));
+				
 				try {
-					Thread.sleep(500);
+					Thread.sleep(20);
 				} catch(InterruptedException iex) {
 					System.out.println("Sonar sleep interrupted");
 				}

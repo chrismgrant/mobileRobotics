@@ -3,8 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-
-
+import fj.data.List;
 
 public class SonarController {
 	
@@ -41,22 +40,17 @@ public class SonarController {
 		current = (current == (sonars.length - 1)) ? 0 : current+1;
 		for (int i = 0; i < avgSonars.length; i++){
 			if (isNoise(sonarVals[i],i)){//If sonarvals is different, add to debounce buffer. else, feed to noise filter;
-				//System.out.print("u");
 				sonars[current][i] = filter(sonarVals[i]);
 			} else {
-				//System.out.print("d");
 				debounce(filter(sonarVals[i]), i);
 			} 
 			
 			avgSonars[i] = getAvgReading(i);
-			//System.out.println(sonarVals[i] + ", "+avgSonars[i]);
 
 		}
-//		//System.out.println("["+debounceBuffer[0]+","+debounceBuffer[1]+","+debounceBuffer[2]+","+debounceBuffer[3]+","+debounceBuffer[4]+",]");
 	}
 	private void debounce(double sonarVal, int index){
 		if (Math.abs(debounceVal[index] - sonarVal) > DEBOUNCE_TOLERANCE){//Set new debouncer
-//			overwriteSonars(sonarVal, index);	
 			debounceVal[index] = sonarVal;
 			debounceBuffer[index] = 0;
 			//System.out.print("#");
@@ -117,9 +111,39 @@ public class SonarController {
 	public double[] getSonarReadings(){
 		return avgSonars;
 	}
+	/**
+	 * Get min of forward-facing sonars
+	 * @return Forward sonar reading, in meters
+	 */
 	public double getForwardSonarReading(){
 		return Math.min(Math.min(avgSonars[0],avgSonars[1]*Math.cos(Math.PI/8)),avgSonars[15]*Math.cos(Math.PI/8));
 	}
+	/**
+	 * Get min of left-facing sonars
+	 * @return Left sonar reading, in meters
+	 */
+	public double getLeftSonarReading(){
+		return Math.min(Math.min(avgSonars[3],avgSonars[4]*Math.cos(Math.PI/8)),avgSonars[2]*Math.cos(Math.PI/8));
+	}
+	/**
+	 * Get min of right-facing sonars
+	 * @return Right sonar reading, in meters
+	 */
+	public double getRightSonarReading(){
+		return Math.min(Math.min(avgSonars[13],avgSonars[14]*Math.cos(Math.PI/8)),avgSonars[12]*Math.cos(Math.PI/8));
+	}
+//	private double getMinSonarReading(List<Integer> dirs){
+//		return dirs.list(0.0, new F<Integer, F<List<Integer>, Double>>(){
+//			public F<List<Integer>, Double> f(Integer i, List<Integer> l){
+//				F<List<Integer>, Double> f2 = new F<List<Integer>, Double>(){
+//					public Double f(List<Integer> l){
+//						return Math.min(avgSonars[l.head()], avgSonars[f(l.tail())]);
+//					}
+//				}
+//				return Math.min(avgSonars[i], f(l.head(),l.tail()));
+//			}
+//		});
+//	}
 //	public int determineClosestObject(double[] sonarVals){
 //		
 //	}

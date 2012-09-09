@@ -13,7 +13,7 @@ import edu.cmu.ri.mrpl.kinematics2D.Units;
 
 public class TrackerController {
 
-	private static final double SONAR_ROBOT_RADIUS = .381;
+	private static final double SONAR_ROBOT_RADIUS = .1905;
 	private static final int TRACKER_DECAY = 10;
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .35;
@@ -33,10 +33,11 @@ public class TrackerController {
 		
 		trackers = array();//Creates empty array
 		for (int i = 0; i < TRACKER_DECAY; i++){//Adds T_DECAY many array indexs with lists 
-			final List<Tracker> a = list();
+			List<Tracker> a = list();
 			Array<List<Tracker>> b = array(a);
 			trackers = trackers.append(b);
 		}
+		newTrackers = list();
 
 		active = null;
 		follow = null;
@@ -48,14 +49,17 @@ public class TrackerController {
 	 * @param robotPose pose of Robot
 	 */
 	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose){
+		newTrackers = list();
 		RealPoint2D position;
 		double x,y,th;
 		for (int i = 0; i < sonarReadings.length; i++){
-			th = i * 22.5*Units.degToRad;
-			x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-			y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-			position = new RealPoint2D(x,y);
-			addTracker(position, robotPose);
+			if (!Double.isInfinite(sonarReadings[i])){
+				th = i * 22.5*Units.degToRad;
+				x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+				y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+				position = new RealPoint2D(x,y);
+				addTracker(position, robotPose);
+			}
 		}
 	}
 	/**
@@ -66,7 +70,8 @@ public class TrackerController {
 	public void addTracker(RealPoint2D position, RealPose2D robotPose){
 		RealPose2D worldPos = new RealPose2D(position.getX(),position.getY(),0);
 		worldPos = RealPose2D.multiply(robotPose, worldPos);
-		newTrackers = newTrackers.cons(new Tracker(position, worldPos.getPosition()));
+		Tracker newTracker = new Tracker(worldPos.getPosition(), position);
+		newTrackers = newTrackers.cons(newTracker);
 	}
 	/**
 	 * Update tracker states. Removes any beyond decay time.
@@ -79,16 +84,31 @@ public class TrackerController {
 	}
 	/**
 	 * Gets all tracker positions relative to robot
-	 * @return fj's List of RealPoint2D 
+	 * @return fj's List of RealPoint2D, relative to robot
 	 */
 	public List<RealPoint2D> getAllTrackerRPos(){
 		List<Tracker> e = list();
-		List<Tracker> l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
-			public List<Tracker> f(List<Tracker> out, List<Tracker> current){
-				return out.append(current);
-			}
-		},e);
+		List<Tracker> l = list();
+		if (trackers.isNotEmpty()){
+			l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
+				public List<Tracker> f(List<Tracker> out, List<Tracker> current){
+					return out.append(current);
+				}
+			},e);
+		}
+		
 		return l.map(new F<Tracker, RealPoint2D>() {
+			public RealPoint2D f(Tracker t){
+				return t.getRPos();
+			}
+		});
+	}
+	/**
+	 * Gets all new tracker positions from this step relative to robot
+	 * @return fj's List of RealPoint2D, relative to robot
+	 */
+	public List<RealPoint2D> getNewTrackerRPos(){
+		return newTrackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
 				return t.getRPos();
 			}

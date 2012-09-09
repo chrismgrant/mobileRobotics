@@ -11,21 +11,21 @@ public class Tracker {
 	private RealPoint2D robotCoord;
 	/**
 	 * Creates a tracker
-	 * @param trackerPos Position of tracker relative to robot
-	 * @param robotPos Position of robot relative to world
+	 * @param worldPos Position of tracker relative to world
+	 * @param robotPos Position of tracker relative to robot
 	 */
-	public Tracker(RealPoint2D trackerPos, RealPoint2D robotPos){
-		updatePos(trackerPos, robotPos);
+	public Tracker(RealPoint2D worldPos, RealPoint2D robotPos){
+		updatePos(worldPos, robotPos);
 		lost = false;
 	}
 	/**
 	 * Updates position of the tracker
-	 * @param trackerPos
-	 * @param robotPos
+	 * @param worldPos Position of tracker relative to world
+	 * @param robotPos Position of tracker relative to robot
 	 */
-	public void updatePos(RealPoint2D trackerPos, RealPoint2D robotPos){
-		worldCoord = (RealPoint2D) trackerPos.clone();
-		worldCoord.add(robotPos);
+	public void updatePos(RealPoint2D worldPos, RealPoint2D robotPos){
+		worldCoord = (RealPoint2D) worldPos.clone();
+		robotCoord = (RealPoint2D) robotPos.clone();
 		if (lost) {lost = false;}
 	}
 	public void lost(){
