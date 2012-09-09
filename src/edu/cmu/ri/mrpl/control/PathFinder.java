@@ -9,6 +9,8 @@ public class PathFinder extends Path {
 	double currentPositionY;
 	double theta;
 	double deltaR = 1.5;
+	double pi = Math.PI;
+	double turnConstant = 1;
 	double objectPositionX;
 	double objectPositionY;
 	boolean objectInFront = false;
@@ -36,7 +38,15 @@ public class PathFinder extends Path {
 		else{
 			objectInFront = true;
 			//if wall, check left and right
-			
+			if ((objectPositionY <= minDistance) && (objectPositionX <= minDistance)){
+				rightTurn();
+			}
+			else if ((objectPositionY > minDistance) && (objectPositionX <= minDistance)){
+				leftTurn();
+			}
+			else{
+				uTurn();
+			}
 			// if dead end, u turn
 			//adjust path
 			// adjustPath method call
@@ -44,11 +54,28 @@ public class PathFinder extends Path {
 		}
 	}
 	public void straightPath(){
-		currentPositionX =  currentPositionX + deltaR*Math.cos(theta);
-		currentPositionY =  currentPositionY + deltaR*Math.sin(theta);
+		currentPositionX += deltaR*Math.cos(theta);
+		currentPositionY += deltaR*Math.sin(theta);
 	}
-	public void adjustPath(){
-		
+	public void uTurn(){
+		currentPositionX -= deltaR*Math.cos(theta);
+		currentPositionY -= deltaR*Math.sin(theta);
+	}
+	//each turn a 90 degree turn
+	public void rightTurn(){
+		currentPositionX += deltaR*Math.cos(theta) + turnConstant*Math.cos(theta - pi / 2);	
+		currentPositionY += deltaR*Math.sin(theta) + turnConstant*Math.sin(theta - pi / 2);	
+	}
+	public void leftTurn(){
+		currentPositionX += deltaR*Math.cos(theta) + turnConstant*Math.cos(theta + pi / 2);	
+		currentPositionY += deltaR*Math.sin(theta) + turnConstant*Math.sin(theta + pi / 2);	
+	}
+	public double[] adjustPath(){
+		double[] adjustedPath= new double[3];
+		adjustedPath[0] = currentPositionX;
+		adjustedPath[1] = currentPositionY;
+		adjustedPath[2] = theta;
+		return adjustedPath;
 	}
 	public double getRobotX(){
 		return currentPositionX;
