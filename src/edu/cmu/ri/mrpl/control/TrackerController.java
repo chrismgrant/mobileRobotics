@@ -40,6 +40,17 @@ public class TrackerController {
 		follow = null;
 		followLostCounter = 0;
 	}
+	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose){
+		RealPoint2D position;
+		double x,y,th;
+		for (int i = 0; i < sonarReadings.length; i++){
+			th = i * 22.5*Math.PI/180;
+			x = Math.cos(th)*sonarReadings[i];
+			y = Math.sin(th)*sonarReadings[i];
+			position = new RealPoint2D(x,y);
+			addTracker(position, robotPose);
+		}
+	}
 	/**
 	 * Adds a tracker to the tracking list
 	 * @param position Position of point relative to robot
