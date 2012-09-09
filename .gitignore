@@ -15,3 +15,21 @@ TrackFiltSonarData
 TrackFollowData
 
 TrackRawSonarData
+
+bin/.svn/entries
+
+bin/edu/.svn/entries
+
+bin/edu/cmu/.svn/entries
+
+bin/edu/cmu/ri/.svn/entries
+
+bin/edu/cmu/ri/mrpl/.svn/entries
+
+*.svn-base
+
+bin/edu/cmu/ri/mrpl/example/.svn/entries
+
+bin/edu/cmu/ri/mrpl/game/.svn/entries
+
+bin/edu/cmu/ri/mrpl/maze/.svn/entries
