@@ -6,7 +6,7 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 public class WheelController {
 
 	private static final double BRAKING_COEFFICIENT = 1;
-	private static final double SPEED = 1;
+	private static final double SPEED = 1.2;
 	private static final double MIN_SPEED = .03;
 	private static final double ROB_WIDTH = .355;
 	private double lVel;
