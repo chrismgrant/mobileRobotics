@@ -1,10 +1,14 @@
 package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.Path;
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
+import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import fj.F;
+import fj.data.List;
 
 public class PathFinder extends Path {
 	//creates a pathfinder given the robot centric x and y coord
-	double minDistance = .5;
+	final double minDistance = .5;
 	double currentPositionX;
 	double currentPositionY;
 	double theta;
@@ -70,11 +74,8 @@ public class PathFinder extends Path {
 		currentPositionX += deltaR*Math.cos(theta) + turnConstant*Math.cos(theta + pi / 2);	
 		currentPositionY += deltaR*Math.sin(theta) + turnConstant*Math.sin(theta + pi / 2);	
 	}
-	public double[] adjustPath(){
-		double[] adjustedPath= new double[3];
-		adjustedPath[0] = currentPositionX;
-		adjustedPath[1] = currentPositionY;
-		adjustedPath[2] = theta;
+	public RealPose2D adjustPath(){
+		RealPose2D adjustedPath= new RealPose2D(currentPositionX, currentPositionY, theta);
 		return adjustedPath;
 	}
 	public double getRobotX(){
@@ -88,5 +89,57 @@ public class PathFinder extends Path {
 	}
 	public void setRobotY(double y){
 		currentPositionY = y;
+	}
+	public void updatePath(RealPose2D robotPosition, double frontReading, double leftReading, double rightReading){
+		if ((frontReading > minDistance) || (leftReading > minDistance) || (rightReading > minDistance)){
+			objectInFront = false; 
+			//if nothing in front go straight
+			straightPath();
+		}
+		else{
+			objectInFront = true;
+			//if wall, check left and right
+			if ((objectPositionY <= minDistance) && (objectPositionX <= minDistance)){
+				rightTurn();
+			}
+			else if ((objectPositionY > minDistance) && (objectPositionX <= minDistance)){
+				leftTurn();
+			}
+			else{
+				uTurn();
+			}
+			// if dead end, u turn
+			//adjust path
+			// adjustPath method call
+			adjustPath();
+		}
+	}
+	public void updatePath(RealPose2D robotPosition, List<RealPoint2D> trackers){
+		trackers.forall(new F<RealPoint2D, Boolean>(){
+			public Boolean f(RealPoint2D point){
+				if (point.distance(0, 0) > minDistance){
+					//if nothing in front go straight
+					straightPath();
+					return true;
+				}
+				else{
+					//if wall, check left and right
+					if ((point.getY() > 0) && (point.getX() <= minDistance)){//Object on left
+						rightTurn();
+					}
+					else if ((point.getY() <= 0) && (point.getX() <= minDistance)){//Object on right
+						leftTurn();
+					}
+					else{
+						uTurn();
+					}
+					// if dead end, u turn
+					//adjust path
+					// adjustPath method call
+					adjustPath();
+					return false;
+				}
+			}
+		});
 	}
 }
