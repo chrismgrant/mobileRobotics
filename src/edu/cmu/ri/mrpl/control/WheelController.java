@@ -33,7 +33,7 @@ public class WheelController {
 	 */
 	public void setALVel(double angularVel, double linearVel){
 		setLVel(linearVel);
-		setAVel(linearVel);
+		setAVel(angularVel);
 		flag = MOVE_FLAGS.AVEL;
 	}
 	/**
