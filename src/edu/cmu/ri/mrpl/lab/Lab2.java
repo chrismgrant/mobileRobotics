@@ -16,6 +16,7 @@ import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 import edu.cmu.ri.mrpl.control.BearingController;
+import edu.cmu.ri.mrpl.control.BehaviorController;
 import edu.cmu.ri.mrpl.control.BumperController;
 import edu.cmu.ri.mrpl.control.PathFinder;
 import edu.cmu.ri.mrpl.control.SonarController;
@@ -60,11 +61,11 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 	private TrackerController trc;
 	private BearingController bac;
 	private VisualizeController vc;
-	private PathFinder pf;
+	private BehaviorController bvc;
 	
 	private ReactTask reactTask;
 	private SonarTask sonarTask;
-	private BothTask bothTask;
+	private StateWanderTask bothTask;
 
 	private Task curTask = null;
 	
@@ -195,7 +196,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		// construct tasks
 		reactTask = new ReactTask(this);
 		sonarTask = new SonarTask(this);
-		bothTask = new BothTask(this);
+		bothTask = new StateWanderTask(this);
 
 		// PMF: Creating a frame to put the PointsConsole panel in. 
 		// get the panel that 
@@ -431,10 +432,17 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 		}
 	}
 
-	class BothTask extends Task {
+	class StateWanderTask extends Task {
 
-		BothTask(TaskController tc) {
+		StateWanderTask(TaskController tc) {
 			super(tc);
+			wc = new WheelController();
+			soc = new SonarController();
+			bc = new BumperController();
+			trc = new TrackerController();
+			vc = new VisualizeController();
+			bac = new BearingController();
+			bvc = new BehaviorController();
 		}
 
 		public void taskRun() {
@@ -453,23 +461,19 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 					robot.updateState();
 					robot.getSonars(sonars);
 					sc1.setSonars(sonars);
-	
-					double frontSonar = sonars[0];
-					double backSonar = sonars[8];
-	
-					System.out.println("Front sonar: " + frontSonar + 
-							"  Back sonar: " + backSonar);
-	
-					if (robot.getBumpers()!=0) {
-						System.err.println("detecting bumping, stopping!");
-						break;
-					}
+					soc.updateSonars(sonars);
+					sc2.setSonars(soc.getSonarReadings());
+					bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
+					trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
+					vc.updateRobotPos(pc, bac.getPose());
+					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
+					vc.updateVisualizer(pc, robot);
 					
+//					bvc.updateBehavior(rpos, world);
+//					wc.setWheelVel(l,r);
 					
-					
-					robot.setVel(0.75,0.5);
+					wc.updateWheels(robot, bc.isBumped(robot));
 								
-	
 					try {
 						Thread.sleep(500);
 					} catch(InterruptedException iex) {

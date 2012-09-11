@@ -21,6 +21,11 @@ public class WheelController {
 		rWVel = 0;
 		flag = MOVE_FLAGS.AVEL;
 	}
+	/**
+	 * Sets individual wheel speeds
+	 * @param leftVel Speed of left wheel, meters/s
+	 * @param rightVel Speed of right wheel, meters/s
+	 */
 	public void setWheelVel(double leftVel, double rightVel){
 		lWVel = leftVel;
 		rWVel = rightVel;
@@ -28,8 +33,8 @@ public class WheelController {
 	}
 	/**
 	 * Set angular and linear velocity
-	 * @param angularVel
-	 * @param linearVel
+	 * @param angularVel angular velocity, rad/s
+	 * @param linearVel linear velocity, m/s
 	 */
 	public void setALVel(double angularVel, double linearVel){
 		setLVel(linearVel);
@@ -50,6 +55,11 @@ public class WheelController {
 	private void setAVel(double angularVel){
 		aVel = angularVel;
 	}
+	/**
+	 * Sets curvature and linear velocity of robot
+	 * @param curvature curvature
+	 * @param linearVel linear velocity, in m/s
+	 */
 	public void setCLVel(double curvature, double linearVel){
 		setCurv(curvature);
 		setLVel(linearVel);
