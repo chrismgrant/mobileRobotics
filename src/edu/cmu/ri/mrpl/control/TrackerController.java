@@ -1,6 +1,7 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Point2D;
+import java.util.Collection;
 
 import fj.data.List;
 import static fj.data.List.list;
@@ -81,29 +82,36 @@ public class TrackerController {
 	 * Update tracker states. Removes any beyond decay time.
 	 * Call after other TC setter methods to apply updates.
 	 */
-	public void updateTrackers(double[] sonarReadings){
+	public void updateTrackers(){
 		trackers.set(ringCounter, newTrackers);//Remove old trackers and add new trackers
 
-		ringCounter = (ringCounter > TRACKER_DECAY) ? 0 : ringCounter+1;
+		ringCounter = (ringCounter >= TRACKER_DECAY-1) ? 0 : ringCounter+1;
 	}
 	/**
 	 * Gets all tracker positions relative to robot
 	 * @return fj's List of RealPoint2D, relative to robot
 	 */
-	public List<RealPoint2D> getAllTrackerRPos(){
+	public List<RealPoint2D> getAllTrackerRPos(final RealPose2D robotPose){
 		List<Tracker> e = list();
 		List<Tracker> l = list();
 		if (trackers.isNotEmpty()){
+//			Collection<List<Tracker>> a = trackers.toCollection();
+//			for (List<Tracker> li : a) {
+//				l=l.append(li);
+//			}
 			l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
 				public List<Tracker> f(List<Tracker> out, List<Tracker> current){
 					return out.append(current);
 				}
 			},e);
+			System.out.println(l.length());
 		}
 		
 		return l.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				return t.getRPos();
+				Point2D result = null;
+				Point2D sol = robotPose.inverse().transform(t.getWPos(),result);
+				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
 	}
