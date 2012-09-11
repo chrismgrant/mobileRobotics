@@ -345,7 +345,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double near = 1;
-			double avel = 0, lvel = 0, front, left, right,speed = .8, vision = 1.6;
+			double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.5;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
