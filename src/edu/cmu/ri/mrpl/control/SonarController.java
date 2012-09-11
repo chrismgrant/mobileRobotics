@@ -14,7 +14,7 @@ public class SonarController {
 	private int[] debounceBuffer;
 	private double[] avgSonars;
 	private NumberFormat filterFormat;
-	private static final double SONAR_RANGE = 2.5;
+	private static final double SONAR_RANGE = 2.8;
 	private static final double SONAR_TOLERANCE = 0.025;
 	private static final int SONAR_NOISE_FILTER = 8;
 	private static final double DEBOUNCE_TOLERANCE = 0.2;
@@ -44,7 +44,8 @@ public class SonarController {
 			if (isNoise(sonarVals[i],i)){//If sonarvals is different, add to debounce buffer. else, feed to noise filter;
 				sonars[current][i] = filter(sonarVals[i]);
 			} else {
-				debounce(filter(sonarVals[i]), i);
+				overwriteSonars(sonarVals[i], i);
+//				debounce(filter(sonarVals[i]), i);
 			} 
 			
 			avgSonars[i] = getAvgReading(i);
