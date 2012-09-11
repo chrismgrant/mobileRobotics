@@ -148,10 +148,10 @@ public class SonarController {
 		return getMinSonarReading(list(0), sonars);
 	}
 	public static double getLeftReadings(double[] sonars) {
-		return getMinSonarReading(list(1,2,3), sonars);
+		return getMinSonarReading(list(1,2), sonars);
 	}
 	public static double getRightReadings(double[] sonars){
-		return getMinSonarReading(list(13,14,15), sonars);
+		return getMinSonarReading(list(14,15), sonars);
 	}
 //	public int determineClosestObject(double[] sonarVals){
 //		

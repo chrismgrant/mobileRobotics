@@ -345,7 +345,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double near = 1;
-			double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.5;
+			double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.2;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
@@ -356,6 +356,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				
 				right = (right < vision)? right/vision*speed : speed;
 				front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
+				front = (right < left) ? -front/2 : front/2;
 				left = (left < vision)? left/vision*speed : speed;
 				wc.setWheelVel(right + front, left-front);
 				wc.updateWheels(robot, bc.isBumped(robot));
