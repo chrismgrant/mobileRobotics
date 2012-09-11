@@ -78,9 +78,9 @@ public class BehaviorController {
 	private RealPoint2D getMin(List<RealPoint2D> l){
 		return l.foldLeft(new F2<RealPoint2D, RealPoint2D, RealPoint2D>() {
 			public RealPoint2D f(RealPoint2D out, RealPoint2D next){
-				return (next.distance(0, 0) < out.distance(0, 0))?next:out;
+				return (out.distance(0, 0) > out.distance(.5, .5))?next:out;
 			}
-		}, new RealPoint2D(Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY));
+		}, new RealPoint2D(0, 3));
 	}
 	
 	private boolean intersects(List<RealPoint2D> pointList, final RealPoint2D target, final double threshold){

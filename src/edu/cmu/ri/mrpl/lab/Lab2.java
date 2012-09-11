@@ -413,12 +413,12 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				
 				vc.updateRobotPos(pc, bac.getPose());
-<<<<<<< HEAD
+/// HEAD
 //				vc.updateRobotPos(pc, new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
-=======
+/////
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getRPose(robot)));
->>>>>>> LastMIn
+/// LastMIn
 				vc.updateVisualizer(pc, robot);
 				wc.setALVel(.87, 0);
 				wc.updateWheels(robot, bc.isBumped(robot));
