@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import fj.F2;
 import fj.data.List;
 import fj.F;
 
@@ -34,6 +35,13 @@ public class BehaviorController {
 		//Set wheels to achieve it.
 	}
 	
+	private RealPoint2D getClosest(List<RealPoint2D> l){
+		return l.foldLeft(new F2<RealPoint2D, RealPoint2D, RealPoint2D>() {
+			public RealPoint2D f(RealPoint2D out, RealPoint2D next){
+				return (next.distance(0, 0) < out.distance(0, 0))?next:out;
+			}
+		}, new RealPoint2D(Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY));
+	}
 	public RealPoint2D getTarget() {
 		return targetPoint;
 	}
