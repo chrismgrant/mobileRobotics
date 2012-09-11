@@ -359,6 +359,9 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
 				front = (right < left) ? -front/2 : front/2;
 				left = (left < vision)? left/vision*speed : speed;
+
+				System.out.println("right: "+right+" left: "+left+" front: "+front);
+
 				wc.setWheelVel(right + front, left-front);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
@@ -410,8 +413,12 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				
 				vc.updateRobotPos(pc, bac.getPose());
+<<<<<<< HEAD
 //				vc.updateRobotPos(pc, new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
+=======
+				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getRPose(robot)));
+>>>>>>> LastMIn
 				vc.updateVisualizer(pc, robot);
 				wc.setALVel(.87, 0);
 				wc.updateWheels(robot, bc.isBumped(robot));
@@ -463,14 +470,22 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 					sc1.setSonars(sonars);
 					soc.updateSonars(sonars);
 					sc2.setSonars(soc.getSonarReadings());
-					bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
+					bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 					trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
+					//trc.addTrackersFromSonar(sonars, bac.getPose());
 					vc.updateRobotPos(pc, bac.getPose());
 					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
+					//vc.addPoints(pc, trc.getNewTrackerRPos(BearingController.getRPose(robot)));
 					vc.updateVisualizer(pc, robot);
-					
-//					bvc.updateBehavior(rpos, world);
-//					wc.setWheelVel(l,r);
+					System.out.println(trc.toString());
+//					for(int i = 0; i < trc.getAllTrackerRPos().length(); i++){
+//						System.out.print(trc.getAllTrackerRPos().toArray().get(i));
+//						
+//					}
+					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos());
+					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
+
+					wc.setWheelVel(bvc.getTarget().x,bvc.getTarget().y);
 					
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
