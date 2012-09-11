@@ -1,5 +1,7 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.geom.Point2D;
+
 import fj.data.List;
 import static fj.data.List.list;
 import fj.data.Array;
@@ -107,10 +109,13 @@ public class TrackerController {
 	 * Gets all new tracker positions from this step relative to robot
 	 * @return fj's List of RealPoint2D, relative to robot
 	 */
-	public List<RealPoint2D> getNewTrackerRPos(){
+	public List<RealPoint2D> getNewTrackerRPos(final RealPose2D robotPose){
 		return newTrackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				return t.getRPos();
+				
+				Point2D result = null;
+				Point2D sol = robotPose.inverse().transform(t.getWPos(),result);
+				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
 	}

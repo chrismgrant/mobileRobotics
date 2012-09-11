@@ -79,11 +79,13 @@ public class SonarController {
 	private double filter(double input){
 		return Double.valueOf(filterFormat.format(input));
 	}
+	
 	private boolean isNoise(double sonarVal, int index){
 //		//System.out.print((Math.abs(sonarVal - sonars[current][index]))+", ");
 		Double d = sonarVal;
 		return (d.isInfinite() && sonars[current][index] < SONAR_RANGE) || (Math.abs(sonarVal - sonars[current][index]) <= SONAR_TOLERANCE);
 	}
+	
 	private double getAvgReading(int index){
 		double sum = 0;
 		for (int i = 0; i < sonars.length; i++){

@@ -401,15 +401,16 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				sc2.setSonars(soc.getSonarReadings());
 				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
-				trc.addTrackersFromSonar(sonars, bac.getPose());
+				trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
+//				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				
 				vc.updateRobotPos(pc, bac.getPose());
-				vc.addPoints(pc, trc.getNewTrackerRPos());
+				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getRPose(robot)));
 				vc.updateVisualizer(pc, robot);
-				
+				wc.setALVel(2, 0);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
 				try {
