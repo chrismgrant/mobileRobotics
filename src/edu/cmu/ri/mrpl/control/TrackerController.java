@@ -51,8 +51,7 @@ public class TrackerController {
 	 * @param robotPose pose of Robot
 	 * @param ignore whether to ignore the current readings
 	 */
-	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose, boolean ignore){
-		if (!ignore){
+	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose){
 			newTrackers = list();
 			RealPoint2D position;
 			double x,y,th;
@@ -63,7 +62,7 @@ public class TrackerController {
 					y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 					position = new RealPoint2D(x,y);
 					addTracker(position, robotPose);
-				}
+				
 			}
 		}
 	}
