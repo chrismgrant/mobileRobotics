@@ -411,7 +411,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				
 				vc.updateRobotPos(pc, bac.getPose());
 //				vc.updateRobotPos(pc, new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
-				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getRPose(robot)));
+				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
 				vc.updateVisualizer(pc, robot);
 				wc.setALVel(.87, 0);
 				wc.updateWheels(robot, bc.isBumped(robot));
@@ -475,7 +475,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
 					try {
-						Thread.sleep(500);
+						Thread.sleep(100);
 					} catch(InterruptedException iex) {
 						System.out.println("\"Both\" sleep interrupted");
 					}
