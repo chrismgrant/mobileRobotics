@@ -324,8 +324,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double direction = 0;
-			wc.setLVel(0);
-			wc.setAVel(0);
+			wc.setALVel(0, 0);
 			try{
 				FileWriter outFileRawSonar = new FileWriter("RotRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("RotFiltSonarData");
@@ -377,8 +376,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-			wc.setAVel(0);
-			wc.setLVel(0);
+			wc.setALVel(0,0);
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
 			try{
@@ -401,7 +399,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 					 	outFiltSonar.print(soc.getSonarReadings()[i]+",");
 					 	outFiltSonar.println(";");
 					}
-					wc.setLVel(target);
+					wc.setALVel(0, target);
 					wc.updateWheels(robot, bc.isBumped(robot));
 					sc.setSonars(soc.getSonarReadings());
 					sc2.setSonars(sonars);
@@ -438,8 +436,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-			wc.setAVel(0);
-			wc.setLVel(0);
+			wc.setALVel(0, 0);
 			double[] sonars = new double[16];
 			double direction = -1;
 			try{

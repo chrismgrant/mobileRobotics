@@ -9,37 +9,59 @@ public class WheelController {
 	private static final double SPEED = 1.2;
 	private static final double MIN_SPEED = .03;
 	private static final double ROB_WIDTH = .355;
-	private double lVel;
-	private double aVel;
-	private double curv;
+	private double lVel, aVel, curv, lWVel, rWVel;
+	private static enum MOVE_FLAGS {WHEEL, AVEL, CURVVEL};
+	private MOVE_FLAGS flag;
 	
 	public WheelController(){
 		lVel = 0;
 		aVel = 0;
 		curv = 0;
+		lWVel = 0;
+		rWVel = 0;
+		flag = MOVE_FLAGS.AVEL;
+	}
+	public void setWheelVel(double leftVel, double rightVel){
+		lWVel = leftVel;
+		rWVel = rightVel;
+		flag = MOVE_FLAGS.WHEEL;
+	}
+	/**
+	 * Set angular and linear velocity
+	 * @param angularVel
+	 * @param linearVel
+	 */
+	public void setALVel(double angularVel, double linearVel){
+		setLVel(linearVel);
+		setAVel(linearVel);
+		flag = MOVE_FLAGS.AVEL;
 	}
 	/**
 	 * Sets linear velocity of robot
 	 * @param linearVel velocity, m/s
 	 */
-	public void setLVel(double linearVel){
+	private void setLVel(double linearVel){
 		lVel = linearVel;
 	}
 	/**
 	 * Sets angular velocity of robot
 	 * @param angularVel angular velocity, rad/s, positive anticlockwise
 	 */
-	public void setAVel(double angularVel){
+	private void setAVel(double angularVel){
 		aVel = angularVel;
+	}
+	public void setCLVel(double curvature, double linearVel){
+		setCurv(curvature);
+		setLVel(linearVel);
+		flag = MOVE_FLAGS.CURVVEL;
 	}
 	/**
 	 * Sets curvature of robot path
 	 * Overwrites setAVel
 	 * @param curvature
 	 */
-	public void setCurv(double curvature){
+	private void setCurv(double curvature){
 		curv = curvature;
-		aVel = curv * lVel;
 	}
 	/**
 	 * Sends velocity command to robot
@@ -47,7 +69,22 @@ public class WheelController {
 	 */
 	public void updateWheels(Robot r, boolean isBumped){
 		if (!isBumped){
-			r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
+			switch(flag){
+				case AVEL: {
+					r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
+					break;
+				}
+				case CURVVEL:{
+					aVel = curv * lVel;
+					r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
+					break;
+				}
+				case WHEEL: {
+					r.setVel(lWVel, rWVel);
+					break;
+				}
+				default:{}
+			}
 		} else {
 			r.setVel(0,0);
 		}
