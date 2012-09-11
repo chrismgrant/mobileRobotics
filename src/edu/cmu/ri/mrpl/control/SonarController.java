@@ -142,13 +142,13 @@ public class SonarController {
 		},Double.POSITIVE_INFINITY);
 	}
 	public static double getFrontReadings(double[] sonars){
-		return getMinSonarReading(list(0,1,15), sonars);
+		return getMinSonarReading(list(0), sonars);
 	}
 	public static double getLeftReadings(double[] sonars) {
-		return getMinSonarReading(list(3,4,2), sonars);
+		return getMinSonarReading(list(1,2,3), sonars);
 	}
 	public static double getRightReadings(double[] sonars){
-		return getMinSonarReading(list(13,14,12), sonars);
+		return getMinSonarReading(list(13,14,15), sonars);
 	}
 //	public int determineClosestObject(double[] sonarVals){
 //		

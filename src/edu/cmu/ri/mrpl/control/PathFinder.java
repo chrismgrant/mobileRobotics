@@ -90,6 +90,7 @@ public class PathFinder extends Path {
 	public void setRobotY(double y){
 		currentPositionY = y;
 	}
+	//for Part 0.
 	public void updatePath(RealPose2D robotPosition, double frontReading, double leftReading, double rightReading){
 		if ((frontReading > minDistance) || (leftReading > minDistance) || (rightReading > minDistance)){
 			objectInFront = false; 
@@ -114,6 +115,7 @@ public class PathFinder extends Path {
 			adjustPath();
 		}
 	}
+	//for Part 1
 	public void updatePath(RealPose2D robotPosition, List<RealPoint2D> trackers){
 		trackers.forall(new F<RealPoint2D, Boolean>(){
 			public Boolean f(RealPoint2D point){

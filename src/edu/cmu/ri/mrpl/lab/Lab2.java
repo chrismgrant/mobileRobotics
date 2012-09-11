@@ -345,20 +345,24 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double near = 1;
-			double avel = 0, lvel = 0, front, left, right;
+			double avel = 0, lvel = 0, front, left, right,speed = .8, vision = 1.6;
 			while(!shouldStop()) {
 				robot.updateState();
 				robot.getSonars(sonars);
 				front = soc.getFrontReadings(sonars);
 				left = soc.getLeftReadings(sonars);
 				right = soc.getRightReadings(sonars);
-				pf.get(pf.size()-1);
-//				wc.setAVel(angularVel);
+//				pf.get(pf.size()-1);
 				
+				right = (right < vision)? right/vision*speed : speed;
+				front = (front < vision /2)? speed-front/(vision/2):0;
+				left = (left < vision)? left/vision*speed : speed;
+				wc.setWheelVel(right + front, left-front);
+				wc.updateWheels(robot, bc.isBumped(robot));
 				
 
 				try {
-					Thread.sleep(500);
+					Thread.sleep(50);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}
@@ -397,7 +401,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				sc2.setSonars(soc.getSonarReadings());
 				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
-				trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
+				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
