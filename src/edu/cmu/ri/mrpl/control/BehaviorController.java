@@ -21,7 +21,8 @@ public class BehaviorController {
 		final double vision = 1.5;
 		history.add(rpos);
 		//Look to see if something is in front of me
-		
+		RealPoint2D closest = getClosest(world);
+		setTarget(new RealPoint2D(-closest.getX(), -closest.getY()));
 		
 		world.filter(new F<RealPoint2D, Boolean>() {
 			public Boolean f(RealPoint2D p){
@@ -42,6 +43,36 @@ public class BehaviorController {
 			}
 		}, new RealPoint2D(Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY));
 	}
+	
+	private boolean intersects(List<RealPoint2D> pointList, final RealPoint2D target, final double threshold){
+		return !pointList.forall(new F<RealPoint2D, Boolean>() {
+			public Boolean f(RealPoint2D p){
+				return (p.distance(target) > threshold);
+			}
+		});
+	}
+	private List<RealPoint2D> filterFront(List<RealPoint2D> l){
+		return l.filter(new F<RealPoint2D, Boolean>(){
+			public Boolean f(RealPoint2D p){
+				return (p.getX()>0 && Math.abs(p.getY()) < p.getX());
+			}
+		});
+	}
+	private List<RealPoint2D> filterRight(List<RealPoint2D> l){
+		return l.filter(new F<RealPoint2D, Boolean>(){
+			public Boolean f(RealPoint2D p){
+				return (p.getX()>0 && Math.abs(p.getY()) < p.getX() && p.getY()*2 > p.getX());
+			}
+		});
+	}
+	private List<RealPoint2D> filterLeft(List<RealPoint2D> l){
+		return l.filter(new F<RealPoint2D, Boolean>(){
+			public Boolean f(RealPoint2D p){
+				return (p.getX()>0 && Math.abs(p.getY()) < p.getX() && -p.getY()*2 > p.getX());
+			}
+		});
+	}
+	
 	public RealPoint2D getTarget() {
 		return targetPoint;
 	}
