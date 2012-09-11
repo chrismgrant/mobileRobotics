@@ -18,22 +18,34 @@ public class BehaviorController {
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
-		final double vision = 1.5;
+		final double vision = 1.5, speed = .6;
 		history.add(rpos);
 		//Look to see if something is in front of me
-		RealPoint2D closest = getClosest(world);
-		setTarget(new RealPoint2D(-closest.getX(), -closest.getY()));
+		//RealPoint2D closest = getClosest(world);
 		
-		world.filter(new F<RealPoint2D, Boolean>() {
+		List<RealPoint2D> frontList = filterFront(world);
+		List<RealPoint2D> rightList = filterRight(world);
+		List<RealPoint2D> leftList  = filterLeft(world);
+		double right = getClosest(rightList).y;
+		double left  = getClosest(leftList).y;
+		double front = getClosest(frontList).x;
+		
+		//setTarget(new RealPoint2D(-closest.getX(), -closest.getY()));
+		right = (right < vision)? right/vision*speed : speed;
+		front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
+		front = (right < left) ? -front/2 : front/2;
+		left = (left < vision)? left/vision*speed : speed;
+		
+		/*world.filter(new F<RealPoint2D, Boolean>() {
 			public Boolean f(RealPoint2D p){
 				return p.x <= vision;
 			}
-		});
+		});*/
 		//Look at list If I have been there go somewhere else
 
 		//set destination
-		setTarget(new RealPoint2D(0,2));
-		//Set wheels to achieve it.
+		setTarget(new RealPoint2D(right + front, left-front));
+		
 	}
 	
 	private RealPoint2D getClosest(List<RealPoint2D> l){
@@ -51,6 +63,7 @@ public class BehaviorController {
 			}
 		});
 	}
+	
 	private List<RealPoint2D> filterFront(List<RealPoint2D> l){
 		return l.filter(new F<RealPoint2D, Boolean>(){
 			public Boolean f(RealPoint2D p){
