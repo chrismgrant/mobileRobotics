@@ -413,12 +413,9 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
 				
 				vc.updateRobotPos(pc, bac.getPose());
-/// HEAD
-//				vc.updateRobotPos(pc, new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
+
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
-/////
-				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getRPose(robot)));
-/// LastMIn
+
 				vc.updateVisualizer(pc, robot);
 				wc.setALVel(.87, 0);
 				wc.updateWheels(robot, bc.isBumped(robot));
@@ -473,6 +470,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 					bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 					trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 					//trc.addTrackersFromSonar(sonars, bac.getPose());
+					trc.updateTrackers();
 					vc.updateRobotPos(pc, bac.getPose());
 					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
 					//vc.addPoints(pc, trc.getNewTrackerRPos(BearingController.getRPose(robot)));
@@ -482,7 +480,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //						System.out.print(trc.getAllTrackerRPos().toArray().get(i));
 //						
 //					}
-					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos());
+					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
 
 					wc.setWheelVel(bvc.getTarget().x,bvc.getTarget().y);

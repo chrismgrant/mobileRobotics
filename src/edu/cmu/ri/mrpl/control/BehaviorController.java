@@ -22,14 +22,17 @@ public class BehaviorController {
 		history.add(rpos);
 		//Look to see if something is in front of me
 		//RealPoint2D closest = getClosest(world);
-		
+		for (RealPoint2D p : world.toCollection()){
+			System.out.println(p.getX()+","+p.getY());
+		}
+		System.out.println("isupdating");
 		List<RealPoint2D> frontList = filterFront(world);
 		List<RealPoint2D> rightList = filterRight(world);
 		List<RealPoint2D> leftList  = filterLeft(world);
 		double right = getClosest(rightList).y;
 		double left  = getClosest(leftList).y;
 		double front = getClosest(frontList).x;
-		System.out.println("Before right: "+right+" left: "+left+" front: "+front);
+		System.out.println("Before right: "+right+" "+rightList.length()+" left: "+left+" "+leftList.length()+" front: "+front+" "+frontList.length());
 		
 		//setTarget(new RealPoint2D(-closest.getX(), -closest.getY()));
 		right = (right < vision)? right/vision*speed : speed;
@@ -56,7 +59,7 @@ public class BehaviorController {
 				//System.out.println("next:x "+next.x+" y "+next.y+" out:x "+out.x+" y "+out.y);
 				return (out.distance(0, 0) < next.distance(0, 0))?out:next;
 			}
-		}, new RealPoint2D(0, 1));
+		}, new RealPoint2D(1, 1));
 	}
 	
 	/*private RealPoint2D getClosest(List<RealPoint2D> l)
@@ -92,17 +95,19 @@ public class BehaviorController {
 	}
 	
 	private List<RealPoint2D> filterFront(List<RealPoint2D> l){
+		
 		return l.filter(new F<RealPoint2D, Boolean>(){
 			public Boolean f(RealPoint2D p){
 				//return (p.getX()>0 && Math.abs(5*p.getY()) < p.getX());
-				return (p.getX() >= 0 && p.getY() == 0);
+				System.out.println(p.getX() +","+p.getY());
+				return (p.getX() >= 0 && Math.abs(p.getY()) <= .5);
 			}
 		});
 	}
 	private List<RealPoint2D> filterRight(List<RealPoint2D> l){
 		return l.filter(new F<RealPoint2D, Boolean>(){
 			public Boolean f(RealPoint2D p){
-				return (p.getX()>0 && p.getY() != 0 && p.getY()*2 > p.getX());
+				return (p.getX()>0 && p.getY() > .5 && p.getY()*2 > p.getX());
 			}
 		});
 	}
@@ -110,7 +115,7 @@ public class BehaviorController {
 		return l.filter(new F<RealPoint2D, Boolean>(){
 			public Boolean f(RealPoint2D p){
 //				return (p.getX()>0 && Math.abs(5*p.getY()) < p.getX() && -p.getY()*2 > p.getX());
-				return (p.getX()>0 && p.getY() != 0 && -p.getY()*2 > p.getX());
+				return (p.getX()>0 && p.getY() > .5 && -p.getY()*2 > p.getX());
 			}
 		});
 	}
