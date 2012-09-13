@@ -331,11 +331,16 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				FileWriter outFileCalcPos = new FileWriter("CalcPosData.csv");
 				FileWriter outFileRobVel = new FileWriter("RobVelData.csv");
 				FileWriter outFileCtrVel = new FileWriter("CtrVelData.csv");
-
+				FileWriter outFileData = new FileWriter("Data.csv");
+				
 				PrintWriter outRobPos = new PrintWriter(outFileRobPos);
 				PrintWriter outCalcPos = new PrintWriter(outFileCalcPos);
 				PrintWriter outRobVel = new PrintWriter(outFileRobVel);
 				PrintWriter outCtrVel =  new PrintWriter(outFileCtrVel);
+				PrintWriter outData = new PrintWriter(outFileData);
+
+				outData.println("Bearring, Robot, Velocity, Comand");
+				
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
@@ -347,13 +352,16 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					outCalcPos.print(bac.getX()+",");
 					outRobPos.print(bac.getRPose(robot).getX()+",");
 					outRobVel.print(wc.getRobLVel(robot)+",");
+					outData.print(bac.getX()+","+bac.getRPose(robot).getX()+","+wc.getRobLVel(robot)+",");
 					if (counter >= 0){
 						wc.setALVel(0, 1);
 						outCtrVel.print("1,");
+						outData.println("1");
 						counter--;
 					} else {
 						wc.setALVel(0, 0);
 						outCtrVel.print("0,");
+						outData.println("0");
 					}
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
@@ -366,6 +374,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				outCalcPos.close();
 				outRobVel.close();
 				outCtrVel.close();
+				outData.close();
 			} catch (IOException e){
 				e.printStackTrace();
 			}
