@@ -4,6 +4,11 @@ import java.awt.Toolkit;
 
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
+/**
+ * 
+ * @author WangHeli
+ *
+ */
 public class Tracker {
 
 	private boolean lost;

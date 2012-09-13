@@ -5,16 +5,9 @@ Test
 *data
 out.txt
 *.class
+*.csv
 
-ForwardData
-
-TrackData
-
-TrackFiltSonarData
-
-TrackFollowData
-
-TrackRawSonarData
+*Data
 
 bin
 
