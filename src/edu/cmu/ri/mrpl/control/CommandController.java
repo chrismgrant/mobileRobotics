@@ -11,10 +11,11 @@ import edu.cmu.ri.mrpl.CommandSequence;
  */
 public class CommandController {
 
-	Thread t;
+	ExecuteTask exe;
 	final Command nullCommand = new Command();
 	Command active;
 	CommandSequence executeQueue;
+	
 	/**
 	 * Initializes a new CommandController
 	 */
@@ -58,8 +59,8 @@ public class CommandController {
 	}
 	
 	public void execute(){
-		if (active.type != Command.Type.NULL && !t.isAlive()){
-			
+		if (exe != null && active.type != Command.Type.NULL && !exe.t.isAlive()){
+			new ExecuteTask();
 		}
 	}
 	

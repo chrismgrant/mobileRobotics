@@ -48,12 +48,12 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	private JTextField textField1;
 	private JTextField textField2;
 	
-	private WheelController wc;
-	private SonarController soc;
-	private BumperController bc;
-	private TrackerController trc;
-	private BearingController bac;
-	private CommandController cc;
+	public WheelController wc;
+	public SonarController soc;
+	public BumperController bc;
+	public TrackerController trc;
+	public BearingController bac;
+	public CommandController cc;
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
@@ -480,16 +480,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					robot.updateState();
 					robot.getSonars(sonars);
 					soc.updateSonars(sonars);
-					
-					switch(cc.getActiveCommand()){
-					
-					case NULL:{
-						
-					}
-					default: {
-						break;
-						}
-					}
+					cc.execute();
 					
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
