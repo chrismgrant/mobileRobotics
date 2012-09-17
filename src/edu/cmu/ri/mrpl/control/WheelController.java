@@ -19,6 +19,9 @@ public class WheelController {
 	private static enum MOVE_FLAGS {WHEEL, AVEL, CURVVEL};
 	private MOVE_FLAGS flag;
 	
+	/**
+	 * Initialize flags for wheel controller
+	 */
 	public WheelController(){
 		lVel = 0;
 		aVel = 0;

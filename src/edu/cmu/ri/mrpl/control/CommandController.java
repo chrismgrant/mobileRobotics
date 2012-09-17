@@ -115,6 +115,7 @@ public class CommandController {
 		if (exe != null && active.type != Command.Type.NULL && !exe.t.isAlive()){
 			new ExecuteTask(this, robot, active, bac.getPose());
 		}
+		
 	}
 	
 	

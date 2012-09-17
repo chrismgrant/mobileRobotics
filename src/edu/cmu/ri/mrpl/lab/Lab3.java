@@ -344,6 +344,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 
 				outData.println("Bearring, Robot, Velocity, Comand");
 				
+				double robotDistance = 0;
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
@@ -354,7 +355,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					outCalcPos.print(bac.getX()+",");
 					outRobPos.print(bac.getRPose(robot).getX()+",");
 					outRobVel.print(wc.getRobLVel(robot)+",");
-					outData.print(bac.getX()+","+bac.getRPose(robot).getX()+","+wc.getRobLVel(robot)+",");
+					robotDistance = Math.hypot(robot.getPosX(),robot.getPosY()); 
+					outData.print(bac.getX()+","+robotDistance+","+wc.getRobLVel(robot)+",");
 					if (counter >= 0){
 						wc.setALVel(0, 1);
 						outCtrVel.print("1,");

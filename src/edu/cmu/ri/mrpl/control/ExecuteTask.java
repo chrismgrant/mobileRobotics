@@ -110,8 +110,6 @@ public class ExecuteTask implements Runnable{
 			}
 			case NULL:
 			default:{
-				parent.wc.setCLVel(.5, .5);
-				parent.wc.updateWheels(robot, parent.bc.isBumped(robot));
 				break;
 			}
 			}
