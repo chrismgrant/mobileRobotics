@@ -19,6 +19,7 @@ import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.control.BearingController;
 import edu.cmu.ri.mrpl.control.BumperController;
+import edu.cmu.ri.mrpl.control.CommandController;
 import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.WheelController;
@@ -59,7 +60,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	private Task curTask = null;
 
 	public Lab3() {
-		super("Lab1");
+		super("Lab3");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
@@ -324,7 +325,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 
 			double[] sonars = new double[16];
 			double direction = 0;
-			int counter = 40;
+			int counter = 20;
 			wc.setALVel(0, 0);
 			try{
 				FileWriter outFileRobPos = new FileWriter("RobPosData.csv");
@@ -347,8 +348,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					soc.updateSonars(sonars);
 					sc.setSonars(soc.getSonarReadings());
 					sc2.setSonars(sonars);
-					bac.updateBearing(wc.getLVel(), wc.getAVel());
-					
+					bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
 					outCalcPos.print(bac.getX()+",");
 					outRobPos.print(bac.getRPose(robot).getX()+",");
 					outRobVel.print(wc.getRobLVel(robot)+",");
@@ -449,7 +449,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class TrackTask extends Task {
-
+		CommandController commands;
+		
 		TrackTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
@@ -475,27 +476,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					robot.updateState();
 					robot.getSonars(sonars);
 					soc.updateSonars(sonars);
-					for(int i =0 ; i < 16; i ++){
-					 	outRawSonar.print(sonars[i]+",");
-					 	outRawSonar.println(";");
-					}
-					for(int i =0 ; i < 16; i ++){
-					 	outFiltSonar.print(soc.getSonarReadings()[i]+",");
-					 	outFiltSonar.println(";");
-					}
-					sc.setSonars(soc.getSonarReadings());
-					sc2.setSonars(sonars);
-//					trc.updateTracker(soc.getSonarReadings(), wc.getAVel());
-//					outFollowTracker.println(trc.getFollowDirection(true)+","+trc.getFollowDistance(true)+";");
-//					direction = trc.getFollowDirection(false) * 22.5 * Math.PI/180;
-//					wc.pointToDirection(direction);
-//					if (direction < Math.PI/2 || direction > 3*Math.PI/2){
-//						wc.shadowPoint(trc.getFollowPoint(),trc.isFollowLost(), soc.getForwardSonarReading(), .5);
-//					}
-////					wc.setCurv(2);
-////					wc.setLVel(.5);
-//					System.out.println("Tracker Direction: " + trc.getFollowDirection(false));
-//					System.out.println("Tracker distance: " + trc.getFollowDistance(false));
+					
+					
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
 						Thread.sleep(25);
