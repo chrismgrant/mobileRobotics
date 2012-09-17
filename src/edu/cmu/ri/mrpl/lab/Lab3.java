@@ -47,13 +47,6 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	private JTextField outputField;
 	private JTextField textField1;
 	private JTextField textField2;
-	
-	public WheelController wc;
-	public SonarController soc;
-	public BumperController bc;
-	public TrackerController trc;
-	public BearingController bac;
-	public CommandController cc;
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
@@ -313,6 +306,12 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	//
 
 	class RotateTask extends Task {
+		public WheelController wc;
+		public SonarController soc;
+		public BumperController bc;
+		public TrackerController trc;
+		public BearingController bac;
+		public CommandController cc;
 		
 		RotateTask(TaskController tc) {
 			super(tc);
@@ -392,6 +391,12 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class ForwardTask extends Task {
+		public WheelController wc;
+		public SonarController soc;
+		public BumperController bc;
+		public TrackerController trc;
+		public BearingController bac;
+		public CommandController cc;
 
 		ForwardTask(TaskController tc) {
 			super(tc);
@@ -452,21 +457,19 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class TrackTask extends Task {
-		
+
+		CommandController cc;
 		
 		TrackTask(TaskController tc) {
 			super(tc);
-			wc = new WheelController();
-			soc = new SonarController();
-			bc = new BumperController();
-			trc = new TrackerController();
-			cc = new CommandController();
+			
+			cc = new CommandController(robot);
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-			wc.setALVel(0, 0);
+			
 			double[] sonars = new double[16];
 			double direction = -1;
 			try{
@@ -479,10 +482,10 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
-					soc.updateSonars(sonars);
-					cc.execute();
 					
-					wc.updateWheels(robot, bc.isBumped(robot));
+					cc.updateControllers(sonars);
+					cc.execute();
+
 					try {
 						Thread.sleep(25);
 					} catch(InterruptedException iex) {

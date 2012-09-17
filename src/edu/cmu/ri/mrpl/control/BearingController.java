@@ -4,6 +4,7 @@ import java.util.Date;
 
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 public class BearingController {
@@ -42,6 +43,9 @@ public class BearingController {
 	}
 	public RealPose2D getPose(){
 		return pose.clone();
+	}
+	public RealPoint2D getPosition(){
+		return getPose().getPosition();
 	}
 	public static RealPose2D getRPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());

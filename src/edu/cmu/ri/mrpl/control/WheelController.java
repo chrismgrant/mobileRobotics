@@ -3,6 +3,12 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
+/**
+ * Controller handling wheels.
+ * Should only deal with getting and setting wheel status
+ * @author WangHeli
+ *
+ */
 public class WheelController {
 
 	private static final double BRAKING_COEFFICIENT = 1;
@@ -98,7 +104,6 @@ public class WheelController {
 		} else {
 			r.setVel(0,0);
 		}
-		//System.out.println("L: "+lVel+", A: "+aVel+", c: "+curv);
 	}
 	/**
 	 * Points the robot in the direction specified. Utilizes current wheel speed for smooth turning

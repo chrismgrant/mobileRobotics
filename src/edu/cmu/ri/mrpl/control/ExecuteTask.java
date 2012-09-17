@@ -14,12 +14,14 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
  */
 public class ExecuteTask implements Runnable{
 
+	private static final double THRESHOLD = .01;
+
 	private Robot robot;
 	Thread t;
 	private Command active;
 	private boolean taskComplete;
 	private RealPose2D initPose;
-	private static final double threshold = .01;
+	private CommandController parent;
 	
 	//Arguments
 	private Angle angArg;
@@ -28,6 +30,7 @@ public class ExecuteTask implements Runnable{
 	private Path pthArg;
 	private RealPoint2D pntArg;
 	private RealPose2D pseArg;
+ 
 	
 	/**
 	 * Initializes execution thread
@@ -35,12 +38,14 @@ public class ExecuteTask implements Runnable{
 	 * @param c command
 	 * @param p initial Pose at execution time
 	 */
-	public ExecuteTask(Robot r, Command c, RealPose2D p){
+	public ExecuteTask(CommandController parentController, Robot r, Command c, RealPose2D p){
 		t = new Thread(this, "ExecuteTask");
 		active = c;
 		robot = r;
 		taskComplete = false;
 		initPose = p;
+		parent = parentController;
+		
 		switch (active.type){
 		case TURNTO: {
 			angArg = new Angle(Double.valueOf(active.argument.serialize()));
@@ -62,26 +67,31 @@ public class ExecuteTask implements Runnable{
 	
 	/**
 	 * Runs the thread. Used by Thread class
+	 * Should only call accessor functions of parent controllers,
+	 * with exception of Wheel controller.  
+	 * 
+	 * Run is terminated when condition for specified command type is fulfilled 
 	 */
 	public void run(){//TODO coordinate controller classes
 		while (!taskComplete){
 			switch (active.type){
 			case TURNTO:{
 				
-				if ((angArg.angleValue() + initPose.getTh() - bac.getTheta()) < threshold){
+				if ((angArg.angleValue() + initPose.getTh() - parent.bac.getDirection()) < THRESHOLD){
 					taskComplete = true;
 				}
-				wc.setCVel(a,b);
-				wc.updateWheels(robot);
+				
+				
+				parent.wc.setCLVel(1, 0);
+				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
 			case GOTO:{
-				
-				if ((dblArg -initPose.getPosition().distance(bac.getPosition())) < threshold){
+				if ((dblArg -initPose.getPosition().distance(parent.bac.getPosition())) < THRESHOLD){
 					taskComplete = true;
 				}
-				wc.setCVel(0,b);
-				wc.updateWheels(robot);
+				parent.wc.setCLVel(0,1);
+				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
 			case PAUSE:{
