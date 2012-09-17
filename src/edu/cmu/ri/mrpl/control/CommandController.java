@@ -23,19 +23,19 @@ public class CommandController {
 	VisualizeController vc;
 	SpeechController spc;
 	
-	ExecuteTask exe;
-	final Command nullCommand = new Command();
-	Command active;
-	CommandSequence executeQueue;
 	Robot robot;
+	
+	private ExecuteTask exe;
+	private final Command nullCommand = new Command();
+	private Command active;
+	private CommandSequence executeQueue;
 	
 	/**
 	 * Initializes a new CommandController
 	 */
-	public CommandController(Robot r){
+	public CommandController(){
 		executeQueue = new CommandSequence();
 		active = new Command();
-		robot = r;
 		
 		wc = new WheelController();
 		soc = new SonarController();
@@ -46,6 +46,20 @@ public class CommandController {
 		bhc = new BehaviorController();
 		vc = new VisualizeController();
 		spc = new SpeechController();
+	}
+	/**
+	 * Passes robot object to CommandController. Must be called in run thread before while loop
+	 * @param r robot
+	 */
+	public void syncRobot(Robot r){
+		robot = r;
+	}
+	/**
+	 * Gets filtered sonar readings for sonar console
+	 * @return array of sonar readings
+	 */
+	public double[] getSonars(){
+		return soc.getSonarReadings();
 	}
 	/**
 	 * Gets next command in execution stack, or returns null command if empty
@@ -92,6 +106,7 @@ public class CommandController {
 		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 		trc.updateTrackers();
 		//TODO add VC update
+
 	}
 	/**
 	 * Creates new execution thread to complete pending command.

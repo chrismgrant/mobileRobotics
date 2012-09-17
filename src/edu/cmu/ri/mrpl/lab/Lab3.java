@@ -26,7 +26,7 @@ import edu.cmu.ri.mrpl.control.WheelController;
 
 public class Lab3 extends JFrame implements ActionListener, TaskController {
 
-	private Robot robot;
+	public Robot robot;
 	private SonarConsole sc;
 	private SonarConsole sc2;
 	private JFrame scFrame;
@@ -463,15 +463,15 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		TrackTask(TaskController tc) {
 			super(tc);
 			
-			cc = new CommandController(robot);
+			cc = new CommandController();
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
+			cc.syncRobot(robot);
 			
 			double[] sonars = new double[16];
-			double direction = -1;
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
@@ -482,6 +482,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
+					sc.setSonars(sonars);
+					sc2.setSonars(cc.getSonars());
 					
 					cc.updateControllers(sonars);
 					cc.execute();
