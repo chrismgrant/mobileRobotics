@@ -79,18 +79,21 @@ public class ExecuteTask implements Runnable{
 				
 				if ((angArg.angleValue() + initPose.getTh() - parent.bac.getDirection()) < THRESHOLD){
 					taskComplete = true;
+					parent.wc.setALVel(0, 0);
 				}
 				
 				
-				parent.wc.setCLVel(1, 0);
+				parent.wc.setALVel(1, 0);
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
 			case GOTO:{
 				if ((dblArg -initPose.getPosition().distance(parent.bac.getPosition())) < THRESHOLD){
 					taskComplete = true;
+					parent.wc.setALVel(0, 0);
 				}
-				parent.wc.setCLVel(0,1);
+				
+				parent.wc.setALVel(0,1);
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
