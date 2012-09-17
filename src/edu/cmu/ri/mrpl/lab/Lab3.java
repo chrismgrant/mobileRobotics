@@ -44,6 +44,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	private JButton button3;
 	private JButton button4;
 
+	private JTextField outputField;
 	private JTextField textField1;
 	private JTextField textField2;
 	
@@ -52,6 +53,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	private BumperController bc;
 	private TrackerController trc;
 	private BearingController bac;
+	private CommandController cc;
 
 	private RotateTask programTask;
 	private ForwardTask sonarTask;
@@ -71,6 +73,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		stopButton = new JButton(">> stop <<");
 		quitButton = new JButton(">> quit <<");
 
+		outputField = new JTextField("Output here");
 		button3 = new JButton("button3");
 		button4 = new JButton("button4");
 		textField1 = new JTextField("textField1");
@@ -449,7 +452,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class TrackTask extends Task {
-		CommandController commands;
+		
 		
 		TrackTask(TaskController tc) {
 			super(tc);
@@ -457,6 +460,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			soc = new SonarController();
 			bc = new BumperController();
 			trc = new TrackerController();
+			cc = new CommandController();
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
@@ -477,6 +481,15 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					robot.getSonars(sonars);
 					soc.updateSonars(sonars);
 					
+					switch(cc.getActiveCommand()){
+					
+					case NULL:{
+						
+					}
+					default: {
+						break;
+						}
+					}
 					
 					wc.updateWheels(robot, bc.isBumped(robot));
 					try {
