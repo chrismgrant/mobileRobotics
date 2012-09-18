@@ -54,10 +54,11 @@ public class ExecuteTask implements Runnable{
 		isContinuous = c.isContinuous;
 		Speech hal = new Speech();
 		
+		System.out.println("Executing thread");
 		switch (active.type){
 		case TURNTO: {
 			angArg = new Angle(Double.valueOf(active.argument.serialize()));
-			hal.speak("Turning " + angArg.toString() + " degrees");
+			hal.speak("Turning " + angArg.toString() + " radians");
 			break;
 		}
 		case GOTO: {
@@ -70,10 +71,12 @@ public class ExecuteTask implements Runnable{
 			hal.speak("Waiting " + dblArg + " seconds");
 			break;
 		}
-		case PAUSE:
+		case PAUSE:{
+			hal.speak("Pausing until keyboard press");
+			break;
+		}
 		case NULL:
 		default: {
-			hal.speak("Pausing until keyboard press");
 			break;
 		}
 		}
@@ -111,11 +114,8 @@ public class ExecuteTask implements Runnable{
 					//logic
 					parent.wc.setALVel(0,1);
 				}
-<<<<<<< HEAD
-=======
-				
+
 				parent.wc.setALVel(0,parent.bhc.moveForward(currentDelta));
->>>>>>> Added PID loop
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
@@ -131,10 +131,11 @@ public class ExecuteTask implements Runnable{
 					e.printStackTrace();
 				}
 				taskComplete = true;
+				break;
 			}
 			case WAIT:{
 				try {
-					Thread.sleep(Long.valueOf(Double.toString(dblArg * 1000)));
+					Thread.sleep((long) dblArg * 1000);
 					taskComplete = true;
 				} catch (InterruptedException e){
 					e.printStackTrace();
@@ -143,9 +144,11 @@ public class ExecuteTask implements Runnable{
 			}
 			case NULL:
 			default:{
+				taskComplete = true;
 				break;
 			}
 			}
 		}
+		
 	}	
 }

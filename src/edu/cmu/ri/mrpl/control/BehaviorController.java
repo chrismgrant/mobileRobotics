@@ -148,6 +148,9 @@ public class BehaviorController {
 		double target = (speed > MAX_SPEED) ? MAX_SPEED : ((Math.abs(speed)<=.03)? 0 : speed);
 		return target; 
 	}
+	/**
+	 * Clears integrals from PID controllers. Needed for 
+	 */
 	public void clearIntegrals(){
 		forwardPID.clearIntegral();
 	}

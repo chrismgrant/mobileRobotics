@@ -467,6 +467,9 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			super(tc);
 			
 			cc = new CommandController();
+		
+			cc.addCommandFromFile("in.txt");
+
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {

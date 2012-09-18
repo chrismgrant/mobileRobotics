@@ -1,8 +1,11 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.io.IOException;
+import java.lang.*;
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.lab.Lab3;
 
 
@@ -53,6 +56,7 @@ public class CommandController {
 	 */
 	public void syncRobot(Robot r){
 		robot = r;
+		exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
 	}
 	/**
 	 * Gets filtered sonar readings for sonar console
@@ -95,6 +99,15 @@ public class CommandController {
 	public void addCommand(Command c){
 		executeQueue.add(c);
 	}
+	public void addCommandFromFile(java.lang.String inputFile){
+		try {
+			executeQueue.readFile(inputFile);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Updates all controllers.
 	 * To be called before accessing controller information
@@ -112,10 +125,13 @@ public class CommandController {
 	 * Creates new execution thread to complete pending command.
 	 */
 	public void execute(){
-		if (exe != null && active.type != Command.Type.NULL && !exe.t.isAlive()){
-			new ExecuteTask(this, robot, active, bac.getPose());
-		}
-		
+		System.out.println("Execute method" + active.type);
+//		if (active.type != Command.Type.NULL){
+			if (!exe.t.isAlive()){
+				getNext();
+				exe = new ExecuteTask(this, robot, active, bac.getPose());
+			}
+//		} 
 	}
 	
 	
