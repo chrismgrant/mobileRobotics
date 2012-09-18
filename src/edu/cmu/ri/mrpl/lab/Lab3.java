@@ -505,6 +505,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					cc.addCommandFromFile("command.txt");
 					cc.updateControllers(sonars);
 					cc.execute();
+<<<<<<< HEAD
 				
 					FileWriter commandFile;
 					try {
@@ -516,6 +517,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 						
 						e1.printStackTrace();
 					}
+=======
+>>>>>>> Bugfix1
 					
 
 					try {
@@ -531,7 +534,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			} catch (IOException e){
 				e.printStackTrace();
 			}
-			
+			cc.haltThread();
 			
 			robot.turnSonarsOff();
 			robot.setVel(0.0f, 0.0f);

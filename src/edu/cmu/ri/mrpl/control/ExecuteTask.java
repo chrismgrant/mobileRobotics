@@ -23,7 +23,7 @@ public class ExecuteTask implements Runnable{
 	private Robot robot;
 	Thread t;
 	private Command active;
-	private boolean taskComplete;
+	private boolean taskComplete, running;
 	private RealPose2D initPose;
 	private CommandController parent;
 	private Speech hal;
@@ -40,6 +40,7 @@ public class ExecuteTask implements Runnable{
 	private int event;
 	
 	
+	
 	/**
 	 * Initializes execution thread
 	 * @param r robot
@@ -51,6 +52,7 @@ public class ExecuteTask implements Runnable{
 		active = c;
 		robot = r;
 		taskComplete = false;
+		running = true;
 		initPose = p;
 		parent = parentController;
 		isContinuous = c.isContinuous;
@@ -89,6 +91,9 @@ public class ExecuteTask implements Runnable{
 		double b = Math.pow(10.0, decimals);
 		return (long)(in * a)/b;
 	}
+	void halt(){
+		running = false;
+	}
 	/**
 	 * Runs the thread. Used by Thread class
 	 * Should only call accessor functions of parent controllers,
@@ -97,7 +102,7 @@ public class ExecuteTask implements Runnable{
 	 * Run is terminated when condition for specified command type is fulfilled 
 	 */
 	public void run(){//TODO coordinate controller classes
-		while (!taskComplete){
+		while (running && !taskComplete){
 			switch (active.type){
 			case TURNTO:{
 				currentError = angArg.angleValue() + initPose.getTh() - parent.bac.getDirection();
@@ -124,6 +129,7 @@ public class ExecuteTask implements Runnable{
 				boolean forward = (tgtY > slope*tgtX - slope*robX + robY);
 				double dist = initPose.getPosition().distance(parent.bac.getPosition());
 				currentError = dblArg - ((forward)?dist:-dist);
+				System.out.println(currentError);
 				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
@@ -164,6 +170,11 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			}
+//			try {
+//				Thread.sleep(25);
+//			} catch(InterruptedException iex) {
+//				System.out.println("\"Both\" sleep interrupted");
+//			}
 		}
 		
 	}	

@@ -131,5 +131,7 @@ public class CommandController {
 		}
 	}
 	
-	
+	public void haltThread(){
+		exe.halt();
+	}
 }
