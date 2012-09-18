@@ -7,6 +7,8 @@ import edu.cmu.ri.mrpl.Speech;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import java.io.IOException;
+
 
 /**
  * Execution thread that controls robot with command
@@ -33,7 +35,8 @@ public class ExecuteTask implements Runnable{
 	private Path pthArg;
 	private RealPoint2D pntArg;
 	private RealPose2D pseArg;
- 
+	private int event;
+	
 	
 	/**
 	 * Initializes execution thread
@@ -85,10 +88,10 @@ public class ExecuteTask implements Runnable{
 				if ((angArg.angleValue() + initPose.getTh() - parent.bac.getDirection()) < THRESHOLD){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
+				}else{
+					//logic
+					parent.wc.setALVel(1, 0);
 				}
-				
-				
-				parent.wc.setALVel(1, 0);
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
@@ -96,16 +99,25 @@ public class ExecuteTask implements Runnable{
 				if ((dblArg -initPose.getPosition().distance(parent.bac.getPosition())) < THRESHOLD){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
+				}else{
+					//logic
+					parent.wc.setALVel(0,1);
 				}
-				
-				parent.wc.setALVel(0,1);
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
 			case PAUSE:{
-				if (false){ //TODO check for keyboard input
+				/*if (event!=0){ //TODO check for keyboard input
 					taskComplete = true;
+					event = 0;
+				}*/
+				try {
+					System.in.read();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+				taskComplete = true;
 			}
 			case WAIT:{
 				try {
@@ -123,5 +135,5 @@ public class ExecuteTask implements Runnable{
 			}
 			}
 		}
-	}
+	}	
 }
