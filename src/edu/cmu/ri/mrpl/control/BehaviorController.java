@@ -12,12 +12,13 @@ public class BehaviorController {
 	private final double MAX_SPEED = .886;
 	private RealPoint2D targetPoint;
 	private Path history;
-	private PIDController forwardPID;
+	private PIDController forwardPID, turnPID;
 	
 	public BehaviorController(){
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
 		forwardPID = new PIDController(1,0);
+		turnPID = new PIDController(1.1,0);
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
@@ -145,13 +146,19 @@ public class BehaviorController {
 	 */
 	public double moveForward(double distance){
 		double speed = forwardPID.getOutput(distance);
-		double target = (speed > MAX_SPEED) ? MAX_SPEED : ((Math.abs(speed)<=.03)? 0 : speed);
+		double target = (speed > MAX_SPEED) ? MAX_SPEED : speed;
 		return target; 
+	}
+	public double turnTo(double angleDistance){
+		double angle = turnPID.getOutput(angleDistance);
+		double target = (angle > MAX_SPEED) ? MAX_SPEED : angle;
+		return target;
 	}
 	/**
 	 * Clears integrals from PID controllers. Needed for 
 	 */
 	public void clearIntegrals(){
 		forwardPID.clearIntegral();
+		turnPID.clearIntegral();
 	}
 }

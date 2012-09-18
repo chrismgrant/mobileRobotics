@@ -24,7 +24,6 @@ public class CommandController {
 	BehaviorController bhc;
 	
 	VisualizeController vc;
-	SpeechController spc;
 	
 	Robot robot;
 	
@@ -48,7 +47,6 @@ public class CommandController {
 		bac = new BearingController();
 		bhc = new BehaviorController();
 		vc = new VisualizeController();
-		spc = new SpeechController();
 	}
 	/**
 	 * Passes robot object to CommandController. Must be called in run thread before while loop
@@ -70,6 +68,7 @@ public class CommandController {
 	 * @return Next command to execute
 	 */
 	Command getNext(){
+		bhc.clearIntegrals();
 		if (executeQueue.isEmpty()){
 			active = nullCommand;
 			return active;
@@ -125,13 +124,11 @@ public class CommandController {
 	 * Creates new execution thread to complete pending command.
 	 */
 	public void execute(){
-		System.out.println("Execute method" + active.type);
-//		if (active.type != Command.Type.NULL){
-			if (!exe.t.isAlive()){
-				getNext();
-				exe = new ExecuteTask(this, robot, active, bac.getPose());
-			}
-//		} 
+//		System.out.println("Execute method" + active.type);
+		if (!exe.t.isAlive()){
+			getNext();
+			exe = new ExecuteTask(this, robot, active, bac.getPose());
+		}
 	}
 	
 	
