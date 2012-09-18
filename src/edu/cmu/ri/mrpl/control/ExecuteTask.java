@@ -136,7 +136,6 @@ public class ExecuteTask implements Runnable{
 				try {
 					Thread.sleep(Long.valueOf(Double.toString(dblArg * 1000)));
 					taskComplete = true;
-					speaker.speak("hello world");
 				} catch (InterruptedException e){
 					e.printStackTrace();
 				}
