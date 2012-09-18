@@ -25,7 +25,7 @@ import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.WheelController;
 
 public class Lab3 extends JFrame implements ActionListener, TaskController {
-
+	public String command;
 	public Robot robot;
 	private SonarConsole sc;
 	private SonarConsole sc2;
@@ -271,6 +271,18 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		} else if ( source==bothButton ) {
 			(new Thread(bothTask)).start();
 		} else if ( source==commandButton) {
+			 command = commandText.getText();
+			 FileWriter commandFile;
+			try {
+				commandFile = new FileWriter("command.txt");
+				 PrintWriter outCommand = new PrintWriter(commandFile);
+				 outCommand.print(command);
+				 commandFile.close();
+			} catch (IOException e1) {
+				
+				e1.printStackTrace();
+			}
+			
 			
 		}
 	}
@@ -468,7 +480,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			
 			cc = new CommandController();
 		
-			cc.addCommandFromFile("in.txt");
+//			cc.addCommandFromFile("in.txt");
 
 		}
 		int counter = 25, a = 1;
@@ -490,12 +502,25 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					robot.getSonars(sonars);
 					sc.setSonars(sonars);
 					sc2.setSonars(cc.getSonars());
-					
+					cc.addCommandFromFile("command.txt");
 					cc.updateControllers(sonars);
 					cc.execute();
+				
+					FileWriter commandFile;
+					try {
+						commandFile = new FileWriter("command.txt");
+						 PrintWriter outCommand = new PrintWriter(commandFile);
+						 outCommand.print("");
+						 commandFile.close();
+					} catch (IOException e1) {
+						
+						e1.printStackTrace();
+					}
+					
 
 					try {
 						Thread.sleep(25);
+
 					} catch(InterruptedException iex) {
 						System.out.println("\"Both\" sleep interrupted");
 					}
