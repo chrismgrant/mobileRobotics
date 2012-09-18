@@ -520,7 +520,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					
 
 					try {
-						Thread.sleep(25);
+						Thread.sleep(20);
 
 					} catch(InterruptedException iex) {
 						System.out.println("\"Both\" sleep interrupted");

@@ -8,6 +8,8 @@ import edu.cmu.ri.mrpl.Task;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+
+import java.awt.geom.Point2D;
 import java.io.IOException;
 
 
@@ -18,7 +20,7 @@ import java.io.IOException;
  */
 public class ExecuteTask implements Runnable{
 
-	private static final double THRESHOLD = .001;
+	private static final double THRESHOLD = .005;
 	private static final int SPEECH_PREC = 3;
 
 	private Robot robot;
@@ -94,6 +96,7 @@ public class ExecuteTask implements Runnable{
 	}
 	void halt(){
 		running = false;
+		parent.wc.setALVel(0, 0);
 	}
 	/**
 	 * Runs the thread. Used by Thread class
@@ -120,16 +123,11 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			case GOTO:{
-				Angle a = new Angle(parent.bac.getDirection()); 
-				Angle turn = new Angle(90);
-				double slope = Math.atan(a.add(turn));
-				double robX = parent.bac.getX();
-				double robY = parent.bac.getY();
-				double tgtX = initPose.getX();
-				double tgtY = initPose.getY();
-				boolean forward = (tgtY > slope*tgtX - slope*robX + robY);
-				double dist = initPose.getPosition().distance(parent.bac.getPosition());
-				currentError = dblArg - ((forward)?dist:-dist);
+				
+				Point2D result = null;
+				result = initPose.inverse().transform(parent.bac.getPosition(),result);
+				
+				currentError = dblArg - result.getX();
 				System.out.println(currentError);
 				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
@@ -171,12 +169,12 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			}
-//			try {
-//				Thread.sleep(25);
-//			} catch(InterruptedException iex) {
-//				System.out.println("\"Both\" sleep interrupted");
-//			}
+			try {
+				Thread.sleep(20);
+			} catch(InterruptedException iex) {
+				System.out.println("\"Both\" sleep interrupted");
+			}
 		}
-		
+		System.out.println("Exec halted");
 	}	
 }
