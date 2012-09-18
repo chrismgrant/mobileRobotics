@@ -14,6 +14,7 @@ public class WheelController {
 	private static final double BRAKING_COEFFICIENT = 1;
 	private static final double SPEED = 1.2;
 	private static final double MIN_SPEED = .03;
+	private static final double MAX_SPEED = .886;
 	private static final double ROB_WIDTH = .355;
 	private double lVel, aVel, curv, lWVel, rWVel;
 	private static enum MOVE_FLAGS {WHEEL, AVEL, CURVVEL};

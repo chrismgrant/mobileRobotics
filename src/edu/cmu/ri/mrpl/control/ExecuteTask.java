@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.Speech;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
@@ -22,8 +23,10 @@ public class ExecuteTask implements Runnable{
 	private boolean taskComplete;
 	private RealPose2D initPose;
 	private CommandController parent;
+	private Speech speaker;
 	
 	//Arguments
+	private boolean isContinuous;
 	private Angle angArg;
 	private int intArg;
 	private double dblArg;
@@ -45,6 +48,8 @@ public class ExecuteTask implements Runnable{
 		taskComplete = false;
 		initPose = p;
 		parent = parentController;
+		isContinuous = c.isContinuous;
+		speaker = new Speech();
 		
 		switch (active.type){
 		case TURNTO: {
@@ -106,6 +111,7 @@ public class ExecuteTask implements Runnable{
 				try {
 					Thread.sleep(Long.valueOf(Double.toString(Double.valueOf(active.argument.toString()) * 1000)));
 					taskComplete = true;
+					speaker.speak("hello world");
 				} catch (InterruptedException e){
 					e.printStackTrace();
 				}
