@@ -66,12 +66,14 @@ class PIDController {
 		lastClockD = clockD.getTime();
 		clockD.setTime(System.currentTimeMillis());
 		long dt = clockD.getTime() - lastClockD;
+		dt = (dt == 0)?1:dt;
 		return dv/dt;
 	}
 	private double getIntegral(double inputValue){
 		lastClockI = clockI.getTime();
 		clockI.setTime(System.currentTimeMillis());
 		long dt = clockI.getTime() - lastClockI;
+		dt = (dt == 0)?1:dt;
 		iInt += inputValue*dt;
 		if (iCap < iInt){
 			clearIntegral();
