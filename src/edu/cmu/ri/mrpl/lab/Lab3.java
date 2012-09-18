@@ -41,11 +41,11 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 
 	private JButton stopButton;
 	private JButton quitButton;
-	private JButton button3;
+	private JButton commandButton;
 	private JButton button4;
 
 	private JTextField outputField;
-	private JTextField textField1;
+	private JTextField commandText;
 	private JTextField textField2;
 
 	private RotateTask programTask;
@@ -67,9 +67,9 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		quitButton = new JButton(">> quit <<");
 
 		outputField = new JTextField("Output here");
-		button3 = new JButton("button3");
+		commandButton = new JButton("commandButton");
 		button4 = new JButton("button4");
-		textField1 = new JTextField("textField1");
+		commandText = new JTextField("commandText");
 		textField2 = new JTextField("textField2");
 
 		connectButton.addActionListener(this);
@@ -81,7 +81,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		stopButton.addActionListener(this);
 		quitButton.addActionListener(this);
 
-		button3.addActionListener(this);
+		commandButton.addActionListener(this);
 		button4.addActionListener(this);
 
 		Container main = getContentPane();
@@ -119,9 +119,9 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		box = Box.createHorizontalBox();
 		main.add(box);
 		box.add(Box.createHorizontalStrut(30));
-		box.add(button3);
+		box.add(commandButton);
 		box.add(Box.createHorizontalStrut(30));
-		box.add(textField1);
+		box.add(commandText);
 		box.add(Box.createHorizontalStrut(30));
 
 		main.add(Box.createVerticalStrut(30));
@@ -270,7 +270,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			(new Thread(sonarTask)).start();
 		} else if ( source==bothButton ) {
 			(new Thread(bothTask)).start();
-		} else if ( source==button3) {
+		} else if ( source==commandButton) {
 			
 		}
 	}
