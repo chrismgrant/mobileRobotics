@@ -480,7 +480,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			
 			cc = new CommandController();
 		
-//			cc.addCommandFromFile("in.txt");
+			cc.addCommandFromFile("in.txt");
 
 		}
 		int counter = 25, a = 1;
@@ -502,23 +502,21 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					robot.getSonars(sonars);
 					sc.setSonars(sonars);
 					sc2.setSonars(cc.getSonars());
-					cc.addCommandFromFile("command.txt");
+//					cc.addCommandFromFile("command.txt");
 					cc.updateControllers(sonars);
 					cc.execute();
-<<<<<<< HEAD
-				
-					FileWriter commandFile;
-					try {
-						commandFile = new FileWriter("command.txt");
-						 PrintWriter outCommand = new PrintWriter(commandFile);
-						 outCommand.print("");
-						 commandFile.close();
-					} catch (IOException e1) {
-						
-						e1.printStackTrace();
-					}
-=======
->>>>>>> Bugfix1
+
+//					FileWriter commandFile;
+//					try {
+////						commandFile = new FileWriter("command.txt");
+//						 PrintWriter outCommand = new PrintWriter(commandFile);
+//						 outCommand.print("");
+//						 commandFile.close();
+//					} catch (IOException e1) {
+//						
+//						e1.printStackTrace();
+//					}
+
 					
 
 					try {

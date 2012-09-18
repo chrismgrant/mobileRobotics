@@ -4,6 +4,7 @@ import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.Speech;
+import edu.cmu.ri.mrpl.Task;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;

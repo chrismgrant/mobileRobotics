@@ -130,8 +130,10 @@ public class CommandController {
 			exe = new ExecuteTask(this, robot, active, bac.getPose());
 		}
 	}
-	
-	public void haltThread(){
+	public void haltThread() {
 		exe.halt();
+		
 	}
+	
+	
 }

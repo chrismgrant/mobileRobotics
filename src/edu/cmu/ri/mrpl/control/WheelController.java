@@ -87,7 +87,7 @@ public class WheelController {
 	 * Sends velocity command to robot
 	 * @param r robot object
 	 */
-	public void updateWheels(Robot r, boolean isBumped){
+	public synchronized void updateWheels(Robot r, boolean isBumped){
 		if (!isBumped){
 			switch(flag){
 				case AVEL: {
@@ -147,7 +147,7 @@ public class WheelController {
 	 * @param r robot
 	 * @return encoded linear velocity, m/s
 	 */
-	public static double getRobLVel(Robot r){
+	public synchronized static double getRobLVel(Robot r){
 		return (r.getVelLeft()+r.getVelRight())/2;
 	}
 	/**
@@ -155,7 +155,7 @@ public class WheelController {
 	 * @param r robot 
 	 * @return angular velocity, radians per second
 	 */
-	public static double getRobAVel(Robot r){
+	public synchronized static double getRobAVel(Robot r){
 		return (r.getVelRight() - r.getVelLeft()) / ROB_WIDTH;
 	}
 	/**
@@ -163,7 +163,7 @@ public class WheelController {
 	 * @param r robot
 	 * @return linear velocity, m/s
 	 */
-	public static double getRobLeftWheelVel(Robot r){
+	public synchronized static double getRobLeftWheelVel(Robot r){
 		return (r.getVelLeft());
 	}
 	/**
@@ -171,7 +171,7 @@ public class WheelController {
 	 * @param r robot
 	 * @return linear velocity, m/s
 	 */
-	public static double getRobRightWheelVel(Robot r){
+	public synchronized static double getRobRightWheelVel(Robot r){
 		return (r.getVelRight());
 	}
 	/**
