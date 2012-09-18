@@ -49,21 +49,28 @@ public class ExecuteTask implements Runnable{
 		initPose = p;
 		parent = parentController;
 		isContinuous = c.isContinuous;
-		speaker = new Speech();
+		Speech hal = new Speech();
 		
 		switch (active.type){
 		case TURNTO: {
 			angArg = new Angle(Double.valueOf(active.argument.serialize()));
+			hal.speak("Turning " + angArg.toString() + " degrees");
 			break;
 		}
-		case GOTO: 
+		case GOTO: {
+			dblArg = Double.valueOf(active.argument.serialize());
+			hal.speak("Moving " + dblArg + " meters forward");
+			break;
+		}
 		case WAIT: {
 			dblArg = Double.valueOf(active.argument.serialize());
+			hal.speak("Waiting " + dblArg + " seconds");
 			break;
 		}
 		case PAUSE:
 		case NULL:
 		default: {
+			hal.speak("Pausing until keyboard press");
 			break;
 		}
 		}

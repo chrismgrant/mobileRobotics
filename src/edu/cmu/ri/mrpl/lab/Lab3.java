@@ -414,8 +414,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			wc.setALVel(0,0);
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
-			Speech lady = new Speech();
-			lady.speak("Hi Gabe ah licious!");
+			
 			try{
 				FileWriter outFileRawSonar = new FileWriter("FwdRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("FwdFiltSonarData");
