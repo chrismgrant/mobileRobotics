@@ -9,12 +9,15 @@ import fj.F;
 
 public class BehaviorController {
 
+	private final double MAX_SPEED = .886;
 	private RealPoint2D targetPoint;
 	private Path history;
+	private PIDController forwardPID;
 	
 	public BehaviorController(){
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
+		forwardPID = new PIDController(1,0);
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
@@ -134,5 +137,18 @@ public class BehaviorController {
 
 	public void setHistory(Path history) {
 		this.history = history;
+	}
+	/**
+	 * Gets forward linear distance to move a certain distance
+	 * @param distance distance remaining
+	 * @return 
+	 */
+	public double moveForward(double distance){
+		double speed = forwardPID.getOutput(distance);
+		double target = (speed > MAX_SPEED) ? MAX_SPEED : ((Math.abs(speed)<=.03)? 0 : speed);
+		return target; 
+	}
+	public void clearIntegrals(){
+		forwardPID.clearIntegral();
 	}
 }

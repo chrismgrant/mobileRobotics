@@ -103,13 +103,19 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			case GOTO:{
-				if ((dblArg -initPose.getPosition().distance(parent.bac.getPosition())) < THRESHOLD){
+				double currentDelta = dblArg - initPose.getPosition().distance(parent.bac.getPosition());
+				if (currentDelta < THRESHOLD){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
 				}else{
 					//logic
 					parent.wc.setALVel(0,1);
 				}
+<<<<<<< HEAD
+=======
+				
+				parent.wc.setALVel(0,parent.bhc.moveForward(currentDelta));
+>>>>>>> Added PID loop
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
@@ -128,7 +134,7 @@ public class ExecuteTask implements Runnable{
 			}
 			case WAIT:{
 				try {
-					Thread.sleep(Long.valueOf(Double.toString(Double.valueOf(active.argument.toString()) * 1000)));
+					Thread.sleep(Long.valueOf(Double.toString(dblArg * 1000)));
 					taskComplete = true;
 					speaker.speak("hello world");
 				} catch (InterruptedException e){
