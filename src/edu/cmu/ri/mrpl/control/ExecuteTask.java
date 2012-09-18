@@ -114,8 +114,17 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			case GOTO:{
-				currentError = dblArg - initPose.getPosition().distance(parent.bac.getPosition());
-				if (currentError < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
+				Angle a = new Angle(parent.bac.getDirection()); 
+				Angle turn = new Angle(90);
+				double slope = Math.atan(a.add(turn));
+				double robX = parent.bac.getX();
+				double robY = parent.bac.getY();
+				double tgtX = initPose.getX();
+				double tgtY = initPose.getY();
+				boolean forward = (tgtY > slope*tgtX - slope*robX + robY);
+				double dist = initPose.getPosition().distance(parent.bac.getPosition());
+				currentError = dblArg - ((forward)?dist:-dist);
+				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
 					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " meters"); 

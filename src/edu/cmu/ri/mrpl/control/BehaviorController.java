@@ -146,13 +146,22 @@ public class BehaviorController {
 	 */
 	public double moveForward(double distance){
 		double speed = forwardPID.getOutput(distance);
-		double target = (speed > MAX_SPEED) ? MAX_SPEED : speed;
+		double target = clamp(speed, MAX_SPEED);
 		return target; 
 	}
 	public double turnTo(double angleDistance){
 		double angle = turnPID.getOutput(angleDistance);
-		double target = (angle > MAX_SPEED) ? MAX_SPEED : angle;
+		double target = clamp(angle,MAX_SPEED);
 		return target;
+	}
+	private double clamp(double val, double max){
+		if (val > max){
+			return max;
+		} else if (val < -max){
+			return -max;
+		} else {
+			return val;
+		}
 	}
 	/**
 	 * Clears integrals from PID controllers. Needed for 
