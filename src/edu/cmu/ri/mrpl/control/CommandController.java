@@ -1,12 +1,9 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.io.IOException;
-import java.lang.*;
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
-import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
-import edu.cmu.ri.mrpl.lab.Lab3;
 
 
 /**
@@ -115,7 +112,7 @@ public class CommandController {
 	public synchronized void updateControllers(double[] sonars){
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
-		bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
+		bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 		trc.updateTrackers();
 		//TODO add VC update
@@ -128,7 +125,7 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
-			exe = new ExecuteTask(this, robot, active, bac.getPose());
+			exe = new ExecuteTask(this, robot, active, BearingController.getRPose(robot));
 		}
 	}
 	public synchronized void haltThread() {

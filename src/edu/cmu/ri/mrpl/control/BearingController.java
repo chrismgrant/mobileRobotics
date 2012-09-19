@@ -82,9 +82,33 @@ public class BearingController {
 	/**
 	 * Gets robot-encoded pose of robot
 	 * @param r robot object
-	 * @return calculated robot pose
+	 * @return calculated robot pose with respect to world
 	 */
 	public static RealPose2D getRPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
+	}
+	/**
+	 * Gets robot-encoded direction of robot
+	 * @param r robot object
+	 * @return calculated direction with respect to world
+	 */
+	public static double getRDirection(Robot r){
+		return r.getHeading();
+	}
+	/**
+	 * Gets robot-encoded X of robot
+	 * @param r robot object
+	 * @return calculated x pos with respect to world
+	 */
+	public static double getRX(Robot r){
+		return r.getPosX();
+	}
+	/**
+	 * Gets robot-encoded Y of robot
+	 * @param r robot object
+	 * @return calculated y pos with respect to world
+	 */
+	public static double getRY(Robot r){
+		return r.getPosY();
 	}
 }
