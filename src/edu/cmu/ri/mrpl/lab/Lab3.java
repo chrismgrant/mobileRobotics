@@ -480,16 +480,16 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			
 			cc = new CommandController();
 		
-			cc.addCommandFromFile("Lab3Basic.cmd.txt");
+			cc.addCommandFromFile("in.txt");
 
 		}
-		int counter = 25, a = 1;
+//		int counter = 25, a = 1;
 		public void taskRun() {
-			showSC();
+//			showSC();
 			robot.turnSonarsOn();
 			cc.syncRobot(robot);
 			
-			double[] sonars = new double[16];
+//			double[] sonars = new double[16];
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
@@ -536,7 +536,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			
 			robot.turnSonarsOff();
 			robot.setVel(0.0f, 0.0f);
-			hideSC();
+//			hideSC();
 		}
 
 		public String toString() {
