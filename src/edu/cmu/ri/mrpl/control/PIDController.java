@@ -66,6 +66,7 @@ class PIDController {
 		lastClockD = clockD.getTime();
 		clockD.setTime(System.currentTimeMillis());
 		long dt = clockD.getTime() - lastClockD;
+		dt = (dt==0)?1:dt;
 		return dv/dt;
 	}
 	private double getIntegral(double inputValue){

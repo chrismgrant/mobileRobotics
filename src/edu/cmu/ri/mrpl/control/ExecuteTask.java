@@ -8,6 +8,8 @@ import edu.cmu.ri.mrpl.Task;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+
+import java.awt.geom.Point2D;
 import java.io.IOException;
 
 
@@ -27,9 +29,9 @@ public class ExecuteTask implements Runnable{
 	private boolean taskComplete, running;
 	private RealPose2D initPose;
 	private CommandController parent;
-	private Speech hal;
+//	private Speech hal;
 	private double currentError;
-	
+	private SpeechController st;
 	//Arguments
 	private boolean isContinuous;
 	private Angle angArg;
@@ -57,26 +59,73 @@ public class ExecuteTask implements Runnable{
 		initPose = p;
 		parent = parentController;
 		isContinuous = c.isContinuous;
-		hal = new Speech();
+//		hal = new Speech();//TODO move speech to own thread
 		
 		switch (active.type){
 		case TURNTO: {
 			angArg = new Angle(Double.valueOf(active.argument.serialize()));
-			hal.speak("Turning " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " radians");
+//			hal.speak("Turning " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " radians");
+			st = new SpeechController(this,"Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			while(st.t.isAlive()){
+//				
+//			}
+//			synchronized(this){
+////				while(st.t.isAlive()){
+//					try {
+//						this.wait();
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+////						e.printStackTrace();
+//					}
+////				}
+//			}
+//			try {
+//				st.wait();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				//e.printStackTrace();
+//			}
 			break;
 		}
 		case GOTO: {
 			dblArg = Double.valueOf(active.argument.serialize());
-			hal.speak("Moving " + filterSpeech(dblArg,SPEECH_PREC) + " meters forward");
+//			hal.speak("Moving " + filterSpeech(dblArg,SPEECH_PREC) + " meters forward");
+			st = new SpeechController(this,"Move " + filterSpeech(dblArg,SPEECH_PREC) + " m");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		}
 		case WAIT: {
 			dblArg = Double.valueOf(active.argument.serialize());
-			hal.speak("Waiting " + filterSpeech(dblArg,SPEECH_PREC) + " seconds");
+//			hal.speak("Waiting " + filterSpeech(dblArg,SPEECH_PREC) + " seconds");
+			st = new SpeechController(this,"Wait " + filterSpeech(dblArg,SPEECH_PREC) + " s");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		}
 		case PAUSE:{
-			hal.speak("Pausing until keyboard press");
+//			hal.speak("Pausing until keyboard press");
+			st = new SpeechController(this,"Pausing until keyboard press");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		}
 		case NULL:
@@ -94,6 +143,7 @@ public class ExecuteTask implements Runnable{
 	}
 	void halt(){
 		running = false;
+		parent.wc.setALVel(0, 0);
 	}
 	/**
 	 * Runs the thread. Used by Thread class
@@ -102,16 +152,23 @@ public class ExecuteTask implements Runnable{
 	 * 
 	 * Run is terminated when condition for specified command type is fulfilled 
 	 */
-	public void run(){//TODO coordinate controller classes
+	public synchronized void run(){
 		while (running && !taskComplete){
 			switch (active.type){
-			case TURNTO:{
-				currentError = angArg.angleValue() + initPose.getTh() - parent.bac.getDirection();
+			case TURNTO:{ 
+				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - parent.bac.getDirection());
 				System.out.println(currentError);
-				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
+				if (Math.abs(currentError) < ((isContinuous) ? 9*THRESHOLD:THRESHOLD*3)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
-					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " radians"); 
+//					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " radians"); 
+					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}else{
 					//logic
 					parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
@@ -119,22 +176,22 @@ public class ExecuteTask implements Runnable{
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 				break;
 			}
-			case GOTO:{
-				Angle a = new Angle(parent.bac.getDirection()); 
-				Angle turn = new Angle(90);
-				double slope = Math.atan(a.add(turn));
-				double robX = parent.bac.getX();
-				double robY = parent.bac.getY();
-				double tgtX = initPose.getX();
-				double tgtY = initPose.getY();
-				boolean forward = (tgtY > slope*tgtX - slope*robX + robY);
-				double dist = initPose.getPosition().distance(parent.bac.getPosition());
-				currentError = dblArg - ((forward)?dist:-dist);
+			case GOTO:{ 
+				Point2D result = null;
+				result = initPose.inverse().transform(parent.bac.getPosition(), result);
+				currentError = dblArg - result.getX();
 				System.out.println(currentError);
 				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
-					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " meters"); 
+//					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " meters"); 
+					new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}else{
 					//logic
 					parent.wc.setALVel(0,parent.bhc.moveForward(currentError));
@@ -171,12 +228,15 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			}
-//			try {
+			try {
+				Thread.sleep(50);
 //				Thread.sleep(25);
-//			} catch(InterruptedException iex) {
-//				System.out.println("\"Both\" sleep interrupted");
-//			}
+			} catch(InterruptedException iex) {
+				System.out.println("\"Both\" sleep interrupted");
+			}
 		}
+		System.out.println("Halted");
+		//robot = null;
 		
 	}	
 }

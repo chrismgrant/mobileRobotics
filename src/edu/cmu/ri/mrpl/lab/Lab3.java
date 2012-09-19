@@ -178,7 +178,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 
 
 		robot=new SimRobot();
-		//robot=new ScoutRobot();
+//		robot=new ScoutRobot();
 	}
 
 	// call from GUI thread
@@ -480,7 +480,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			
 			cc = new CommandController();
 		
-			cc.addCommandFromFile("in.txt");
+			cc.addCommandFromFile("Lab3Basic.cmd.txt");
 
 		}
 		int counter = 25, a = 1;
@@ -520,7 +520,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 					
 
 					try {
-						Thread.sleep(25);
+						Thread.sleep(20);
 
 					} catch(InterruptedException iex) {
 						System.out.println("\"Both\" sleep interrupted");

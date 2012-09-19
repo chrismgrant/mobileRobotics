@@ -17,8 +17,8 @@ public class BehaviorController {
 	public BehaviorController(){
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
-		forwardPID = new PIDController(1,0);
-		turnPID = new PIDController(1.1,0);
+		forwardPID = new PIDController(1,1.9);//was 1,1.9
+		turnPID = new PIDController(1.0,.25);//was 1,.22
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
@@ -146,12 +146,13 @@ public class BehaviorController {
 	 */
 	public double moveForward(double distance){
 		double speed = forwardPID.getOutput(distance);
+//		System.out.println(speed);
 		double target = clamp(speed, MAX_SPEED);
 		return target; 
 	}
 	public double turnTo(double angleDistance){
 		double angle = turnPID.getOutput(angleDistance);
-		double target = clamp(angle,MAX_SPEED);
+		double target = clamp(angle,MAX_SPEED*1.5);
 		return target;
 	}
 	private double clamp(double val, double max){

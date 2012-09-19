@@ -52,7 +52,7 @@ public class CommandController {
 	 * Passes robot object to CommandController. Must be called in run thread before while loop
 	 * @param r robot
 	 */
-	public void syncRobot(Robot r){
+	public synchronized void syncRobot(Robot r){
 		robot = r;
 		exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
 	}
@@ -112,8 +112,9 @@ public class CommandController {
 	 * To be called before accessing controller information
 	 * @param sonars array of raw sonar values
 	 */
-	public void updateControllers(double[] sonars){
+	public synchronized void updateControllers(double[] sonars){
 		soc.updateSonars(sonars);
+		wc.updateWheels(robot, bc.isBumped(robot));
 		bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
 		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 		trc.updateTrackers();
@@ -123,15 +124,17 @@ public class CommandController {
 	/**
 	 * Creates new execution thread to complete pending command.
 	 */
-	public void execute(){
+	public synchronized void execute(){
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
 			exe = new ExecuteTask(this, robot, active, bac.getPose());
 		}
 	}
-	public void haltThread() {
+	public synchronized void haltThread() {
+		System.out.println("Halting...");
 		exe.halt();
+		System.out.println("Halt sent");
 		
 	}
 	
