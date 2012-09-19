@@ -485,7 +485,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
-			showSC();
+//			showSC();
 			robot.turnSonarsOn();
 			cc.syncRobot(robot);
 			
@@ -500,8 +500,8 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
-					sc.setSonars(sonars);
-					sc2.setSonars(cc.getSonars());
+//					sc.setSonars(sonars);
+//					sc2.setSonars(cc.getSonars());
 //					cc.addCommandFromFile("command.txt");
 					cc.updateControllers(sonars);
 					cc.execute();

@@ -36,7 +36,7 @@ public class WheelController {
 	 * @param leftVel Speed of left wheel, meters/s
 	 * @param rightVel Speed of right wheel, meters/s
 	 */
-	public void setWheelVel(double leftVel, double rightVel){
+	public synchronized void setWheelVel(double leftVel, double rightVel){
 		lWVel = leftVel;
 		rWVel = rightVel;
 		flag = MOVE_FLAGS.WHEEL;
@@ -46,7 +46,7 @@ public class WheelController {
 	 * @param angularVel angular velocity, rad/s
 	 * @param linearVel linear velocity, m/s
 	 */
-	public void setALVel(double angularVel, double linearVel){
+	public synchronized void setALVel(double angularVel, double linearVel){
 		setLVel(linearVel);
 		setAVel(angularVel);
 		flag = MOVE_FLAGS.AVEL;
@@ -70,7 +70,7 @@ public class WheelController {
 	 * @param curvature curvature
 	 * @param linearVel linear velocity, in m/s
 	 */
-	public void setCLVel(double curvature, double linearVel){
+	public synchronized void setCLVel(double curvature, double linearVel){
 		setCurv(curvature);
 		setLVel(linearVel);
 		flag = MOVE_FLAGS.CURVVEL;

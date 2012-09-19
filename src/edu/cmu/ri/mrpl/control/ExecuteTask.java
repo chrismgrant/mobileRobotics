@@ -29,7 +29,6 @@ public class ExecuteTask implements Runnable{
 	private boolean taskComplete, running;
 	private RealPose2D initPose;
 	private CommandController parent;
-	private Speech hal;
 	private double currentError;
 	
 	//Arguments
@@ -59,26 +58,25 @@ public class ExecuteTask implements Runnable{
 		initPose = p;
 		parent = parentController;
 		isContinuous = c.isContinuous;
-		hal = new Speech();
 		
 		switch (active.type){
 		case TURNTO: {
 			angArg = new Angle(Double.valueOf(active.argument.serialize()));
-			hal.speak("Turning " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " radians");
+			new SpeechController("Turning " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " radians");
 			break;
 		}
 		case GOTO: {
 			dblArg = Double.valueOf(active.argument.serialize());
-			hal.speak("Moving " + filterSpeech(dblArg,SPEECH_PREC) + " meters forward");
+			new SpeechController("Moving " + filterSpeech(dblArg,SPEECH_PREC) + " meters forward");
 			break;
 		}
 		case WAIT: {
 			dblArg = Double.valueOf(active.argument.serialize());
-			hal.speak("Waiting " + filterSpeech(dblArg,SPEECH_PREC) + " seconds");
+			new SpeechController("Waiting " + filterSpeech(dblArg,SPEECH_PREC) + " seconds");
 			break;
 		}
 		case PAUSE:{
-			hal.speak("Pausing until keyboard press");
+			new SpeechController("Pausing until keyboard press");
 			break;
 		}
 		case NULL:
@@ -109,12 +107,12 @@ public class ExecuteTask implements Runnable{
 		while (running && !taskComplete){
 			switch (active.type){
 			case TURNTO:{
-				currentError = angArg.angleValue() + initPose.getTh() - parent.bac.getDirection();
+				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - parent.bac.getDirection());
 				System.out.println(currentError);
-				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
+				if (Math.abs(currentError) < ((isContinuous) ? 9*THRESHOLD:3*THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
-					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " radians"); 
+					new SpeechController("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " radians");
 				}else{
 					//logic
 					parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
@@ -132,7 +130,7 @@ public class ExecuteTask implements Runnable{
 				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
-					hal.speak("Error " + filterSpeech(currentError,SPEECH_PREC+1) + " meters"); 
+					new SpeechController("Error " + filterSpeech(currentError,SPEECH_PREC) + " meters");
 				}else{
 					//logic
 					parent.wc.setALVel(0,parent.bhc.moveForward(currentError));
@@ -141,14 +139,9 @@ public class ExecuteTask implements Runnable{
 				break;
 			}
 			case PAUSE:{
-				/*if (event!=0){ //TODO check for keyboard input
-					taskComplete = true;
-					event = 0;
-				}*/
 				try {
-					System.in.read();
+					System.in.read();//TODO switch to GUI input using wait lock
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				taskComplete = true;

@@ -144,12 +144,12 @@ public class BehaviorController {
 	 * @param distance distance remaining
 	 * @return 
 	 */
-	public double moveForward(double distance){
+	public synchronized double moveForward(double distance){
 		double speed = forwardPID.getOutput(distance);
 		double target = clamp(speed, MAX_SPEED);
 		return target; 
 	}
-	public double turnTo(double angleDistance){
+	public synchronized double turnTo(double angleDistance){
 		double angle = turnPID.getOutput(angleDistance);
 		double target = clamp(angle,MAX_SPEED);
 		return target;
@@ -166,7 +166,7 @@ public class BehaviorController {
 	/**
 	 * Clears integrals from PID controllers. Needed for 
 	 */
-	public void clearIntegrals(){
+	public synchronized void clearIntegrals(){
 		forwardPID.clearIntegral();
 		turnPID.clearIntegral();
 	}

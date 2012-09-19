@@ -9,7 +9,7 @@ public class BumperController {
 		
 	}
 	
-	public boolean isBumped(Robot robot){
+	public synchronized boolean isBumped(Robot robot){
 		if (robot.getBumpers()!=0) {
 			System.err.println("detecting bumping!");
 			return true;

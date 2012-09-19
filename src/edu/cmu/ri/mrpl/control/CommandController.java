@@ -112,10 +112,10 @@ public class CommandController {
 	 * To be called before accessing controller information
 	 * @param sonars array of raw sonar values
 	 */
-	public void updateControllers(double[] sonars){
+	public synchronized void updateControllers(double[] sonars){
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
-		bac.updateBearing(wc.getRobLVel(robot), wc.getRobAVel(robot));
+		bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 		trc.updateTrackers();
 		//TODO add VC update

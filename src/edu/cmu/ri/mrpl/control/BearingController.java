@@ -48,35 +48,35 @@ public class BearingController {
 	 * Gets x position of robot
 	 * @return double x position
 	 */
-	public double getX(){
+	public synchronized double getX(){
 		return pose.getX();
 	}
 	/**
 	 * Gets y position of robot
 	 * @return double y position
 	 */
-	public double getY(){
+	public synchronized double getY(){
 		return pose.getY();
 	}
 	/**
 	 * Gets direction of robot
 	 * @return double direction, from 0 to 2Pi
 	 */
-	public double getDirection(){
+	public synchronized double getDirection(){
 		return pose.getTh();
 	}
 	/**
 	 * Gets pose of robot
 	 * @return pose of robot
 	 */
-	public RealPose2D getPose(){
+	public synchronized RealPose2D getPose(){
 		return pose.clone();
 	}
 	/**
 	 * Gets point of robot
 	 * @return point of robot
 	 */
-	public RealPoint2D getPosition(){
+	public synchronized RealPoint2D getPosition(){
 		return getPose().getPosition();
 	}
 	/**
@@ -84,7 +84,7 @@ public class BearingController {
 	 * @param r robot object
 	 * @return calculated robot pose
 	 */
-	public static RealPose2D getRPose(Robot r){
+	public synchronized static RealPose2D getRPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
 	}
 }

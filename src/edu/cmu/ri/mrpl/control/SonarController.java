@@ -113,7 +113,7 @@ public class SonarController {
 		
 		return minInd;
 	}
-	public double[] getSonarReadings(){
+	public synchronized double[] getSonarReadings(){
 		return avgSonars;
 	}
 	/**
