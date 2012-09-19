@@ -68,29 +68,7 @@ public class ExecuteTask implements Runnable{
 			st = new SpeechController(this,"Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad");
 			try {
 				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-//			while(st.t.isAlive()){
-//				
-//			}
-//			synchronized(this){
-////				while(st.t.isAlive()){
-//					try {
-//						this.wait();
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-////						e.printStackTrace();
-//					}
-////				}
-//			}
-//			try {
-//				st.wait();
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				//e.printStackTrace();
-//			}
+			} catch (InterruptedException e) {}
 			break;
 		}
 		case GOTO: {
@@ -99,10 +77,7 @@ public class ExecuteTask implements Runnable{
 			st = new SpeechController(this,"Move " + filterSpeech(dblArg,SPEECH_PREC) + " m");
 			try {
 				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {}
 			break;
 		}
 		case WAIT: {
@@ -153,7 +128,17 @@ public class ExecuteTask implements Runnable{
 	 * Run is terminated when condition for specified command type is fulfilled 
 	 */
 	public synchronized void run(){
+		//Pre-loop initialization
+		double[] sonars = new double[16];
+		
 		while (running && !taskComplete){
+			// Loop header
+			robot.updateState();
+			robot.getSonars(sonars);
+			parent.updateControllers(sonars);
+			
+			
+			//Loop VM
 			switch (active.type){
 			case TURNTO:{ 
 				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - parent.bac.getDirection());

@@ -498,12 +498,12 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				while(!shouldStop()) {
-					robot.updateState();
-					robot.getSonars(sonars);
-					sc.setSonars(sonars);
-					sc2.setSonars(cc.getSonars());
-//					cc.addCommandFromFile("command.txt");
-					cc.updateControllers(sonars);
+//					robot.updateState();
+//					robot.getSonars(sonars);
+//					sc.setSonars(sonars);
+//					sc2.setSonars(cc.getSonars());
+////					cc.addCommandFromFile("command.txt");
+//					cc.updateControllers(sonars);
 					cc.execute();
 
 //					FileWriter commandFile;
