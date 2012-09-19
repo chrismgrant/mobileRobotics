@@ -119,7 +119,7 @@ public class CommandController {
 		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
 		trc.updateTrackers();
 		//TODO add VC update
-
+		System.out.println("Com: pos"+bac.getPose().toString()+" wheels A:"+wc.getAVel()+" L:"+wc.getLVel());
 	}
 	/**
 	 * Creates new execution thread to complete pending command.

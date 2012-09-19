@@ -157,7 +157,7 @@ public class ExecuteTask implements Runnable{
 			switch (active.type){
 			case TURNTO:{ 
 				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - parent.bac.getDirection());
-				System.out.println(currentError);
+				System.out.println("Exe: currentE "+currentError+" target:"+angArg.angleValue()+" start:"+initPose.getTh()+" parent:"+parent.bac.getDirection());
 				if (Math.abs(currentError) < ((isContinuous) ? 9*THRESHOLD:THRESHOLD*3)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
@@ -180,7 +180,7 @@ public class ExecuteTask implements Runnable{
 				Point2D result = null;
 				result = initPose.inverse().transform(parent.bac.getPosition(), result);
 				currentError = dblArg - result.getX();
-				System.out.println(currentError);
+				System.out.println("Exe: currentE "+currentError+" target:"+dblArg+" res:"+result.getX()+" start:"+initPose.toString()+" parent:"+parent.bac.toString());
 				if (Math.abs(currentError) < ((isContinuous) ? 3*THRESHOLD:THRESHOLD)){
 					taskComplete = true;
 					parent.wc.setALVel(0, 0);
