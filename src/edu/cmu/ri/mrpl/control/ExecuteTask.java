@@ -19,7 +19,7 @@ import java.io.IOException;
 public class ExecuteTask implements Runnable{
 
 	private static final double DIST_THRESHOLD = .001;
-	private static final double ANG_THRESHOLD = .01;
+	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
 
 	private Robot robot;

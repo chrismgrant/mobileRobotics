@@ -17,7 +17,7 @@ public class BehaviorController {
 	public BehaviorController(){
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
-		forwardPID = new PIDController(1,1.9);//was 1,1.9
+		forwardPID = new PIDController(1,2.2);//was 1,1.9
 		turnPID = new PIDController(1.0,.25);//was 1,.22
 	}
 	
