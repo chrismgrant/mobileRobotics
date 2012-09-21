@@ -1,6 +1,10 @@
 package edu.cmu.ri.mrpl.control;
 
 import edu.cmu.ri.mrpl.Command;
+import edu.cmu.ri.mrpl.Command.AngleArgument;
+import edu.cmu.ri.mrpl.Command.LengthArgument;
+import edu.cmu.ri.mrpl.Command.PathArgument;
+import edu.cmu.ri.mrpl.Command.PoseArgument;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
@@ -29,6 +33,7 @@ public class ExecuteTask implements Runnable{
 	private RealPose2D initPose;
 	private CommandController parent;
 	private double currentError;
+	private String speech;
 	private SpeechController st;
 	
 	//Arguments
@@ -60,35 +65,38 @@ public class ExecuteTask implements Runnable{
 		isContinuous = c.isContinuous;
 		
 		switch (active.type){
+		case FOLLOWPATH: {
+			PathArgument arg = (PathArgument)(active.argument);
+			pthArg = arg.path;
+			speech = "Path to " + "";
+			break;
+		}
+		case POSETO: {
+			PoseArgument arg = (PoseArgument)(active.argument);
+			pseArg = new RealPose2D(arg.pose);
+			speech = "Pose to " + "";
+			break;
+		}
 		case TURNTO: {
-			angArg = new Angle(Double.valueOf(active.argument.serialize()));
-			st = new SpeechController(this,"Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad");
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {}
+			AngleArgument arg = (AngleArgument)(active.argument);
+			angArg = new Angle(arg.angle);
+			speech = "Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad";
 			break;
 		}
 		case GOTO: {
-			dblArg = Double.valueOf(active.argument.serialize());
-			st = new SpeechController(this,"Move " + filterSpeech(dblArg,SPEECH_PREC) + " m");
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {}
+			LengthArgument arg = (LengthArgument)(active.argument);
+			dblArg = arg.d;
+			speech = "Move " + filterSpeech(dblArg,SPEECH_PREC) + " m";
 			break;
 		}
 		case WAIT: {
-			dblArg = Double.valueOf(active.argument.serialize());
-			st = new SpeechController(this,"Wait " + filterSpeech(dblArg,SPEECH_PREC) + " s");
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {}
+			LengthArgument arg = (LengthArgument)(active.argument);
+			dblArg = arg.d;
+			speech = "Wait " + filterSpeech(dblArg,SPEECH_PREC) + " s";
 			break;
 		}
 		case PAUSE:{
-			st = new SpeechController(this,"Pausing until keyboard press");
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {}
+			speech = "Pausing until keyboard press";
 			break;
 		}
 		case NULL:
@@ -96,6 +104,10 @@ public class ExecuteTask implements Runnable{
 			break;
 		}
 		}
+		st = new SpeechController(this,speech);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {}
 		t.start();
 	}
 	
@@ -104,10 +116,29 @@ public class ExecuteTask implements Runnable{
 		double b = Math.pow(10.0, decimals);
 		return (long)(in * a)/b;
 	}
+	/**
+	 * Halts execution of thread
+	 */
 	void halt(){
 		running = false;
+		stop();
+	}
+	/**
+	 * Checks if error value is in threshold
+	 * @param error error value
+	 * @param isDistance if true compares against distance threshold, else against angle threshold
+	 * @return whether error is within threshold
+	 */
+	private boolean isInThreshold(double error, boolean isDistance){
+		double threshold = (isDistance)?DIST_THRESHOLD:ANG_THRESHOLD;
+		return Math.abs(error) < ((isContinuous) ? 3*threshold:threshold) ;
+	}
+	/**
+	 * Stops the robot
+	 */
+	private void stop(){
 		parent.wc.setALVel(0, 0);
-		
+		parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 	}
 	/**
 	 * Runs the thread. Used by Thread class
@@ -128,17 +159,43 @@ public class ExecuteTask implements Runnable{
 			
 			//Loop VM
 			switch (active.type){
+			case POSETO:{//New target poses are relative to last target pose
+				RealPose2D targetWRTRob = null;
+				targetWRTRob = RealPose2D.multiply(BearingController.getRPose(robot).inverse(),initPose);
+				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
+				currentError = targetWRTRob.getPosition().distance(pseArg.getPosition());
+				if (isInThreshold(currentError, true)){
+					taskComplete = true;
+					stop();
+					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {}
+					
+					//Calculate error
+					double ex, ey, eth;
+					RealPose2D targetWRTWorld = null;
+					targetWRTWorld = RealPose2D.multiply(BearingController.getRPose(robot),targetWRTRob);
+					ex = BearingController.getRX(robot) - targetWRTWorld.getX();
+					ey = BearingController.getRY(robot) - targetWRTWorld.getY();
+					eth = Angle.normalize(BearingController.getRDirection(robot) - targetWRTWorld.getRotateTheta());
+					parent.bac.updateError(ex,ey,eth);
+				} else {
+					
+				}
+				
+			}
 			case TURNTO:{ 
 				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - BearingController.getRDirection(robot));
 				System.out.println(currentError);
-				if (Math.abs(currentError) < ((isContinuous) ? 3*ANG_THRESHOLD:ANG_THRESHOLD)){
+				if (isInThreshold(currentError, false)){
 					taskComplete = true;
-					parent.wc.setALVel(0, 0);
-					parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
+					stop();
 					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {}
+					parent.bac.updateError(0, 0, currentError);
 				}else{
 					//logic
 					parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
@@ -151,14 +208,15 @@ public class ExecuteTask implements Runnable{
 				result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
 				currentError = dblArg - result.getX();
 				System.out.println(currentError);
-				if (Math.abs(currentError) < ((isContinuous) ? 3*DIST_THRESHOLD:DIST_THRESHOLD)){
+				if (isInThreshold(currentError, true)){
 					taskComplete = true;
-					parent.wc.setALVel(0, 0);
-					parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
+					stop();
 					new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {}
+					double dir = BearingController.getRDirection(robot);
+					parent.bac.updateError(currentError*Math.cos(dir), currentError*Math.sin(dir), 0);
 				}else{
 					//logic
 					parent.wc.setALVel(0,parent.bhc.moveForward(currentError));
@@ -170,7 +228,6 @@ public class ExecuteTask implements Runnable{
 				try {
 					System.in.read();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				taskComplete = true;
@@ -193,13 +250,10 @@ public class ExecuteTask implements Runnable{
 			}
 			try {
 				Thread.sleep(50);
-//				Thread.sleep(25);
 			} catch(InterruptedException iex) {
-				System.out.println("\"Both\" sleep interrupted");
+				System.out.println("\"ExeTask\" sleep interrupted");
 			}
 		}
-		System.out.println("Halted");
-		//robot = null;
-		
+		System.out.println("Halted");		
 	}	
 }
