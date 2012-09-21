@@ -128,10 +128,10 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
-			exe = new ExecuteTask(this, robot, active, bac.getPose());
+			exe = new ExecuteTask(this, robot, active, bac.getRPoseWithError(robot));
 		}
 	}
-	public void haltThread() {
+	public synchronized void haltThread() {
 		System.out.println("Halting...");
 		exe.halt();
 		System.out.println("Halt sent");

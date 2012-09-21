@@ -24,7 +24,7 @@ import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.WheelController;
 
-public class Lab3 extends JFrame implements ActionListener, TaskController {
+public class Lab4 extends JFrame implements ActionListener, TaskController {
 	public String command;
 	public Robot robot;
 	private SonarConsole sc;
@@ -54,7 +54,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 
 	private Task curTask = null;
 
-	public Lab3() {
+	public Lab4() {
 		super("Lab3");
 
 		connectButton = new JButton("connect");
@@ -307,7 +307,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 	public static void main(String[] argv) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new Lab3();
+				new Lab4();
 			}
 		});
 	}
@@ -489,7 +489,7 @@ public class Lab3 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
 			cc.syncRobot(robot);
 			
-			double[] sonars = new double[16];
+//			double[] sonars = new double[16];
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");

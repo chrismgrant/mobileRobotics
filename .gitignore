@@ -28,3 +28,5 @@ bin/edu/cmu/ri/mrpl/example/.svn/entries
 bin/edu/cmu/ri/mrpl/game/.svn/entries
 
 bin/edu/cmu/ri/mrpl/maze/.svn/entries
+
+*.orig
