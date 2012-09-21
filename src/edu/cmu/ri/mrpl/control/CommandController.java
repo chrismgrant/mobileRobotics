@@ -95,10 +95,13 @@ public class CommandController {
 	 * Enqueues command to executeQueue
 	 * @param c New command to add
 	 */
-	public void addCommand(Command c){
+	public synchronized void addCommand(Command c){
 		executeQueue.add(c);
 	}
-	public void addCommandFromFile(java.lang.String inputFile){
+	public synchronized void pushCommand(Command c){
+		executeQueue.add(0, c);
+	}
+	public synchronized void addCommandFromFile(java.lang.String inputFile){
 		try {
 			executeQueue.readFile(inputFile);
 			

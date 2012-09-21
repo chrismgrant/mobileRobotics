@@ -165,6 +165,12 @@ public class ExecuteTask implements Runnable{
 				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
 				currentError = targetWRTRob.getPosition().distance(pseArg.getPosition());
 				if (isInThreshold(currentError, true)){
+					//Create rotate subtask and push to head of command
+					Command.Argument a = new Command.Argument(){};
+					Command.AngleArgument aa = (Command.AngleArgument) a;
+					aa.angle = new Angle(targetWRTRob.getRotateTheta());
+					Command c = new Command(Command.Type.TURNTO,a);
+					parent.pushCommand(c);
 					taskComplete = true;
 					stop();
 					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
@@ -173,17 +179,17 @@ public class ExecuteTask implements Runnable{
 					} catch (InterruptedException e) {}
 					
 					//Calculate error
-					double ex, ey, eth;
+					double ex, ey;
 					RealPose2D targetWRTWorld = null;
 					targetWRTWorld = RealPose2D.multiply(BearingController.getRPose(robot),targetWRTRob);
 					ex = BearingController.getRX(robot) - targetWRTWorld.getX();
 					ey = BearingController.getRY(robot) - targetWRTWorld.getY();
-					eth = Angle.normalize(BearingController.getRDirection(robot) - targetWRTWorld.getRotateTheta());
-					parent.bac.updateError(ex,ey,eth);
+					parent.bac.updateError(ex,ey,0);
 				} else {
-					
+					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
+					parent.wc.setCLVel(speed[0], speed[1]);
 				}
-				
+				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 			}
 			case TURNTO:{ 
 				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - BearingController.getRDirection(robot));

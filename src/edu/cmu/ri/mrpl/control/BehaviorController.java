@@ -171,4 +171,33 @@ public class BehaviorController {
 		forwardPID.clearIntegral();
 		turnPID.clearIntegral();
 	}
+	/**
+	 * Determines radius of turning for a given point. Useful for determining curvature of path
+	 * @param p Target point to turn to
+	 * @return radius in m of how far to turn
+	 */
+	public static double calculateRadiusOfTurning(RealPoint2D p){
+		return (Math.pow(p.getX(), 2)+Math.pow(p.getY(),2))/(2*p.getY());
+	}
+	/**
+	 * Shadows a point, maintaining a constant distance from the tracker
+	 * @param p target point, robot-centric
+	 * @param isLost whether reporting point is lost
+	 * @param frontSonar distance front sonar is recording
+	 * @param shadowDistance distance to maintain while shadowing, in meters. Set to zero to move to point
+	 * @return array of [curvature, linearVel]
+	 */
+	public double[] shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double shadowDistance){
+		double[] speed = {0,0};
+		if (!isLost){
+			speed[0] = 1/calculateRadiusOfTurning(p);
+			speed[1] = WheelController.getCappedLVel(Math.min(p.distance(0,0) - shadowDistance, frontSonar),
+					WheelController.SPEED,
+					WheelController.MIN_SPEED) / WheelController.BRAKING_COEFFICIENT;
+//				if (getLVel() < .1){
+//					pointToDirection(Math.atan2(p.getY(), p.getX()));
+//				}	
+		}
+		return speed;
+	}
 }

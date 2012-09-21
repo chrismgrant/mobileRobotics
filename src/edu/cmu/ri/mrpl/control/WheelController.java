@@ -11,11 +11,11 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
  */
 public class WheelController {
 
-	private static final double BRAKING_COEFFICIENT = 1;
-	private static final double SPEED = 1.2;
-	private static final double MIN_SPEED = .03;
-	private static final double MAX_SPEED = .886;
-	private static final double ROB_WIDTH = .355;
+	static final double BRAKING_COEFFICIENT = 1;
+	static final double SPEED = 1.2;
+	static final double MIN_SPEED = .03;
+	static final double MAX_SPEED = .886;
+	static final double ROB_WIDTH = .355;
 	private double lVel, aVel, curv, lWVel, rWVel;
 	private static enum MOVE_FLAGS {WHEEL, AVEL, CURVVEL};
 	private MOVE_FLAGS flag;
@@ -174,41 +174,8 @@ public class WheelController {
 	public synchronized static double getRobRightWheelVel(Robot r){
 		return (r.getVelRight());
 	}
-	/**
-	 * Shadows a point, maintaining a constant distance from the tracker
-	 * @param p target point, robot-centric
-	 * @param isLost whether reporting point is lost
-	 * @param frontSonar distance front sonar is recording
-	 * @param shadowDistance distance to maintain while shadowing, in meters. Set to zero to move to point
-	 */
-	public void shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double shadowDistance){
-		try{
-			if (!isLost){
-				setCurv(1/calculateRadiusOfTurning(p));
-				setLVel(getCappedLVel(Math.min(p.distance(0,0) - shadowDistance, frontSonar),SPEED,MIN_SPEED) / BRAKING_COEFFICIENT);
-				if (getLVel() < .1){
-					pointToDirection(Math.atan2(p.getY(), p.getX()));
-				}	
-			} else {
-				setCurv(0);
-				setLVel(0);
-			}
-			
-		}catch(NullPointerException e){
-			setCurv(0);
-			setLVel(0);
-		}
-		
-	}
 	
-	/**
-	 * Determines radius of turning for a given point. Useful for determining curvature of path
-	 * @param p Target point to turn to
-	 * @return radius in m of how far to turn
-	 */
-	public static double calculateRadiusOfTurning(RealPoint2D p){
-		return (Math.pow(p.getX(), 2)+Math.pow(p.getY(),2))/(2*p.getY());
-	}
+	
 	/**
 	 * Returns the linear velocity cap when approaching an object, to clamp max speed and halt oscillation
 	 * @param distance distance from object to approach
