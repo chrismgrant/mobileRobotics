@@ -191,10 +191,11 @@ public class BehaviorController {
 		double[] speed = {0,0};
 		if (!isLost){
 			speed[0] = 1/calculateRadiusOfTurning(p);
-			speed[1] = WheelController.getCappedLVel(Math.min(p.distance(0,0) - shadowDistance, frontSonar),
+			speed[1] = WheelController.getCappedLVel(Math.min(p.getX() - shadowDistance, frontSonar),
 					WheelController.SPEED,
-					WheelController.MIN_SPEED) / WheelController.BRAKING_COEFFICIENT;
-//				if (getLVel() < .1){
+					WheelController.MIN_SPEED);
+//			Legacy code for baggage tracker
+//				if (getLVel() < .1){	
 //					pointToDirection(Math.atan2(p.getY(), p.getX()));
 //				}	
 		}

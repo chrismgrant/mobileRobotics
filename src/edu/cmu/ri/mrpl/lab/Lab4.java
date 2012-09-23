@@ -55,7 +55,7 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 	private Task curTask = null;
 
 	public Lab4() {
-		super("Lab3");
+		super("Lab4");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");

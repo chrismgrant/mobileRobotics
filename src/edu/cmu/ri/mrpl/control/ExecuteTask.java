@@ -25,6 +25,7 @@ public class ExecuteTask implements Runnable{
 	private static final double DIST_THRESHOLD = .001;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
+	private static enum ArgType {DISTANCE, ANGLE};
 
 	private Robot robot;
 	Thread t;
@@ -35,6 +36,7 @@ public class ExecuteTask implements Runnable{
 	private double currentError;
 	private String speech;
 	private SpeechController st;
+	
 	
 	//Arguments
 	private boolean isContinuous;
@@ -74,7 +76,7 @@ public class ExecuteTask implements Runnable{
 		case POSETO: {
 			PoseArgument arg = (PoseArgument)(active.argument);
 			pseArg = new RealPose2D(arg.pose);
-			speech = "Pose to " + "";
+			speech = "Pose to " + pseArg.toString();
 			break;
 		}
 		case TURNTO: {
@@ -101,6 +103,7 @@ public class ExecuteTask implements Runnable{
 		}
 		case NULL:
 		default: {
+			speech = "";
 			break;
 		}
 		}
@@ -126,12 +129,12 @@ public class ExecuteTask implements Runnable{
 	/**
 	 * Checks if error value is in threshold
 	 * @param error error value
-	 * @param isDistance if true compares against distance threshold, else against angle threshold
+	 * @param argtype DISTANCE if distance, ANGLE otherwise
 	 * @return whether error is within threshold
 	 */
-	private boolean isInThreshold(double error, boolean isDistance){
-		double threshold = (isDistance)?DIST_THRESHOLD:ANG_THRESHOLD;
-		return Math.abs(error) < ((isContinuous) ? 3*threshold:threshold) ;
+	private boolean isInThreshold(double error, ArgType argtype){
+		double threshold = (argtype == ArgType.DISTANCE)?DIST_THRESHOLD:ANG_THRESHOLD;
+		return Math.abs(error) < ((isContinuous) ? 100*threshold:threshold) ;
 	}
 	/**
 	 * Stops the robot
@@ -159,42 +162,50 @@ public class ExecuteTask implements Runnable{
 			
 			//Loop VM
 			switch (active.type){
+			case FOLLOWPATH:{
+				RealPose2D currentTarget = null;
+				break;
+			}
 			case POSETO:{//New target poses are relative to last target pose
 				RealPose2D targetWRTRob = null;
-				targetWRTRob = RealPose2D.multiply(BearingController.getRPose(robot).inverse(),initPose);
+				targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
 				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
-				currentError = targetWRTRob.getPosition().distance(pseArg.getPosition());
-				if (isInThreshold(currentError, true)){
-					//Create rotate subtask and push to head of command
-					Command.Argument a = new Command.Argument(){};
-					Command.AngleArgument aa = (Command.AngleArgument) a;
-					aa.angle = new Angle(targetWRTRob.getRotateTheta());
-					Command c = new Command(Command.Type.TURNTO,a);
-					parent.pushCommand(c);
-					taskComplete = true;
-					stop();
-					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {}
-					
-					//Calculate error
-					double ex, ey;
-					RealPose2D targetWRTWorld = null;
-					targetWRTWorld = RealPose2D.multiply(BearingController.getRPose(robot),targetWRTRob);
-					ex = BearingController.getRX(robot) - targetWRTWorld.getX();
-					ey = BearingController.getRY(robot) - targetWRTWorld.getY();
-					parent.bac.updateError(ex,ey,0);
+				currentError = targetWRTRob.getPosition().distance(0,0);
+				System.out.println(currentError);
+				if (isInThreshold(currentError, ArgType.DISTANCE)){
+					// Begin rotate subtask
+					currentError = Angle.normalize(pseArg.getRotateTheta() + initPose.getTh() - BearingController.getRDirection(robot));
+					System.out.println(currentError);
+					if (isInThreshold(currentError, ArgType.ANGLE)){
+						taskComplete = true;
+						stop();
+						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e) {}
+						
+						//Calculate error
+						double ex, ey;
+						RealPose2D targetWRTWorld = null;
+						targetWRTWorld = RealPose2D.multiply(BearingController.getRPose(robot),targetWRTRob);
+						ex = BearingController.getRX(robot) - targetWRTWorld.getX();
+						ey = BearingController.getRY(robot) - targetWRTWorld.getY();
+						parent.bac.updateError(ex,ey,currentError);
+					} else {
+						//logic
+						parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
+					}					
 				} else {
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
 					parent.wc.setCLVel(speed[0], speed[1]);
 				}
 				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
+				break;
 			}
 			case TURNTO:{ 
 				currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - BearingController.getRDirection(robot));
 				System.out.println(currentError);
-				if (isInThreshold(currentError, false)){
+				if (isInThreshold(currentError, ArgType.ANGLE)){
 					taskComplete = true;
 					stop();
 					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
@@ -214,7 +225,7 @@ public class ExecuteTask implements Runnable{
 				result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
 				currentError = dblArg - result.getX();
 				System.out.println(currentError);
-				if (isInThreshold(currentError, true)){
+				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					taskComplete = true;
 					stop();
 					new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 

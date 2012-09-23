@@ -13,7 +13,7 @@ public class WheelController {
 
 	static final double BRAKING_COEFFICIENT = 1;
 	static final double SPEED = 1.2;
-	static final double MIN_SPEED = .03;
+	static final double MIN_SPEED = .001;
 	static final double MAX_SPEED = .886;
 	static final double ROB_WIDTH = .355;
 	private double lVel, aVel, curv, lWVel, rWVel;
