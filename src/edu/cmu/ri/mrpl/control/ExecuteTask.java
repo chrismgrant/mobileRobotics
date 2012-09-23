@@ -162,8 +162,30 @@ public class ExecuteTask implements Runnable{
 			
 			//Loop VM
 			switch (active.type){
-			case FOLLOWPATH:{
-				RealPose2D currentTarget = null;
+			case FOLLOWPATH:{//Targets are relative to world
+				RealPose2D currentTarget = pthArg.get(0);
+				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
+				if (isInThreshold(currentError, ArgType.DISTANCE)){
+					if (pthArg.size()==1){//If last target achieved
+						taskComplete = true;
+						stop();
+						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e) {}
+						
+						//Calculate error
+						double ex, ey;
+						ex = BearingController.getRX(robot) - currentTarget.getX();
+						ey = BearingController.getRY(robot) - currentTarget.getY();
+						parent.bac.updateError(ex,ey,currentError);
+					} else {//If intermediary step achieved
+						pthArg.remove(0);
+						isContinuous = (pthArg.size()<=1)?false:true;
+					}
+				} else {//Move toward closest point on path
+					//TODO complete
+				}
 				break;
 			}
 			case POSETO:{//New target poses are relative to last target pose
