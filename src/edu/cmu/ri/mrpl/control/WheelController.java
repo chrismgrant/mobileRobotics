@@ -1,7 +1,6 @@
 package edu.cmu.ri.mrpl.control;
 
 import edu.cmu.ri.mrpl.Robot;
-import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
 /**
  * Controller handling wheels.

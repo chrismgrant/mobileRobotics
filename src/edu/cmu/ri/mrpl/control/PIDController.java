@@ -1,6 +1,9 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.util.Date;
+
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
+
 /**
  * PID controller for error driving
  * Attach to each error value that needs feedback control
@@ -9,11 +12,12 @@ import java.util.Date;
  */
 class PIDController {
 
-	private double p, i, d, dLast, iInt, iCap;
+	private double p, i, d, dLast, iInt;
 	private Date clockD;
 	private long lastClockD;
 	private Date clockI;
 	private long lastClockI;
+	private CircularFifoBuffer iRing;
 	
 	/**
 	 * Creates a controller using a PID interface
@@ -22,7 +26,7 @@ class PIDController {
 	 * @param integral integral constant
 	 * @param integralCap maximum value of integral
 	 */
-	PIDController(double proportional, double derivative, double integral, double integralCap){
+	PIDController(double proportional, double derivative, double integral, int integralCap){
 		p = proportional;
 		i = integral;
 		d = derivative;
@@ -31,8 +35,8 @@ class PIDController {
 		lastClockI = 0;
 		clockI = new Date();
 		dLast = 0;
-		iInt = 0;
-		iCap = integralCap;
+		iRing = new CircularFifoBuffer(integralCap);
+		clearIntegral();
 	}
 	/**
 	 * Creates a controller using a PD interface
@@ -74,10 +78,10 @@ class PIDController {
 		clockI.setTime(System.currentTimeMillis());
 		long dt = clockI.getTime() - lastClockI;
 		dt = (dt == 0)?1:dt;
+		double iLast = (Double) iRing.get();
+		iInt -= iLast;
 		iInt += inputValue*dt;
-		if (iCap < iInt){
-			clearIntegral();
-		}
+		iRing.add(new Double(iInt));
 		return iInt;
 	}
 	/**
@@ -85,6 +89,9 @@ class PIDController {
 	 */
 	void clearIntegral(){
 		iInt = 0;
+		for (int j = 0; j < iRing.size(); j++){
+			iRing.add(0.0);
+		}
 	}
 	
 }
