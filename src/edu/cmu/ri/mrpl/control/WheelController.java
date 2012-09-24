@@ -66,7 +66,7 @@ public class WheelController {
 	}
 	/**
 	 * Sets curvature and linear velocity of robot
-	 * @param curvature curvature
+	 * @param curvature curvature, in 1/m
 	 * @param linearVel linear velocity, in m/s
 	 */
 	public synchronized void setCLVel(double curvature, double linearVel){

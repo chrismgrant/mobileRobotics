@@ -190,10 +190,19 @@ public class BehaviorController {
 	public double[] shadowPoint(RealPoint2D p, boolean isLost, double frontSonar, double shadowDistance){
 		double[] speed = {0,0};
 		if (!isLost){
-			speed[0] = 1/calculateRadiusOfTurning(p);
-			speed[1] = WheelController.getCappedLVel(Math.min(p.getX() - shadowDistance, frontSonar),
-					WheelController.SPEED,
-					WheelController.MIN_SPEED);
+			double radius = calculateRadiusOfTurning(p);
+			radius = (Double.isNaN(radius))?Double.POSITIVE_INFINITY:radius;
+			speed[0] = 1/radius;
+			double theta = Math.atan2(p.getX(),radius-p.getY());
+			theta = (radius >= 0)?theta : -theta;
+			double distance = radius * theta;
+			distance = (Double.isNaN(distance))?p.getX():distance;
+			distance = (Math.abs(theta) > 2.35)?1:distance;
+			System.out.println(radius +","+theta+","+distance);
+			speed[1] = moveForward(distance); 
+//					WheelController.getCappedLVel(Math.min(p.getX() - shadowDistance, frontSonar),
+//					WheelController.SPEED,
+//					WheelController.MIN_SPEED);
 //			Legacy code for baggage tracker
 //				if (getLVel() < .1){	
 //					pointToDirection(Math.atan2(p.getY(), p.getX()));

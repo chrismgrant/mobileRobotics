@@ -18,6 +18,7 @@ class PIDController {
 	private Date clockI;
 	private long lastClockI;
 	private CircularFifoBuffer iRing;
+	private int ringLimit;
 	
 	/**
 	 * Creates a controller using a PID interface
@@ -36,6 +37,7 @@ class PIDController {
 		clockI = new Date();
 		dLast = 0;
 		iRing = new CircularFifoBuffer(integralCap);
+		ringLimit = integralCap;
 		clearIntegral();
 	}
 	/**
@@ -89,7 +91,7 @@ class PIDController {
 	 */
 	void clearIntegral(){
 		iInt = 0;
-		for (int j = 0; j < iRing.size(); j++){
+		for (int j = 0; j < ringLimit; j++){
 			iRing.add(0.0);
 		}
 	}

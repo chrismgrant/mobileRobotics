@@ -153,6 +153,7 @@ public class ExecuteTask implements Runnable{
 	public synchronized void run(){
 		//Pre-loop initialization
 		double[] sonars = new double[16];
+		boolean flag0 = false;
 		
 		while (running && !taskComplete){
 			// Loop header
@@ -194,8 +195,9 @@ public class ExecuteTask implements Runnable{
 				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
 				currentError = targetWRTRob.getPosition().distance(0,0);
 				System.out.println(currentError);
-				if (isInThreshold(currentError, ArgType.DISTANCE)){
+				if (flag0 || isInThreshold(currentError, ArgType.DISTANCE)){
 					// Begin rotate subtask
+					flag0 = true;
 					currentError = Angle.normalize(pseArg.getRotateTheta() + initPose.getTh() - BearingController.getRDirection(robot));
 					System.out.println(currentError);
 					if (isInThreshold(currentError, ArgType.ANGLE)){
