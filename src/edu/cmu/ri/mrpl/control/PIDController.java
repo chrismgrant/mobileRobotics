@@ -24,7 +24,7 @@ class PIDController {
 	 * @param proportional proportional constant
 	 * @param derivative derivative constant
 	 * @param integral integral constant
-	 * @param integralCap maximum value of integral
+	 * @param integralCap buffer size of integral storage. Must be greater than 0.
 	 */
 	PIDController(double proportional, double derivative, double integral, int integralCap){
 		p = proportional;
@@ -45,7 +45,7 @@ class PIDController {
 	 * @param derivative derivative constant
 	 */
 	PIDController(double proportional, double derivative){
-		this(proportional, derivative, 0,0);
+		this(proportional, derivative, 0,1);
 	}
 	/**
 	 * Creates a controller using a P interface
@@ -53,7 +53,7 @@ class PIDController {
 	 * @param proportional proportional constant
 	 */
 	PIDController(double proportional){
-		this(proportional, 0,0,0);
+		this(proportional, 0,0,1);
 	}
 	/**
 	 * Uses PID logic to return suitable output for input.
