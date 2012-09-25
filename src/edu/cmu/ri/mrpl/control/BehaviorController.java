@@ -24,7 +24,7 @@ public class BehaviorController {
 		setTarget(new RealPoint2D(0,0)); 
 		forwardPID = new PIDController(1,2.2);//was 1,1.9
 		turnPID = new PIDController(1.0,.25);//was 1,.22
-		shadowPID = new PIDController(1.0,2.5);
+		shadowPID = new PIDController(.55,2.1);
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
@@ -237,8 +237,8 @@ public class BehaviorController {
 			theta = (radius >= 0)?theta : -theta;
 			double distance = radius * theta;
 			//Is the point on the straight line?
-			distance = (Double.isNaN(distance))?p.getX():distance;
-			distance = (Math.abs(theta) > 2.35)?1:distance;
+			distance = (Math.abs(p.getY()) < 0.05)?p.getX():distance;
+			distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
 			System.out.println(radius +","+theta+","+distance);
 			double lVel = shadowPID.getOutput(distance);
 			double target = clamp(lVel, MAX_SPEED);
