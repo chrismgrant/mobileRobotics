@@ -165,8 +165,10 @@ public class ExecuteTask implements Runnable{
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
-				
-				RealPose2D currentTarget = pthArg.get(0);
+				//int i = 3;
+				RealPose2D targetWRTRob = null;
+				RealPose2D currentTarget = pthArg.get(1);
+				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition());
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (pthArg.size()==1){//If last target achieved
@@ -182,19 +184,32 @@ public class ExecuteTask implements Runnable{
 						ex = BearingController.getRX(robot) - currentTarget.getX();
 						ey = BearingController.getRY(robot) - currentTarget.getY();
 						parent.bac.updateError(ex,ey,currentError);
-					} else {//If intermediary step achieved
+					} else if (pthArg.size() <= 2){//If intermediary step achieved
+						pthArg.remove(0);
+						currentTarget = pthArg.get(0);
+						isContinuous = (pthArg.size()<=1)?false:true;
+					} else {
 						pthArg.remove(0);
 						isContinuous = (pthArg.size()<=1)?false:true;
 					}
-				} else {//Move toward closest point on path
-					//TODO complete
+				} else if(!isInThreshold(closePoint.distance(BearingController.getRPose(robot).getPosition()), ArgType.DISTANCE) ){//Move toward closest point on path
+					targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
+					targetWRTRob = RealPose2D.multiply(targetWRTRob, new RealPose2D(closePoint,0.0));
+					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
+					parent.wc.setCLVel(speed[0], speed[1]);
+				} else { //Move to next way point
+					targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
+					targetWRTRob = RealPose2D.multiply(targetWRTRob, currentTarget);
+					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
+					parent.wc.setCLVel(speed[0], speed[1]);
 				}
+				parent.wc.updateWheels(robot,parent.bc.isBumped(robot));	
 				break;
 			}
 			case POSETO:{//New target poses are relative to last target pose
 				RealPose2D targetWRTRob = null;
 				targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
-				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
+				targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg); 
 				currentError = targetWRTRob.getPosition().distance(0,0);
 				System.out.println(currentError);
 				if (flag0 || isInThreshold(currentError, ArgType.DISTANCE)){
