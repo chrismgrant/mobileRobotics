@@ -230,11 +230,14 @@ public class BehaviorController {
 		double[] speed = {0,0};
 		if (!isLost){
 			double radius = calculateRadiusOfTurning(p);
-			radius = (Double.isNaN(radius))?Double.POSITIVE_INFINITY:radius;
+			//Is the point on the straight line?
+//			radius = (Double.isNaN(radius))?Double.POSITIVE_INFINITY:radius;
 			speed[0] = 1/radius;
 			double theta = Math.atan2(p.getX(),radius-p.getY());
+			//Is the point to the left or the right?
 			theta = (radius >= 0)?theta : -theta;
 			double distance = radius * theta;
+			//Is the point on the straight line?
 			distance = (Double.isNaN(distance))?p.getX():distance;
 			distance = (Math.abs(theta) > 2.35)?1:distance;
 			System.out.println(radius +","+theta+","+distance);
