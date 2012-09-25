@@ -127,8 +127,11 @@ public class BehaviorController {
 	public Path getHistory() {
 		return history;
 	}
-	/*  
-	 * Give a path(list of poses) and robo position then find the closest point.
+	/**
+	 * Takes a path(list of poses) and robo position and finds the closest point.
+	 * @param l list of poses WRT world
+	 * @param pos position of robot
+	 * @return closest point WRT world
 	 */
  	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos)
 	{
