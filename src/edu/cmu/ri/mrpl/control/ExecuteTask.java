@@ -165,13 +165,13 @@ public class ExecuteTask implements Runnable{
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
-				//int i = 3;
+				int i = 1;
 				RealPose2D targetWRTRob = null;
-				RealPose2D currentTarget = pthArg.get(1);
+				RealPose2D currentTarget = pthArg.get(i);
 				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition());
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
-					if (pthArg.size()==1){//If last target achieved
+					if (i == pthArg.size()){//If last target achieved
 						taskComplete = true;
 						stop();
 						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
@@ -184,12 +184,13 @@ public class ExecuteTask implements Runnable{
 						ex = BearingController.getRX(robot) - currentTarget.getX();
 						ey = BearingController.getRY(robot) - currentTarget.getY();
 						parent.bac.updateError(ex,ey,currentError);
-					} else if (pthArg.size() <= 2){//If intermediary step achieved
-						pthArg.remove(0);
-						currentTarget = pthArg.get(0);
-						isContinuous = (pthArg.size()<=1)?false:true;
+//					} else if (pthArg.size() <= 2){//If intermediary step achieved
+//						pthArg.remove(0);
+//						currentTarget = pthArg.get(0);
+//						isContinuous = (pthArg.size()<=1)?false:true;
 					} else {
-						pthArg.remove(0);
+						i++;
+						currentTarget = pthArg.get(i);
 						isContinuous = (pthArg.size()<=1)?false:true;
 					}
 				} else if(!isInThreshold(closePoint.distance(BearingController.getRPose(robot).getPosition()), ArgType.DISTANCE) ){//Move toward closest point on path
