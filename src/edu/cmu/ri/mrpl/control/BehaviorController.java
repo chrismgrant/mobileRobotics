@@ -72,9 +72,9 @@ public class BehaviorController {
 	}
 	
 	/*  
-	 * Give a path(list of points) and robo position then find the closest point.
+	 * Give a path(list of poses) and robo position then find the closest point.
 	 */
- 	private RealPoint2D getClosestPoint(ArrayList<RealPose2D> l, RealPoint2D pos)
+ 	private RealPoint2D getClosestPoint(Path l, RealPoint2D pos)
 	{
 		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
 		Line2D path = new Line2D.Float();
@@ -147,8 +147,8 @@ public class BehaviorController {
 	/*
 	 * Takes a path(list of poses) and refines it to a list of points with a .5 distance.
 	 */
-	public ArrayList<RealPose2D> refinePath(ArrayList<RealPose2D> l){
-		ArrayList<RealPose2D> betterList = new ArrayList<RealPose2D>();
+	public Path refinePath(Path l){
+		Path betterList = new Path();
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
 		RealPose2D newPoint = new RealPose2D();
 		RealPose2D nextPoint = new RealPose2D();
