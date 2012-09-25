@@ -71,25 +71,7 @@ public class BehaviorController {
 		}, new RealPoint2D(1, 1));
 	}
 	
-	/*  
-	 * Give a path(list of poses) and robo position then find the closest point.
-	 */
- 	private RealPoint2D getClosestPoint(Path l, RealPoint2D pos)
-	{
-		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
-		Line2D path = new Line2D.Float();
-		for (int i = 0; i+1 < l.size(); i++){
-			path.setLine(l.get(i).getPosition(), l.get(i+1).getPosition());
-			LineSegment.closestPointOnLineSegment(path, pos, current);
-			if (current.distance(pos)< closest.distance(pos)){
-				closest = current;
-			}
-		}
-		if(l.size()>= 0){
-		return closest;
-		}
-		return new RealPoint2D(0,0);
-	}
+
 	
 	private RealPoint2D getMin(List<RealPoint2D> l){
 		return l.foldLeft(new F2<RealPoint2D, RealPoint2D, RealPoint2D>() {
@@ -144,6 +126,26 @@ public class BehaviorController {
 	public Path getHistory() {
 		return history;
 	}
+	/*  
+	 * Give a path(list of poses) and robo position then find the closest point.
+	 */
+ 	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos)
+	{
+		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
+		Line2D path = new Line2D.Float();
+		for (int i = 0; i+1 < l.size(); i++){
+			path.setLine(l.get(i).getPosition(), l.get(i+1).getPosition());
+			LineSegment.closestPointOnLineSegment(path, pos, current);
+			if (current.distance(pos)< closest.distance(pos)){
+				closest = current;
+			}
+		}
+		if(l.size()>= 0){
+		return closest;
+		}
+		return new RealPoint2D(0,0);
+	}
+ 	
 	/*
 	 * Takes a path(list of poses) and refines it to a list of points with a .5 distance.
 	 */

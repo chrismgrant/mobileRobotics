@@ -69,7 +69,8 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-			pthArg = arg.path;
+//			pthArg = arg.path;
+			pthArg = parent.bhc.refinePath(arg.path);
 			speech = "Path to " + "";
 			break;
 		}
@@ -185,7 +186,7 @@ public class ExecuteTask implements Runnable{
 						pthArg.remove(0);
 						isContinuous = (pthArg.size()<=1)?false:true;
 					}
-				} else {//Move toward closest point on path
+				} else if(parent.bhc) {//Move toward closest point on path
 					//TODO complete
 				}
 				break;
