@@ -1,11 +1,13 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
 
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.kinematics2D.LineSegment;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.kinematics2D.Vector2D;
 import fj.F2;
 import fj.data.List;
 import fj.F;
@@ -142,7 +144,33 @@ public class BehaviorController {
 	public Path getHistory() {
 		return history;
 	}
-
+	/*
+	 * Takes a path(list of points) and refines it to a list of points with a .5 distance.
+	 */
+	public List<RealPoint2D> refinePath(List<RealPoint2D> l){
+		List<RealPoint2D> betterList = null;
+		ArrayList<Vector2D> newPoints = null;
+		RealPoint2D newPoint = null;
+		RealPoint2D nextPoint = null;
+		RealPoint2D startPoint = l.toArray().get(0);
+		Line2D path = null;
+		//Go through Each point
+		for(int i = 1; i < l.length(); i++ ){
+		nextPoint = l.toArray().get(i);
+		//Make a line from start to next point
+		path.setLine(startPoint, nextPoint);
+		//Add points that are the right distance away
+		while(LineSegment.radialPointsOnLineSegment(path, .5, startPoint, newPoints)){
+				newPoint = (RealPoint2D) newPoints.get(0);
+				startPoint = newPoint;	
+				//TODO add new point to better list;
+				//betterList.
+			}
+		startPoint = nextPoint;
+		}
+		return betterList;
+	}
+	
 	public void setHistory(Path history) {
 		this.history = history;
 	}
