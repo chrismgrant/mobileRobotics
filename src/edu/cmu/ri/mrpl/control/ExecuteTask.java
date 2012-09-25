@@ -164,6 +164,7 @@ public class ExecuteTask implements Runnable{
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
+				
 				RealPose2D currentTarget = pthArg.get(0);
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
