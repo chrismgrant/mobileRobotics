@@ -186,7 +186,7 @@ public class ExecuteTask implements Runnable{
 						pthArg.remove(0);
 						isContinuous = (pthArg.size()<=1)?false:true;
 					}
-				} else if(parent.bhc) {//Move toward closest point on path
+				} else {//Move toward closest point on path
 					//TODO complete
 				}
 				break;
