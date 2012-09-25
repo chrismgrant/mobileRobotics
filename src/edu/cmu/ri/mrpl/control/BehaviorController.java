@@ -17,13 +17,14 @@ public class BehaviorController {
 	private final double MAX_SPEED = .886;
 	private RealPoint2D targetPoint;
 	private Path history;
-	private PIDController forwardPID, turnPID;
+	private PIDController forwardPID, turnPID, shadowPID;
 	
 	public BehaviorController(){
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
 		forwardPID = new PIDController(1,2.2);//was 1,1.9
 		turnPID = new PIDController(1.0,.25);//was 1,.22
+		shadowPID = new PIDController(1.0,2.5);
 	}
 	
 	public void updateBehavior(RealPose2D rpos, List<RealPoint2D> world){
@@ -230,8 +231,6 @@ public class BehaviorController {
 		double[] speed = {0,0};
 		if (!isLost){
 			double radius = calculateRadiusOfTurning(p);
-			//Is the point on the straight line?
-//			radius = (Double.isNaN(radius))?Double.POSITIVE_INFINITY:radius;
 			speed[0] = 1/radius;
 			double theta = Math.atan2(p.getX(),radius-p.getY());
 			//Is the point to the left or the right?
@@ -241,7 +240,9 @@ public class BehaviorController {
 			distance = (Double.isNaN(distance))?p.getX():distance;
 			distance = (Math.abs(theta) > 2.35)?1:distance;
 			System.out.println(radius +","+theta+","+distance);
-			speed[1] = moveForward(distance); 
+			double lVel = shadowPID.getOutput(distance);
+			double target = clamp(lVel, MAX_SPEED);
+			speed[1] = moveForward(target); 
 //					WheelController.getCappedLVel(Math.min(p.getX() - shadowDistance, frontSonar),
 //					WheelController.SPEED,
 //					WheelController.MIN_SPEED);
