@@ -74,12 +74,12 @@ public class BehaviorController {
 	/*  
 	 * Give a path(list of points) and robo position then find the closest point.
 	 */
- 	private RealPoint2D getClosestPoint(ArrayList<RealPoint2D> l, RealPoint2D pos)
+ 	private RealPoint2D getClosestPoint(ArrayList<RealPose2D> l, RealPoint2D pos)
 	{
 		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
 		Line2D path = new Line2D.Float();
 		for (int i = 0; i+1 < l.size(); i++){
-			path.setLine(l.get(i), l.get(i+1));
+			path.setLine(l.get(i).getPosition(), l.get(i+1).getPosition());
 			LineSegment.closestPointOnLineSegment(path, pos, current);
 			if (current.distance(pos)< closest.distance(pos)){
 				closest = current;
