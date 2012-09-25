@@ -13,7 +13,12 @@ import fj.data.List;
 import fj.F;
 
 public class BehaviorTester {
-	Path dummyPath = new Path();
-	BehaviorController b = new BehaviorController();
+	public BehaviorTester(){
+		Path dummyPath = new Path();
+		BehaviorController b = new BehaviorController();
+		RealPoint2D next = new RealPoint2D(1.0, 2.0);
+		b.getClosestPoint(dummyPath, next);
+
+	}
 	
 }
