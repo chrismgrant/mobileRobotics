@@ -17,6 +17,8 @@ public class BehaviorTester {
 		Path dummyPath = new Path();
 		BehaviorController b = new BehaviorController();
 		RealPoint2D next = new RealPoint2D(1.0, 2.0);
+		RealPose2D origin = new RealPose2D(1.0, 1.0, 45);
+		dummyPath.add(origin);
 		b.getClosestPoint(dummyPath, next);
 
 	}
