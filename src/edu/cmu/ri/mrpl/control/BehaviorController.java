@@ -74,18 +74,18 @@ public class BehaviorController {
 	/*  
 	 * Give a path(list of points) and robo position then find the closest point.
 	 */
- 	private RealPoint2D getClosestPoint(List<RealPoint2D> l, RealPoint2D pos)
+ 	private RealPoint2D getClosestPoint(ArrayList<RealPoint2D> l, RealPoint2D pos)
 	{
-		RealPoint2D current = null, closest = null;
-		Line2D path = null;
-		for (int i = 0; i+1 < l.length(); i++){
-			path.setLine(l.toArray().get(i),l.toArray().get(i+1) );
+		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
+		Line2D path = new Line2D.Float();
+		for (int i = 0; i+1 < l.size(); i++){
+			path.setLine(l.get(i), l.get(i+1));
 			LineSegment.closestPointOnLineSegment(path, pos, current);
 			if (current.distance(pos)< closest.distance(pos)){
 				closest = current;
 			}
 		}
-		if(l.length()>= 0){
+		if(l.size()>= 0){
 		return closest;
 		}
 		return new RealPoint2D(0,0);
@@ -147,26 +147,28 @@ public class BehaviorController {
 	/*
 	 * Takes a path(list of points) and refines it to a list of points with a .5 distance.
 	 */
-	public List<RealPoint2D> refinePath(List<RealPoint2D> l){
-		List<RealPoint2D> betterList = null;
-		ArrayList<Vector2D> newPoints = null;
-		RealPoint2D newPoint = null;
-		RealPoint2D nextPoint = null;
-		RealPoint2D startPoint = l.toArray().get(0);
-		Line2D path = null;
-		//Go through Each point
-		for(int i = 1; i < l.length(); i++ ){
-		nextPoint = l.toArray().get(i);
-		//Make a line from start to next point
-		path.setLine(startPoint, nextPoint);
-		//Add points that are the right distance away
-		while(LineSegment.radialPointsOnLineSegment(path, .5, startPoint, newPoints)){
+	public ArrayList<RealPoint2D> refinePath(ArrayList<RealPoint2D> l){
+		ArrayList<RealPoint2D> betterList = new ArrayList<RealPoint2D>();
+		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
+		RealPoint2D newPoint = new RealPoint2D();
+		RealPoint2D nextPoint = new RealPoint2D();
+		RealPoint2D startPoint = l.get(0);
+		Line2D path = new Line2D.Float();
+
+		betterList.add(startPoint);
+		//Go through Each given point
+		for(int i = 1; i < l.size(); i++ ){
+			nextPoint = l.get(i);
+			//Make a line from start to next point
+			path.setLine(startPoint, nextPoint);
+			//Add points that are the right distance away
+			while(LineSegment.radialPointsOnLineSegment(path, .5, startPoint, newPoints)){
 				newPoint = (RealPoint2D) newPoints.get(0);
+				betterList.add(newPoint);
 				startPoint = newPoint;	
-				//TODO add new point to better list;
-				//betterList.
 			}
-		startPoint = nextPoint;
+			betterList.add(nextPoint);
+			startPoint = nextPoint;
 		}
 		return betterList;
 	}
