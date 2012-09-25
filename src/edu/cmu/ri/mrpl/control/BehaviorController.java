@@ -1,6 +1,9 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.geom.Line2D;
+
 import edu.cmu.ri.mrpl.Path;
+import edu.cmu.ri.mrpl.kinematics2D.LineSegment;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import fj.F2;
@@ -66,21 +69,25 @@ public class BehaviorController {
 		}, new RealPoint2D(1, 1));
 	}
 	
-	/*private RealPoint2D getClosest(List<RealPoint2D> l)
+	/*  
+	 * Give a path(list of points) and robo position then find the closest point.
+	 */
+ 	private RealPoint2D getClosestPoint(List<RealPoint2D> l, RealPoint2D pos)
 	{
-		Double currentMin = Double.POSITIVE_INFINITY;
-		int minIndex = 0;
-		for (int i = 0; i < l.length(); i++){
-			if (l.toArray().get(i).distance(0,0) < currentMin){
-				currentMin = l.toArray().get(i).distance(0,0);
-				minIndex= i;
+		RealPoint2D current = null, closest = null;
+		Line2D path = null;
+		for (int i = 0; i+1 < l.length(); i++){
+			path.setLine(l.toArray().get(i),l.toArray().get(i+1) );
+			LineSegment.closestPointOnLineSegment(path, pos, current);
+			if (current.distance(pos)< closest.distance(pos)){
+				closest = current;
 			}
 		}
 		if(l.length()>= 0){
-		return l.toArray().get(minIndex);
+		return closest;
 		}
-		return new RealPoint2D(6,0);
-	}*/
+		return new RealPoint2D(0,0);
+	}
 	
 	private RealPoint2D getMin(List<RealPoint2D> l){
 		return l.foldLeft(new F2<RealPoint2D, RealPoint2D, RealPoint2D>() {
