@@ -158,5 +158,40 @@ public class BearingController {
 	public double getThError(){
 		return thError;
 	}
-	
+	/**
+	 * Converts pose from WRT world to WRT robot
+	 * @param robot robot object
+	 * @param worldPose target pose WRT world
+	 * @return target pose WRT robot
+	 */
+	public static RealPose2D WRTRobot(Robot robot, RealPose2D worldPose){
+		return RealPose2D.multiply(getRPose(robot).inverse(), worldPose);
+	}
+	/**
+	 * Converts point from WRT world to WRT robot
+	 * @param robot robot object
+	 * @param worldPoint target point WRT world
+	 * @return target point WRT robot
+	 */
+	public static RealPoint2D WRTRobot(Robot robot, RealPoint2D worldPoint){
+		return WRTRobot(robot, new RealPose2D(worldPoint.getX(),worldPoint.getY(),0)).getPosition();
+	}
+	/**
+	 * Converts pose from WRT robot to WRT world
+	 * @param robot robot object
+	 * @param worldPose target pose WRT robot
+	 * @return target pose WRT world
+	 */
+	public static RealPose2D WRTWorld(Robot robot, RealPose2D robotPose){
+		return RealPose2D.multiply(getRPose(robot), robotPose);
+	}
+	/**
+	 * Converts point from WRT robot to WRT world
+	 * @param robot robot object
+	 * @param worldPoint target point WRT robot
+	 * @return target point WRT world
+	 */
+	public static RealPoint2D WRTWorld(Robot robot, RealPoint2D worldPoint){
+		return WRTWorld(robot, new RealPose2D(worldPoint.getX(),worldPoint.getY(),0)).getPosition();
+	}
 }

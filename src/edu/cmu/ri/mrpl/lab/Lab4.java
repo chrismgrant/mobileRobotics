@@ -489,7 +489,6 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
 			cc.syncRobot(robot);
 			
-//			double[] sonars = new double[16];
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
@@ -498,26 +497,8 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				while(!shouldStop()) {
-//					robot.updateState();
-//					robot.getSonars(sonars);
-//					sc.setSonars(sonars);
-//					sc2.setSonars(cc.getSonars());
-////					cc.addCommandFromFile("command.txt");
-//					cc.updateControllers(sonars);
+
 					cc.execute();
-
-//					FileWriter commandFile;
-//					try {
-////						commandFile = new FileWriter("command.txt");
-//						 PrintWriter outCommand = new PrintWriter(commandFile);
-//						 outCommand.print("");
-//						 commandFile.close();
-//					} catch (IOException e1) {
-//						
-//						e1.printStackTrace();
-//					}
-
-					
 
 					try {
 						Thread.sleep(20);

@@ -145,20 +145,21 @@ public class BehaviorController {
 			}
 		}
 		if(l.size()>= 0){
-		return closest;
+			return closest;
 		}
 		return new RealPoint2D(0,0);
 	}
- 	
-	/*
-	 * Takes a path(list of poses) and refines it to a list of points with a .5 distance.
-	 */
-	public Path refinePath(Path l){
+ 	/**
+ 	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
+ 	 * @param l input path
+ 	 * @return path spaced with intermediary points
+ 	 */
+	public static Path refinePath(Path l){
 		Path betterList = new Path();
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
 		RealPose2D newPoint = new RealPose2D();
 		RealPose2D nextPoint = new RealPose2D();
-		RealPose2D startPoint = l.get(0);
+		RealPose2D startPoint = new RealPose2D();
 		Line2D path = new Line2D.Float();
 
 		betterList.add(startPoint);
@@ -168,10 +169,11 @@ public class BehaviorController {
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			//Add points that are the right distance away
-			while(LineSegment.radialPointsOnLineSegment(path, .5, startPoint.getPosition(), newPoints)){
+			while(LineSegment.radialPointsOnLineSegment(path, .3, startPoint.getPosition(), newPoints)){
 				newPoint = new RealPose2D(newPoints.get(0).x,newPoints.get(0).y,startPoint.getTh());
 				betterList.add(newPoint);
-				startPoint = newPoint;	
+				startPoint = newPoint;
+				path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			}
 			betterList.add(nextPoint);
 			startPoint = nextPoint;

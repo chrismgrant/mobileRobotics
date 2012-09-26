@@ -69,15 +69,14 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-//			pthArg = arg.path;
 			pthArg = parent.bhc.refinePath(arg.path);
-			speech = "Path to " + "";
+			speech = "Pathing";
 			break;
 		}
 		case POSETO: {
 			PoseArgument arg = (PoseArgument)(active.argument);
 			pseArg = new RealPose2D(arg.pose);
-			speech = "Pose to " + pseArg.toString();
+			speech = "Poseing";
 			break;
 		}
 		case TURNTO: {
@@ -155,7 +154,8 @@ public class ExecuteTask implements Runnable{
 		//Pre-loop initialization
 		double[] sonars = new double[16];
 		boolean flag0 = false;
-		
+		int i = 1;
+
 		while (running && !taskComplete){
 			// Loop header
 			robot.updateState();
@@ -165,13 +165,12 @@ public class ExecuteTask implements Runnable{
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
-				int i = 1;
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
 				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition());
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
-					if (i == pthArg.size()){//If last target achieved
+					if (i == pthArg.size()-1){//If last target achieved
 						taskComplete = true;
 						stop();
 						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
@@ -191,16 +190,17 @@ public class ExecuteTask implements Runnable{
 					} else {
 						i++;
 						currentTarget = pthArg.get(i);
-						isContinuous = (pthArg.size()<=1)?false:true;
+						targetWRTRob = BearingController.WRTRobot(robot, currentTarget);
+						double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
+						parent.wc.setCLVel(speed[0], speed[1]);
+						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
 				} else if(!isInThreshold(closePoint.distance(BearingController.getRPose(robot).getPosition()), ArgType.DISTANCE) ){//Move toward closest point on path
-					targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
-					targetWRTRob = RealPose2D.multiply(targetWRTRob, new RealPose2D(closePoint,0.0));
+					targetWRTRob = BearingController.WRTRobot(robot, new RealPose2D(closePoint,0.0));
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
 					parent.wc.setCLVel(speed[0], speed[1]);
 				} else { //Move to next way point
-					targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
-					targetWRTRob = RealPose2D.multiply(targetWRTRob, currentTarget);
+					targetWRTRob = BearingController.WRTRobot(robot, currentTarget);
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
 					parent.wc.setCLVel(speed[0], speed[1]);
 				}
