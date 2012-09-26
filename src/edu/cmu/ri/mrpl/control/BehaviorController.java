@@ -152,6 +152,15 @@ public class BehaviorController {
 		}
 		return new RealPoint2D(0,0);
 	}
+ 	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos, int index)
+	{
+		RealPoint2D closest = new RealPoint2D();
+		Line2D path = new Line2D.Float();
+
+		path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
+		LineSegment.closestPointOnLineSegment(path, pos, closest);
+		return closest;
+	}
  	/**
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
  	 * @param l input path

@@ -69,7 +69,9 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-			pthArg = parent.bhc.refinePath(arg.path);
+			pthArg = arg.path;
+			pthArg.add(0, initPose);
+			isContinuous = true;
 			speech = "Pathing";
 			break;
 		}
@@ -144,6 +146,31 @@ public class ExecuteTask implements Runnable{
 		parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 	}
 	/**
+	 * Saves the incurred error to the WheelController.
+	 * @param robot robot object
+	 * @param target target at time of termination, WRT world
+	 * @param targetAngle targetAngle WRT world
+	 */
+	private void saveError(Robot robot, RealPoint2D target, double targetAngle){
+		double ex, ey, eth;
+		ex = BearingController.getRX(robot) - target.getX();
+		ey = BearingController.getRY(robot) - target.getY();
+		eth = Angle.normalize(targetAngle - BearingController.getRDirection(robot));
+		parent.bac.updateError(ex,ey,eth);
+	}
+	/**
+	 * Saves the incurred error to the WheelController.
+	 * @param robot robot object
+	 * @param target target at time of termination, WRT world
+	 */
+	private void saveError(Robot robot, RealPose2D target){
+		double ex, ey, eth;
+		ex = BearingController.getRX(robot) - target.getX();
+		ey = BearingController.getRY(robot) - target.getY();
+		eth = Angle.normalize(target.getRotateTheta() - BearingController.getRDirection(robot));
+		parent.bac.updateError(ex,ey,eth);
+	}
+	/**
 	 * Runs the thread. Used by Thread class
 	 * Should only call accessor functions of parent controllers,
 	 * with exception of Wheel controller.  
@@ -167,7 +194,13 @@ public class ExecuteTask implements Runnable{
 			case FOLLOWPATH:{//Targets are relative to world
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
-				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition());
+				RealPose2D robPoint = BearingController.getRPose(robot);
+				RealPoint2D forwardPoint = robPoint.getPosition();
+				double dx, dy;
+				dx = .1 * Math.cos(robPoint.getRotateTheta());
+				dy = .1 * Math.sin(robPoint.getRotateTheta());
+				forwardPoint.setLocation(robPoint.getX()+dx, robPoint.getY()+dy);
+				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, forwardPoint);
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
@@ -183,10 +216,7 @@ public class ExecuteTask implements Runnable{
 						ex = BearingController.getRX(robot) - currentTarget.getX();
 						ey = BearingController.getRY(robot) - currentTarget.getY();
 						parent.bac.updateError(ex,ey,currentError);
-//					} else if (pthArg.size() <= 2){//If intermediary step achieved
-//						pthArg.remove(0);
-//						currentTarget = pthArg.get(0);
-//						isContinuous = (pthArg.size()<=1)?false:true;
+
 					} else {
 						i++;
 						currentTarget = pthArg.get(i);
@@ -195,12 +225,8 @@ public class ExecuteTask implements Runnable{
 						parent.wc.setCLVel(speed[0], speed[1]);
 						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
-				} else if(!isInThreshold(closePoint.distance(BearingController.getRPose(robot).getPosition()), ArgType.DISTANCE) ){//Move toward closest point on path
+				} else {//Move toward closest point on path
 					targetWRTRob = BearingController.WRTRobot(robot, new RealPose2D(closePoint,0.0));
-					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
-					parent.wc.setCLVel(speed[0], speed[1]);
-				} else { //Move to next way point
-					targetWRTRob = BearingController.WRTRobot(robot, currentTarget);
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
 					parent.wc.setCLVel(speed[0], speed[1]);
 				}
