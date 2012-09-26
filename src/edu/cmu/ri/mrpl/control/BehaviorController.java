@@ -15,11 +15,14 @@ import fj.F;
 public class BehaviorController {
 
 	private final double MAX_SPEED = .886;
+	private final double THRESHOLD = .05;
 	private RealPoint2D targetPoint;
+	private double radius;
 	private Path history;
 	private PIDController forwardPID, turnPID, shadowPID;
 	
 	public BehaviorController(){
+		radius = Double.POSITIVE_INFINITY;
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
 		forwardPID = new PIDController(1,2.2);//was 1,1.9
@@ -164,7 +167,7 @@ public class BehaviorController {
 
 		betterList.add(startPoint);
 		//Go through Each given point
-		for(int i = 1; i < l.size(); i++ ){
+		for(int i = 0; i < l.size(); i++ ){
 			nextPoint = l.get(i);
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
@@ -258,4 +261,26 @@ public class BehaviorController {
 		}
 		return speed;
 	}
+	
+	//Begin arcToPoint segment
+	synchronized double[] arcToPoint(RealPoint2D target){
+		double[] speed = {0,0};
+		double newRadius = calculateRadiusOfTurning(target);
+		if (Math.abs(newRadius - radius) > THRESHOLD){
+			radius = newRadius;
+		}
+		speed[0] = 1/radius;
+		double theta = Math.atan2(target.getX(),radius-target.getY());
+		//Is the point to the left or the right?
+		theta = (radius >= 0)?theta : -theta;
+		double distance = radius * theta;
+		//Is the point on the straight line?
+		distance = (Math.abs(target.getY()) < 0.05)?target.getX():distance;
+		distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
+		System.out.println(radius +","+theta+","+distance);
+		double lVel = clamp(shadowPID.getOutput(distance),MAX_SPEED);
+		speed[1] = lVel;
+		return speed;
+	}
+
 }
