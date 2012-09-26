@@ -70,6 +70,7 @@ public class ExecuteTask implements Runnable{
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
 			pthArg = parent.bhc.refinePath(arg.path);
+			isContinuous = true;
 			speech = "Pathing";
 			break;
 		}
@@ -167,7 +168,7 @@ public class ExecuteTask implements Runnable{
 			case FOLLOWPATH:{//Targets are relative to world
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
-				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition());
+				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition(), i);
 				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
@@ -195,7 +196,7 @@ public class ExecuteTask implements Runnable{
 						parent.wc.setCLVel(speed[0], speed[1]);
 						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
-				} else if(!isInThreshold(closePoint.distance(BearingController.getRPose(robot).getPosition()), ArgType.DISTANCE) ){//Move toward closest point on path
+				} else if(closePoint.distance(BearingController.getRPose(robot).getPosition()) > .1){//Move toward closest point on path
 					targetWRTRob = BearingController.WRTRobot(robot, new RealPose2D(closePoint,0.0));
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition(), false, Double.POSITIVE_INFINITY, 0);
 					parent.wc.setCLVel(speed[0], speed[1]);

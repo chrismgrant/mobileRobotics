@@ -134,23 +134,17 @@ public class BehaviorController {
 	 * Takes a path(list of poses) and robo position and finds the closest point.
 	 * @param l list of poses WRT world
 	 * @param pos position of robot
+	 * @param index index of target in path
 	 * @return closest point WRT world
 	 */
- 	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos)
+ 	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos, int index)
 	{
-		RealPoint2D current = new RealPoint2D(), closest = new RealPoint2D();
+		RealPoint2D closest = new RealPoint2D();
 		Line2D path = new Line2D.Float();
-		for (int i = 0; i+1 < l.size(); i++){
-			path.setLine(l.get(i).getPosition(), l.get(i+1).getPosition());
-			LineSegment.closestPointOnLineSegment(path, pos, current);
-			if (current.distance(pos)< closest.distance(pos)){
-				closest = current;
-			}
-		}
-		if(l.size()>= 0){
-			return closest;
-		}
-		return new RealPoint2D(0,0);
+		path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
+		LineSegment.closestPointOnLineSegment(path, pos, closest);
+		return closest;
+
 	}
  	/**
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.

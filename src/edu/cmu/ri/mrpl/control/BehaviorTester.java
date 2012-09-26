@@ -29,7 +29,7 @@ public class BehaviorTester {
 		points.add(p4);
 		points.add(p5);
 		dummyPath.addAll(points);
-		b.getClosestPoint(dummyPath, next);
+		b.getClosestPoint(dummyPath, next,0);
 
 	}
 	
