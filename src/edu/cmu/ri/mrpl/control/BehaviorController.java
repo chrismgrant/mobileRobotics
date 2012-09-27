@@ -16,6 +16,7 @@ public class BehaviorController {
 
 	private final double MAX_SPEED = .886;
 	private final double THRESHOLD = .05;
+	private final static double POINT_DIST = .7;
 	private RealPoint2D targetPoint;
 	private double radius;
 	private Path history;
@@ -139,12 +140,21 @@ public class BehaviorController {
 	 */
  	public RealPoint2D getClosestPoint(Path l, RealPoint2D pos, int index)
 	{
-		RealPoint2D closest = new RealPoint2D();
+ 		RealPoint2D closest = new RealPoint2D(), close = new RealPoint2D();
 		Line2D path = new Line2D.Float();
-		path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
-		LineSegment.closestPointOnLineSegment(path, pos, closest);
-		return closest;
+		Line2D priorPath = new Line2D.Float();
 
+		if (index >= 2){
+			path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
+			priorPath.setLine(l.get(index-2).getPosition(), l.get(index-1).getPosition());
+			
+			return (LineSegment.closestPointOnLineSegment(path, pos, close) <
+					LineSegment.closestPointOnLineSegment(priorPath, pos, closest)) ? close : closest;
+		} else {
+			path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
+			LineSegment.closestPointOnLineSegment(path, pos, closest);
+		}
+		return closest;
 	}
  	/**
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
@@ -166,7 +176,7 @@ public class BehaviorController {
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			//Add points that are the right distance away
-			while(LineSegment.radialPointsOnLineSegment(path, .1, startPoint.getPosition(), newPoints)){
+			while(LineSegment.radialPointsOnLineSegment(path, POINT_DIST, startPoint.getPosition(), newPoints)){
 				newPoint = new RealPose2D(newPoints.get(0).x,newPoints.get(0).y,startPoint.getTh());
 				betterList.add(newPoint);
 				startPoint = newPoint;
@@ -243,8 +253,8 @@ public class BehaviorController {
 			distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
 			System.out.println(radius +","+theta+","+distance);
 			double lVel = shadowPID.getOutput(distance);
-			double target = clamp(lVel, MAX_SPEED);
-			speed[1] = moveForward(target); 
+			lVel = clamp(lVel, MAX_SPEED);
+ 
 //					WheelController.getCappedLVel(Math.min(p.getX() - shadowDistance, frontSonar),
 //					WheelController.SPEED,
 //					WheelController.MIN_SPEED);
@@ -255,6 +265,29 @@ public class BehaviorController {
 		}
 		return speed;
 	}
+	public double[] shadowPoint(RealPoint2D p){
+		double curv = 0;
+		double[] speed = {0,0};
+		double radius = calculateRadiusOfTurning(p);
+		curv = 1/radius;
+		double theta = Math.atan2(p.getX(),radius-p.getY());
+		//Is the point to the left or the right?
+		theta = (radius >= 0)?theta : -theta;
+		double distance = radius * theta;
+		//Is the point on the straight line?
+		distance = (Math.abs(p.getY()) < 0.05)?p.getX():distance;
+		distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
+		System.out.println(radius +","+theta+","+distance);
+		double lVel = shadowPID.getOutput(distance);
+		if (Math.abs(lVel) > 2*MAX_SPEED / (2 + Math.abs(curv) * .355)){
+			lVel = 2*MAX_SPEED / (2 + curv * .355);
+		}
+		speed[1] = clamp(lVel, MAX_SPEED);
+
+		speed[0] = curv * speed[1];
+		return speed;
+	}
+	
 	
 	//Begin arcToPoint segment
 	synchronized double[] arcToPoint(RealPoint2D target){
