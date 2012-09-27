@@ -12,7 +12,7 @@ public class WheelController {
 
 	static final double BRAKING_COEFFICIENT = 1;
 	static final double SPEED = 1.2;
-	static final double MIN_SPEED = .001;
+	static final double MIN_SPEED = .005;
 	static final double MAX_SPEED = .886;
 	static final double ROB_WIDTH = .355;
 	private double lVel, aVel, curv, lWVel, rWVel;
@@ -87,23 +87,36 @@ public class WheelController {
 	 * @param r robot object
 	 */
 	public synchronized void updateWheels(Robot r, boolean isBumped){
+		double left, right, diff;
 		if (!isBumped){
+			
 			switch(flag){
-				case AVEL: {
-					r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
-					break;
-				}
 				case CURVVEL:{
 					aVel = curv * lVel;
-					r.setVel(lVel - aVel*ROB_WIDTH/2,lVel + aVel*ROB_WIDTH/2);
+				}
+				case AVEL: {
+					left = lVel - aVel*ROB_WIDTH/2;
+					right = lVel + aVel*ROB_WIDTH/2;
+					if (Math.abs(left) > MAX_SPEED || Math.abs(right) > MAX_SPEED) {
+						left = lVel/2 - aVel*ROB_WIDTH/4;
+						right = lVel/2 + aVel*ROB_WIDTH/4;
+					}
 					break;
 				}
 				case WHEEL: {
 					r.setVel(lWVel, rWVel);
+					left = lWVel;
+					right = rWVel;
 					break;
 				}
-				default:{}
+				default:{
+					left = 0;
+					right = 0;
+					break;
+				}
 			}
+			
+			r.setVel(left, right);
 		} else {
 			r.setVel(0,0);
 		}
