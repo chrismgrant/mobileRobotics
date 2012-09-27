@@ -93,14 +93,13 @@ public class WheelController {
 			switch(flag){
 				case CURVVEL:{
 					aVel = curv * lVel;
+					if (Math.abs(lVel) > 2*MAX_SPEED / (2 + Math.abs(curv) * ROB_WIDTH)){
+						lVel = 2*MAX_SPEED / (2 + curv * ROB_WIDTH);
+					}
 				}
 				case AVEL: {
 					left = lVel - aVel*ROB_WIDTH/2;
 					right = lVel + aVel*ROB_WIDTH/2;
-					if (Math.abs(left) > MAX_SPEED || Math.abs(right) > MAX_SPEED) {
-						left = lVel/2 - aVel*ROB_WIDTH/4;
-						right = lVel/2 + aVel*ROB_WIDTH/4;
-					}
 					break;
 				}
 				case WHEEL: {
