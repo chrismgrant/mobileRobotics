@@ -166,7 +166,7 @@ public class BehaviorController {
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			//Add points that are the right distance away
-			while(LineSegment.radialPointsOnLineSegment(path, .3, startPoint.getPosition(), newPoints)){
+			while(LineSegment.radialPointsOnLineSegment(path, .1, startPoint.getPosition(), newPoints)){
 				newPoint = new RealPose2D(newPoints.get(0).x,newPoints.get(0).y,startPoint.getTh());
 				betterList.add(newPoint);
 				startPoint = newPoint;
