@@ -13,7 +13,15 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
  */
 public class BearingController {
 
+	private static final double meterToMazeUnit = 1.3576;//39.3701/29; 
+	private static final double radianToMazeUnit = 2/Math.PI;
+	
 	private RealPose2D pose;
+	/**
+	 * mazePose is a realPose relative to the maze origin, with units in m.
+	 */
+	private RealPose2D mazePose;
+	private RealPose2D lastPose;
 	private Date clock;
 	private long lastClock;
 	private double xError;
@@ -29,12 +37,14 @@ public class BearingController {
 		xError = 0;
 		yError = 0;
 		thError = 0;
+		mazePose = new RealPose2D();
+		lastPose = new RealPose2D();
 	}
 	/**
 	 * Updates robot's pose using linear and angular velocity.
 	 * Robot velocity will be freshest for use here
 	 * @param linearVelocity True linear velocity of robot
-	 * @param angularVelocity True angular velocit of robot
+	 * @param angularVelocity True angular velocity of robot
 	 */
 	public void updateBearing(double linearVelocity, double angularVelocity){
 		double x = pose.getX(), y = pose.getY();
@@ -165,7 +175,7 @@ public class BearingController {
 	 * @return target pose WRT robot
 	 */
 	public static RealPose2D WRTRobot(Robot robot, RealPose2D worldPose){
-		return RealPose2D.multiply(getRPose(robot).inverse(), worldPose);
+		return inverseMultiply(getRPose(robot), worldPose);
 	}
 	/**
 	 * Converts point from WRT world to WRT robot
@@ -183,7 +193,7 @@ public class BearingController {
 	 * @return target pose WRT world
 	 */
 	public static RealPose2D WRTWorld(Robot robot, RealPose2D robotPose){
-		return RealPose2D.multiply(getRPose(robot), robotPose);
+		return multiply(getRPose(robot), robotPose);
 	}
 	/**
 	 * Converts point from WRT robot to WRT world
@@ -193,5 +203,58 @@ public class BearingController {
 	 */
 	public static RealPoint2D WRTWorld(Robot robot, RealPoint2D worldPoint){
 		return WRTWorld(robot, new RealPose2D(worldPoint.getX(),worldPoint.getY(),0)).getPosition();
+	}
+	/**
+	 * Multiplies two poses together, as [a] x [b]
+	 * @param a pose on left
+	 * @param b pose on right
+	 * @return resultant pose
+	 */
+	public static RealPose2D multiply(RealPose2D a, RealPose2D b){
+		return RealPose2D.multiply(a,b);
+	}
+	/**
+	 * Multiplies inverse of pose with other pose, as [a]^-1 x [b]
+	 * @param a pose on left, to be inversed
+	 * @param b pose on right
+	 * @return resultant pose
+	 */
+	public static RealPose2D inverseMultiply(RealPose2D a, RealPose2D b){
+		return RealPose2D.multiply(a.inverse(), b);
+	}
+	/**
+	 * Updates the robot's maze pose by providing a delta vector specifying how much x, y, and th have changed.
+	 * The delta pose is vector-added to the maze pose.
+	 * @param newRobotPose robot's new pose in world
+	 */
+	public void updateMazePoseByBearing(RealPose2D newRobotPose){
+		RealPose2D deltaPose = inverseMultiply(lastPose, newRobotPose);
+		mazePose = multiply(mazePose,deltaPose);
+	}
+	/**
+	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall
+	 * @param sonars sonar readings (or generated MazeState. TODO change to make accurate)
+	 */
+	public void updateMazePoseBySonar(double[] sonars){
+		//TODO complete
+	}
+	/**
+	 * Gets the mazePose of the robot, in meters relative to maze origin
+	 * @return mazePose
+	 */
+	public RealPose2D getMazePose(){
+		return mazePose;
+	}
+	/**
+	 * Gets mazePose of the robot, in Maze units.
+	 * Primarily used for drawing
+	 * @return double of [x,y, direction] for drawing robot
+	 */
+	public double[] getMazePoseInMazeCoordinates(){
+		double[] ret = new double[3];
+		ret[0] = mazePose.getX() * meterToMazeUnit;
+		ret[1] = mazePose.getY() * meterToMazeUnit;
+		ret[2] = mazePose.getTh() * radianToMazeUnit;
+		return ret;
 	}
 }
