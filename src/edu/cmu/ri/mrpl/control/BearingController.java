@@ -22,6 +22,8 @@ public class BearingController {
 	 */
 	private RealPose2D mazePose;
 	private RealPose2D lastPose;
+	private RealPose2D initPose;
+
 	private Date clock;
 	private long lastClock;
 	private double xError;
@@ -39,6 +41,11 @@ public class BearingController {
 		thError = 0;
 		mazePose = new RealPose2D();
 		lastPose = new RealPose2D();
+		initPose = new RealPose2D();
+	}
+	public BearingController(Robot r){
+		this();
+		initPose = new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
 	}
 	/**
 	 * Updates robot's pose using linear and angular velocity.
@@ -233,10 +240,10 @@ public class BearingController {
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall
-	 * @param sonars sonar readings (or generated MazeState. TODO change to make accurate)
+	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
-	public void updateMazePoseBySonar(double[] sonars){
-		//TODO complete
+	public void updateMazePoseBySonar(RealPose2D sonarOffset){
+		mazePose = multiply(mazePose,sonarOffset);
 	}
 	/**
 	 * Gets the mazePose of the robot, in meters relative to maze origin

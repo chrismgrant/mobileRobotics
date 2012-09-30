@@ -13,7 +13,19 @@ import fj.F2;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.kinematics2D.Units;
+import edu.cmu.ri.mrpl.maze.MazeWorld;
 
+/**
+ * TrackerController handles judging where all objects are around the robot.
+ * TC first reads in sonar readings and generates a point cloud.
+ * Then, the point cloud gets cleaned to drop outliers, and converted into likely wall candidates.
+ * Then, walls are placed (or [god forbid] removed) in a MazeWorld instance.
+ * 
+ * Trackers in the point cloud are stored relative to the robot.
+ * As the robot moves, the trackers will be updated so that their position stays relative to the robot
+ * @author WangHeli
+ * 
+ */
 public class TrackerController {
 
 	private static final double SONAR_ROBOT_RADIUS = .1905;
@@ -23,8 +35,10 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
+	
 	private Array<List<Tracker>> trackers;
 	private List<Tracker> newTrackers;
+	private MazeWorld mazeWorld;
 //	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
 	private Tracker follow;
@@ -35,7 +49,7 @@ public class TrackerController {
 		ringCounter = 0;
 		
 		trackers = array();//Creates empty array
-		for (int i = 0; i < TRACKER_DECAY; i++){//Adds T_DECAY many array indexs with lists 
+		for (int i = 0; i < TRACKER_DECAY; i++){//Adds T_DECAY many array indices with lists 
 			List<Tracker> a = list();
 			Array<List<Tracker>> b = array(a);
 			trackers = trackers.append(b);
@@ -72,7 +86,7 @@ public class TrackerController {
 	 * @param position Position of point relative to robot
 	 * @param robotPose Pose of robot relative to world
 	 */
-	public void addTracker(RealPoint2D position, RealPose2D robotPose){
+	void addTracker(RealPoint2D position, RealPose2D robotPose){
 		RealPose2D worldPos = new RealPose2D(position.getX(),position.getY(),0);
 		worldPos = RealPose2D.multiply(robotPose, worldPos);
 		Tracker newTracker = new Tracker(worldPos.getPosition(), position);
@@ -86,6 +100,24 @@ public class TrackerController {
 		trackers.set(ringCounter, newTrackers);//Remove old trackers and add new trackers
 
 		ringCounter = (ringCounter >= TRACKER_DECAY-1) ? 0 : ringCounter+1;
+		//TODO Filter lonely trackers
+	}
+	/**
+	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
+	 * getMazeOffset is called after new sonar readings are passed in
+	 * @param oldMazePose
+	 * @return Pose with offset from closest reading to walls
+	 */
+	public RealPose2D getMazeOffset(RealPose2D oldMazePose){
+		//TODO complete
+		return oldMazePose;
+	}
+	/**
+	 * Adds walls where sonar readings suggest a wall will be.
+	 * updateMazeWalls is called after robot position is set
+	 */
+	public void updateMazeWalls(){
+		//TODO complete
 	}
 	/**
 	 * Gets all tracker positions relative to robot

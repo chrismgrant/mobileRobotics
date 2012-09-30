@@ -407,9 +407,12 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				sc1.setSonars(sonars);
 				soc.updateSonars(sonars);
 				sc2.setSonars(soc.getSonarReadings());
-				
-				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
+				bac.updateMazePoseByBearing(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
 				trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
+				trc.updateTrackers();
+				bac.updateMazePoseBySonar(trc.getMazeOffset(bac.getMazePose()));
+				trc.updateMazeWalls();
+
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
@@ -420,7 +423,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
 
 				vc.updateVisualizer(pc, robot);
-				wc.setALVel(.87, 0);
+				wc.setALVel(-.56, .32);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
 				try {
