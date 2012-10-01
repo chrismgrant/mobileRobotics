@@ -415,8 +415,10 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
 				trc.addTrackersFromSonar(soc.getSonarReadings());
 				trc.updateTrackers(bac.getDeltaPose());
-//				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-				trc.updateMazeWalls(bac.getMazePose());
+				bac.updateMazePoseBySonar(trc.getMazeOffset(bac.getMazePose()));
+//				trc.updateMazeWalls(RealPose2D pose);
+
+//				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
 				robots.set(0, new MazeGraphics.ContRobot(bac.getMazePose(), Color.GREEN));
 				robots.set(1, new MazeGraphics.ContRobot(Convert.getRobotPose(robot), Color.RED));

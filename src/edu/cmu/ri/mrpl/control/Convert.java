@@ -3,10 +3,12 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 public final class Convert {
 	private static final double meterToMazeUnit = 1.3576;//39.3701/29; 
 	private static final double radianToMazeUnit = 2/Math.PI;
+	private static final double T9inchesToMeters = 0.7366;
 	/**
 	 * Multiplies two poses together, as [a] x [b]
 	 * @param a pose on left
@@ -101,4 +103,31 @@ public final class Convert {
 	public static RealPose2D getRobotPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
 	}
+	
+	/**
+	 * 
+	 * @param cellCenter
+	 * @param trackerPositionWTM
+	 * @return a direction
+	 * 
+	 * This function computes a MazeWorld direction based upon the cell center and a point
+	 */
+	public static MazeWorld.Direction getDirection(RealPoint2D cellCenter, RealPoint2D trackerPositionWTM){
+			if (Math.abs(cellCenter.x - trackerPositionWTM.x) > (Math.abs(cellCenter.y - trackerPositionWTM.y))){
+				if ((cellCenter.x - trackerPositionWTM.x) > 0){
+					return MazeWorld.Direction.West;
+				}
+				else{
+					return MazeWorld.Direction.East;
+				}
+			}
+			else{
+				if((cellCenter.y - trackerPositionWTM.y) > 0){
+					return MazeWorld.Direction.South;
+				}
+				else{
+					return MazeWorld.Direction.North;
+				}
+			}		
+	} 
 }
