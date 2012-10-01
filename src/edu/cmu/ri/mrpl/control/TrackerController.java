@@ -215,7 +215,7 @@ public class TrackerController {
 				double distance, minDistance;
 				minDistance = Double.POSITIVE_INFINITY;
 				for (int i = 0; i < 4; i++){
-					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPos()), null);
+					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), null);
 					if (distance < minDistance) {
 						minDistance = distance;
 					}
