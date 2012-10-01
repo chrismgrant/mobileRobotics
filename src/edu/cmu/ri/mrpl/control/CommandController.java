@@ -119,8 +119,8 @@ public class CommandController {
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
 		bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
-		trc.addTrackersFromSonar(soc.getSonarReadings(), bac.getPose());
-		trc.updateTrackers();
+		trc.addTrackersFromSonar(soc.getSonarReadings());
+		trc.updateTrackers( bac.getDeltaPose());
 		//TODO add VC update
 
 	}

@@ -2,11 +2,14 @@ package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import fj.data.List;
 import static fj.data.List.list;
 import fj.data.Array;
 import static fj.data.Array.array;
+import fj.Effect;
 import fj.F;  
 import fj.F2;
 
@@ -35,9 +38,11 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
+	private static final int TRACKER_MIN_COUNT = 3;
 	
 	private Array<List<Tracker>> trackers;
 	private List<Tracker> newTrackers;
+	private List<Tracker> filteredTrackers;
 	private MazeWorld mazeWorld;
 //	private Set<Tracker> trackers; //Map of trackers, 
 	private Tracker active;
@@ -59,6 +64,7 @@ public class TrackerController {
 		active = null;
 		follow = null;
 		followLostCounter = 0;
+		filteredTrackers = list();
 	}
 	/**
 	 * Adds trackers from 16 sonar readings
@@ -66,7 +72,7 @@ public class TrackerController {
 	 * @param robotPose pose of Robot
 	 * @param ignore whether to ignore the current readings
 	 */
-	public void addTrackersFromSonar(double[] sonarReadings, RealPose2D robotPose){
+	public void addTrackersFromSonar(double[] sonarReadings){
 			newTrackers = list();
 			RealPoint2D position;
 			double x,y,th;
@@ -76,7 +82,7 @@ public class TrackerController {
 					x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 					y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 					position = new RealPoint2D(x,y);
-					addTracker(position, robotPose);
+					addTracker(position);
 				
 			}
 		}
@@ -84,23 +90,59 @@ public class TrackerController {
 	/**
 	 * Adds a tracker to the tracking list
 	 * @param position Position of point relative to robot
-	 * @param robotPose Pose of robot relative to world
 	 */
-	void addTracker(RealPoint2D position, RealPose2D robotPose){
-		RealPose2D worldPos = new RealPose2D(position.getX(),position.getY(),0);
-		worldPos = RealPose2D.multiply(robotPose, worldPos);
-		Tracker newTracker = new Tracker(worldPos.getPosition(), position);
+	void addTracker(RealPoint2D position){
+		Tracker newTracker = new Tracker(position);
 		newTrackers = newTrackers.cons(newTracker);
 	}
 	/**
 	 * Update tracker states. Removes any beyond decay time.
 	 * Call after other TC setter methods to apply updates.
 	 */
-	public void updateTrackers(){
+	public void updateTrackers(final RealPose2D delta){
+		
+		//Update robot positions of old trackers
+		trackers.map(new F<List<Tracker>,List<Tracker>>() {
+			public List<Tracker> f(List<Tracker> l){
+				l.foreach(new Effect<Tracker>() {
+					public void e(Tracker t){
+						t.updateRobotCoords(delta);
+					}
+				});
+				return l;
+			}
+		});
+		
 		trackers.set(ringCounter, newTrackers);//Remove old trackers and add new trackers
-
 		ringCounter = (ringCounter >= TRACKER_DECAY-1) ? 0 : ringCounter+1;
-		//TODO Filter lonely trackers
+		
+		//Begin point cloud filter
+		double x,y;
+		RealPoint2D p;
+		List<Tracker> trackerList = list();
+		Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
+		filteredTrackers = list();
+		//Collapse array
+		for (List<Tracker> l : trackers){
+			trackerList.append(l);
+		}
+		//Add trackers to pointcloud
+		for (Tracker t : trackerList){
+			x = ((int)(t.getX()*100))/100.0;
+			y = ((int)(t.getY()*100))/100.0;
+			p = new RealPoint2D(x,y);
+			if (pointCloud.containsKey(p)){
+				pointCloud.put(p, pointCloud.get(p)+1);
+			} else {
+				pointCloud.put(p, 1);
+			}
+		}
+		//Filter pointCloud
+		for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
+			if (e.getValue() > TRACKER_MIN_COUNT){
+				filteredTrackers.cons(new Tracker(e.getKey()));
+			}
+		}
 	}
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
@@ -109,6 +151,7 @@ public class TrackerController {
 	 * @return Pose with offset from closest reading to walls
 	 */
 	public RealPose2D getMazeOffset(RealPose2D oldMazePose){
+		
 		//TODO complete
 		return oldMazePose;
 	}
@@ -141,8 +184,7 @@ public class TrackerController {
 		
 		return l.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				Point2D result = null;
-				Point2D sol = robotPose.inverse().transform(t.getWPos(),result);
+				Point2D sol = t.getRPos();
 				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
@@ -154,9 +196,7 @@ public class TrackerController {
 	public List<RealPoint2D> getNewTrackerRPos(final RealPose2D robotPose){
 		return newTrackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				
-				Point2D result = null;
-				Point2D sol = robotPose.inverse().transform(t.getWPos(),result);
+				Point2D sol = t.getRPos();
 				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
@@ -165,7 +205,7 @@ public class TrackerController {
 	 * Gets all tracker positions relative to world
 	 * @return fj's List of RealPoint2D 
 	 */
-	public List<RealPoint2D> getAllTrackerWPos(){
+	public List<RealPoint2D> getAllTrackerWPos(final RealPose2D robotPose){
 		List<Tracker> e = list();
 		List<Tracker> l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
 			public List<Tracker> f(List<Tracker> out, List<Tracker> current){
@@ -174,7 +214,7 @@ public class TrackerController {
 		},e);
 		return l.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				return t.getWPos();
+				return Convert.WRTWorld(robotPose, t.getRPos());
 			}
 		});
 	}

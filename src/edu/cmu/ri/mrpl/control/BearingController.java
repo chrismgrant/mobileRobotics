@@ -13,8 +13,7 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
  */
 public class BearingController {
 
-	private static final double meterToMazeUnit = 1.3576;//39.3701/29; 
-	private static final double radianToMazeUnit = 2/Math.PI;
+
 	
 	private RealPose2D pose;
 	/**
@@ -23,6 +22,7 @@ public class BearingController {
 	private RealPose2D mazePose;
 	private RealPose2D lastPose;
 	private RealPose2D initPose;
+	private RealPose2D deltaPose;
 
 	private Date clock;
 	private long lastClock;
@@ -94,6 +94,14 @@ public class BearingController {
 	 */
 	public synchronized RealPose2D getPose(){
 		return pose.clone();
+	}
+	/**
+	 * Gets the difference between last known pose and current pose.
+	 * Updates after updateMazePoseByBearing is called
+	 * @return difference between last and this pose
+	 */
+	public synchronized RealPose2D getDeltaPose(){
+		return deltaPose;
 	}
 	/**
 	 * Gets point of robot
@@ -176,74 +184,21 @@ public class BearingController {
 		return thError;
 	}
 	/**
-	 * Converts pose from WRT world to WRT robot
-	 * @param robot robot object
-	 * @param worldPose target pose WRT world
-	 * @return target pose WRT robot
-	 */
-	public static RealPose2D WRTRobot(Robot robot, RealPose2D worldPose){
-		return inverseMultiply(getRPose(robot), worldPose);
-	}
-	/**
-	 * Converts point from WRT world to WRT robot
-	 * @param robot robot object
-	 * @param worldPoint target point WRT world
-	 * @return target point WRT robot
-	 */
-	public static RealPoint2D WRTRobot(Robot robot, RealPoint2D worldPoint){
-		return WRTRobot(robot, new RealPose2D(worldPoint.getX(),worldPoint.getY(),0)).getPosition();
-	}
-	/**
-	 * Converts pose from WRT robot to WRT world
-	 * @param robot robot object
-	 * @param worldPose target pose WRT robot
-	 * @return target pose WRT world
-	 */
-	public static RealPose2D WRTWorld(Robot robot, RealPose2D robotPose){
-		return multiply(getRPose(robot), robotPose);
-	}
-	/**
-	 * Converts point from WRT robot to WRT world
-	 * @param robot robot object
-	 * @param worldPoint target point WRT robot
-	 * @return target point WRT world
-	 */
-	public static RealPoint2D WRTWorld(Robot robot, RealPoint2D worldPoint){
-		return WRTWorld(robot, new RealPose2D(worldPoint.getX(),worldPoint.getY(),0)).getPosition();
-	}
-	/**
-	 * Multiplies two poses together, as [a] x [b]
-	 * @param a pose on left
-	 * @param b pose on right
-	 * @return resultant pose
-	 */
-	public static RealPose2D multiply(RealPose2D a, RealPose2D b){
-		return RealPose2D.multiply(a,b);
-	}
-	/**
-	 * Multiplies inverse of pose with other pose, as [a]^-1 x [b]
-	 * @param a pose on left, to be inversed
-	 * @param b pose on right
-	 * @return resultant pose
-	 */
-	public static RealPose2D inverseMultiply(RealPose2D a, RealPose2D b){
-		return RealPose2D.multiply(a.inverse(), b);
-	}
-	/**
 	 * Updates the robot's maze pose by providing a delta vector specifying how much x, y, and th have changed.
 	 * The delta pose is vector-added to the maze pose.
 	 * @param newRobotPose robot's new pose in world
 	 */
 	public void updateMazePoseByBearing(RealPose2D newRobotPose){
-		RealPose2D deltaPose = inverseMultiply(lastPose, newRobotPose);
-		mazePose = multiply(mazePose,deltaPose);
+		deltaPose = Convert.inverseMultiply(lastPose, newRobotPose);
+		mazePose = Convert.multiply(mazePose,deltaPose);
+		lastPose = newRobotPose;
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall
 	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
 	public void updateMazePoseBySonar(RealPose2D sonarOffset){
-		mazePose = multiply(mazePose,sonarOffset);
+		mazePose = Convert.multiply(mazePose,sonarOffset);
 	}
 	/**
 	 * Gets the mazePose of the robot, in meters relative to maze origin
@@ -259,9 +214,9 @@ public class BearingController {
 	 */
 	public double[] getMazePoseInMazeCoordinates(){
 		double[] ret = new double[3];
-		ret[0] = mazePose.getX() * meterToMazeUnit;
-		ret[1] = mazePose.getY() * meterToMazeUnit;
-		ret[2] = mazePose.getTh() * radianToMazeUnit;
+		ret[0] = Convert.meterToMazeUnit(mazePose.getX());
+		ret[1] = Convert.meterToMazeUnit(mazePose.getY());
+		ret[2] = Convert.radianToMazeDirection(mazePose.getTh());
 		return ret;
 	}
 }

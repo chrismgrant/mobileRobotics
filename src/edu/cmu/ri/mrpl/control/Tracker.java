@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import java.awt.Toolkit;
 
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
+import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 /**
  * 
@@ -12,24 +13,20 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 public class Tracker {
 
 	private boolean lost;
-	private RealPoint2D worldCoord;
 	private RealPoint2D robotCoord;
 	/**
 	 * Creates a tracker
-	 * @param worldPos Position of tracker relative to world
 	 * @param robotPos Position of tracker relative to robot
 	 */
-	public Tracker(RealPoint2D worldPos, RealPoint2D robotPos){
-		updatePos(worldPos, robotPos);
+	public Tracker(RealPoint2D robotPos){
+		updatePos(robotPos);
 		lost = false;
 	}
 	/**
 	 * Updates position of the tracker
-	 * @param worldPos Position of tracker relative to world
 	 * @param robotPos Position of tracker relative to robot
 	 */
-	public void updatePos(RealPoint2D worldPos, RealPoint2D robotPos){
-		worldCoord = (RealPoint2D) worldPos.clone();
+	public void updatePos(RealPoint2D robotPos){
 		robotCoord = (RealPoint2D) robotPos.clone();
 		if (lost) {lost = false;}
 	}
@@ -74,32 +71,11 @@ public class Tracker {
 		return robotCoord.getY(); 
 	}
 	/**
-	 * Gets x position relative to 0,0 of world
-	 * @return absolute x position, in meters
-	 */
-	public double getWX(){
-		return worldCoord.getX();
-	}
-	/**
-	 * Gets y position relative to 0,0 of world
-	 * @return absolute y position, in meters
-	 */
-	public double getWY(){
-		return worldCoord.getY();
-	}
-	/**
 	 * Gets RealPoint2D of tracker relative to robot
 	 * @return relative position
 	 */
 	public RealPoint2D getRPos(){
 		return robotCoord;
-	}
-	/**
-	 * Gets RealPoint2D of tracker relative to world
-	 * @return absolute position
-	 */
-	public RealPoint2D getWPos(){
-		return worldCoord;
 	}
 	/**
 	 * Returns the error between saved distance and new distance
@@ -118,5 +94,12 @@ public class Tracker {
 		double oldTh = Math.atan2(robotCoord.getY(), robotCoord.getX());
 		double newTh = Math.atan2(robotCoord.getY(), robotCoord.getX());
 		return newTh - oldTh;
+	}
+	/**
+	 * Updates the robot-centric coordinates given a delta pose
+	 * @param delta delta pose between robot poses
+	 */
+	public void updateRobotCoords(RealPose2D delta){
+		robotCoord = Convert.inverseMultiply(delta, new RealPose2D(robotCoord.getX(),robotCoord.getY(),0)).getPosition();
 	}
 }

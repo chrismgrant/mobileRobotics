@@ -191,17 +191,17 @@ public class ExecuteTask implements Runnable{
 					} else {
 						i++;
 						currentTarget = pthArg.get(i);
-						targetWRTRob = BearingController.WRTRobot(robot, currentTarget);
+						targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), currentTarget);
 						double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 						parent.wc.setALVel(speed[0], speed[1]);
 						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
-				} else if(closePoint.distance(BearingController.getRPose(robot).getPosition()) > .1){//Move toward closest point on path
-					targetWRTRob = BearingController.WRTRobot(robot, new RealPose2D(closePoint,0.0));
+				} else if(closePoint.distance(Convert.getRobotPose(robot).getPosition()) > .1){//Move toward closest point on path
+					targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), new RealPose2D(closePoint,0.0));
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 					parent.wc.setALVel(speed[0], speed[1]);
 				} else { //Move to next way point
-					targetWRTRob = BearingController.WRTRobot(robot, currentTarget);
+					targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), currentTarget);
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 					parent.wc.setALVel(speed[0], speed[1]);
 				}
