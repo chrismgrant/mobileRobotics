@@ -68,8 +68,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	private BehaviorController bvc;
 	
 	private ReactTask reactTask;
-	private SonarTask sonarTask;
-	private StateWanderTask bothTask;
+	private LocalizeTask sonarTask;
+	private MapLocalizationTask bothTask;
 
 	private Task curTask = null;
 	
@@ -200,8 +200,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		
 		// construct tasks
 		reactTask = new ReactTask(this);
-		sonarTask = new SonarTask(this);
-		bothTask = new StateWanderTask(this);
+		sonarTask = new LocalizeTask(this);
+		bothTask = new MapLocalizationTask(this);
 
 		// PMF: Creating a frame to put the PointsConsole panel in. 
 		// get the panel that 
@@ -386,9 +386,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		}
 	}
 
-	class SonarTask extends Task {
+	class LocalizeTask extends Task {
 		MazeGraphics mg;
-		SonarTask(TaskController tc) {
+		LocalizeTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
@@ -400,6 +400,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		}
 
 		public void taskRun() {
+			double[] heading;
 			showSC();
 			robot.turnSonarsOn();
 			ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
@@ -422,6 +423,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				
 				robots.set(0, new MazeGraphics.ContRobot(bac.getMazePose(), Color.GREEN));
 				robots.set(1, new MazeGraphics.ContRobot(Convert.getRobotPose(robot), Color.RED));
+				
+				heading = bac.getMazePoseInMazeCoordinates();
+				System.out.println(heading[0]+","+heading[1]+","+heading[2]);
 				mg.setContRobots(robots);
 //				mg.paint(g)
 				
@@ -444,9 +448,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		}
 	}
 
-	class StateWanderTask extends Task {
+	class MapLocalizationTask extends Task {
 
-		StateWanderTask(TaskController tc) {
+		MapLocalizationTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();

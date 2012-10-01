@@ -6,7 +6,6 @@ import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
-import edu.cmu.ri.mrpl.lab.Lab3;
 
 
 /**
