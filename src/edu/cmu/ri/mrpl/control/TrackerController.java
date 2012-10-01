@@ -235,16 +235,14 @@ public class TrackerController {
 	 * updateMazeWalls is called after robot position is set
 	 */
 	public void updateMazeWalls(RealPose2D pose){
-		//iterating through trackers to get walls, then updating world
 		for (int i = 0; i < filteredTrackers.length(); i++){
-	 		// check if world represents object as wall mazeWorld.isWall(x, y, d)
 			RealPoint2D convertedPoint = Convert.WRTWorld(pose, filteredTrackers.index(i).getRPoint());
 			int x = (int) Math.rint(Convert.meterToMazeUnit(convertedPoint.x));
 			int y = (int)Math.rint(Convert.meterToMazeUnit(convertedPoint.y));
 			double distance =  Convert.mazeUnitToMeter((int)((x / T9inchesToMeters)));
 			MazeWorld.Direction direction = Convert.getDirection(convertedPoint, filteredTrackers.index(i).getRPoint());
 			if (!mazeWorld.isWall(x, y, direction)){
-				//if world doesn't recognize it, then update it 
+				mazeWorld.addWall(x, y, direction);
 			}
 		}
 	}
