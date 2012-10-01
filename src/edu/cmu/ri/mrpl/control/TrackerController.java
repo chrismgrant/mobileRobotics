@@ -39,6 +39,7 @@ public class TrackerController {
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
 	private static final int TRACKER_MIN_COUNT = 3;
+	private static final double T9inchesToMeters = 0.7366;
 	
 	private Array<List<Tracker>> trackers;
 	private List<Tracker> newTrackers;
@@ -159,8 +160,19 @@ public class TrackerController {
 	 * Adds walls where sonar readings suggest a wall will be.
 	 * updateMazeWalls is called after robot position is set
 	 */
-	public void updateMazeWalls(){
-		//TODO complete
+	public void updateMazeWalls(RealPose2D pose){
+		//iterating through trackers to get walls, then updating world
+		for (int i = 0; i < filteredTrackers.length(); i++){
+	 		// check if world represents object as wall mazeWorld.isWall(x, y, d)
+			RealPoint2D convertedPoint = Convert.WRTWorld(pose, filteredTrackers.index(i).getRPoint());
+			int x = (int) Math.rint(Convert.meterToMazeUnit(convertedPoint.x));
+			int y = (int)Math.rint(Convert.meterToMazeUnit(convertedPoint.y));
+			double distance =  Convert.mazeUnitToMeter((int)((x / T9inchesToMeters)));
+			MazeWorld.Direction direction = Convert.getDirection(convertedPoint, filteredTrackers.index(i).getRPoint());
+			if (!mazeWorld.isWall(x, y, direction)){
+				//if world doesn't recognize it, then update it 
+			}
+		}
 	}
 	/**
 	 * Gets all tracker positions relative to robot
@@ -184,7 +196,7 @@ public class TrackerController {
 		
 		return l.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				Point2D sol = t.getRPos();
+				Point2D sol = t.getRPoint();
 				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
@@ -196,7 +208,7 @@ public class TrackerController {
 	public List<RealPoint2D> getNewTrackerRPos(final RealPose2D robotPose){
 		return newTrackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				Point2D sol = t.getRPos();
+				Point2D sol = t.getRPoint();
 				return new RealPoint2D(sol.getX(),sol.getY()) ;
 			}
 		});
@@ -214,7 +226,7 @@ public class TrackerController {
 		},e);
 		return l.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				return Convert.WRTWorld(robotPose, t.getRPos());
+				return Convert.WRTWorld(robotPose, t.getRPoint());
 			}
 		});
 	}

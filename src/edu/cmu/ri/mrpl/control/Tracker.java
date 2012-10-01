@@ -56,6 +56,7 @@ public class Tracker {
 	public double getDirection(boolean ignoreLost){
 		return (lost && !ignoreLost) ? -1 : Math.atan2(robotCoord.getY(), robotCoord.getX());
 	}
+	
 	/**
 	 * Gets x position relative to 0,0 of robot
 	 * @return relative x position, in meters
@@ -74,9 +75,12 @@ public class Tracker {
 	 * Gets RealPoint2D of tracker relative to robot
 	 * @return relative position
 	 */
-	public RealPoint2D getRPos(){
+	public RealPoint2D getRPoint(){
 		return robotCoord;
 	}
+	
+	
+	
 	/**
 	 * Returns the error between saved distance and new distance
 	 * @param newPoint point of new object relative to robot
