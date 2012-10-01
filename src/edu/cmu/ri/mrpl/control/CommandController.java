@@ -44,7 +44,7 @@ public class CommandController {
 		bc = new BumperController();
 		
 		trc = new TrackerController("in.maze");
-		bac = new BearingController();
+		bac = new BearingController(trc.getMazeInit());
 		bhc = new BehaviorController();
 		vc = new VisualizeController();
 	}

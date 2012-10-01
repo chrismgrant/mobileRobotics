@@ -390,7 +390,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
-			bac = new BearingController();
+			bac = new BearingController(trc.getMazeInit());
 		}
 
 		public void taskRun() {
@@ -446,7 +446,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
-			bac = new BearingController();
+			bac = new BearingController(trc.getMazeInit());
 			bvc = new BehaviorController();
 		}
 

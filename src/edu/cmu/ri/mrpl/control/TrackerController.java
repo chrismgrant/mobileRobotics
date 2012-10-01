@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import fj.data.List;
 import static fj.data.List.list;
@@ -20,6 +21,7 @@ import edu.cmu.ri.mrpl.kinematics2D.LineSegment;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.kinematics2D.Units;
+import edu.cmu.ri.mrpl.maze.MazeState;
 import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 /**
@@ -81,6 +83,13 @@ public class TrackerController {
 	 */
 	public MazeWorld getMaze(){
 		return mazeWorld;
+	}
+	public MazeState getMazeInit(){
+		Set<MazeState> inits = mazeWorld.getInits();
+		for (MazeState i : inits){
+			return i;
+		}
+		return null;
 	}
 	/**
 	 * Adds trackers from 16 sonar readings

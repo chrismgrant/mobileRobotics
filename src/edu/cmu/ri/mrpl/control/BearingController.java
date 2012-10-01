@@ -6,6 +6,7 @@ import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.maze.MazeState;
 /**
  * Handles updating position and orientation of robot at every step
  * @author WangHeli
@@ -32,21 +33,48 @@ public class BearingController {
 	/**
 	 * Creates new bearing controller and initializes values
 	 */
-	public BearingController(){
+	public BearingController(MazeState init){
 		pose = new RealPose2D();
 		lastClock = 0;
 		clock = new Date();
 		xError = 0;
 		yError = 0;
 		thError = 0;
-		mazePose = new RealPose2D();
+		double x,y,th;
+		x = Convert.mazeUnitToMeter(init.x());
+		y = Convert.mazeUnitToMeter(init.y());
+		switch (init.dir()){
+		case East: {
+			th = 0;
+			break;
+		}
+		case North: {
+			th = 1;
+			break;
+		}
+		case West: {
+			th = 2;
+			break;
+		}
+		case South: {
+			th = 3;
+			break;
+		}
+		default:{
+			th = -1;
+			break;
+		}
+		}
+		th = Convert.mazeDirectionToRadian(th);
+		mazePose = new RealPose2D(x,y,th);
 		lastPose = new RealPose2D();
 		initPose = new RealPose2D();
 	}
-	public BearingController(Robot r){
-		this();
+	public BearingController(MazeState init, Robot r){
+		this(init);
 		initPose = new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
 	}
+	
 	/**
 	 * Updates robot's pose using linear and angular velocity.
 	 * Robot velocity will be freshest for use here

@@ -394,8 +394,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			soc = new SonarController();
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
-			vc = new VisualizeController();
-			bac = new BearingController();
+//			vc = new VisualizeController();
+			bac = new BearingController(trc.getMazeInit());
 			mg = new MazeGraphics(trc.getMaze());
 		}
 
@@ -453,7 +453,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
-			bac = new BearingController();
+			bac = new BearingController(trc.getMazeInit());
 			bvc = new BehaviorController();
 		}
 
