@@ -198,7 +198,7 @@ public class BearingController {
 	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
 	public void updateMazePoseBySonar(RealPose2D sonarOffset){
-		mazePose = Convert.multiply(mazePose,sonarOffset);
+		mazePose = sonarOffset;
 	}
 	/**
 	 * Gets the mazePose of the robot, in meters relative to maze origin

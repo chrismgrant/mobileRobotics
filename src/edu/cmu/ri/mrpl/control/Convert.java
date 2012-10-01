@@ -5,8 +5,8 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 public final class Convert {
-	static final double meterToMazeUnit = 1.3576;//39.3701/29; 
-	static final double radianToMazeUnit = 2/Math.PI;
+	private static final double meterToMazeUnit = 1.3576;//39.3701/29; 
+	private static final double radianToMazeUnit = 2/Math.PI;
 	/**
 	 * Multiplies two poses together, as [a] x [b]
 	 * @param a pose on left
@@ -70,12 +70,28 @@ public final class Convert {
 		return meters * meterToMazeUnit;
 	}
 	/**
+	 * Converts mazeUnits to distance in meters
+	 * @param mazeUnit input units
+	 * @return equivalent meters
+	 */
+	public static double mazeUnitToMeter(double mazeUnit){
+		return mazeUnit/meterToMazeUnit;
+	}
+	/**
 	 * Converts radians to maze directions
 	 * @param radians input radians
 	 * @return equivalent maze direction
 	 */
 	public static double radianToMazeDirection(double radians){
 		return radians * radianToMazeUnit;
+	}
+	/**
+	 * Converts maze directions to radians
+	 * @param mazeDirection input maze direction
+	 * @return equivalent radians
+	 */
+	public static double mazeDirectionToRadian(double mazeDirection){
+		return mazeDirection/radianToMazeUnit;
 	}
 	/**
 	 * Gets pose of robot

@@ -1,5 +1,6 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import fj.Effect;
 import fj.F;  
 import fj.F2;
 
+import edu.cmu.ri.mrpl.kinematics2D.Angle;
+import edu.cmu.ri.mrpl.kinematics2D.LineSegment;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.kinematics2D.Units;
@@ -39,6 +42,7 @@ public class TrackerController {
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
 	private static final int TRACKER_MIN_COUNT = 3;
+	private static final double EPSILON = .05;
 	
 	private Array<List<Tracker>> trackers;
 	private List<Tracker> newTrackers;
@@ -147,21 +151,81 @@ public class TrackerController {
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
 	 * getMazeOffset is called after new sonar readings are passed in
-	 * @param oldMazePose
-	 * @return Pose with offset from closest reading to walls
+	 * @param oldMazePose pose relative to maze, in meters
+	 * @return new pose relative to maze
 	 */
-	public RealPose2D getMazeOffset(RealPose2D oldMazePose){
+	public RealPose2D getMazeCorrection(RealPose2D oldMazePose){
+		//Calculate wall border
+		Line2D[] border = new Line2D[4];// [right, up, left, down]
+		double xm, ym, xu,xd,yu,yd;
+		xm = Convert.meterToMazeUnit(oldMazePose.getX());
+		ym = Convert.meterToMazeUnit(oldMazePose.getY());
+		xu = Convert.mazeUnitToMeter(Math.ceil(xm));
+		xd = Convert.mazeUnitToMeter(Math.floor(xm));
+		yu = Convert.mazeUnitToMeter(Math.ceil(ym));
+		yd = Convert.mazeUnitToMeter(Math.floor(ym));
+		border[0] = new Line2D.Double(xu,yd,xu,yu);
+		border[1]= new Line2D.Double(xu,yu,xd,yu);
+		border[2] = new Line2D.Double(xd,yu,xd,yd);
+		border[3] = new Line2D.Double(xd,yd,xu,yd);
 		
-		//TODO complete
-		return oldMazePose;
+		//Compute gradient
+		double dx, dy, dth;
+		dx = oldMazePose.getX()+Double.MIN_VALUE;
+		dy = oldMazePose.getY()+Double.MIN_VALUE;
+		dth = Angle.normalize(oldMazePose.getRotateTheta()+Double.MIN_VALUE);
+		double[] gradient = new double[3];
+		gradient[0] = (getPointError(border,new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
+				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+		gradient[1] = (getPointError(border,new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) - 
+				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+		gradient[2] = (getPointError(border,new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) - 
+				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+		
+		//Traverse down gradient
+		double last = Double.POSITIVE_INFINITY;
+		RealPose2D nextPose = oldMazePose.clone();
+		double nextError = getPointError(border, nextPose);
+		while (last > nextError) {
+			last = nextError;
+			dx = -EPSILON * gradient[0]*nextPose.getX();
+			dy = -EPSILON * gradient[1]*nextPose.getY();
+			dth = -EPSILON * gradient[2]*nextPose.getTh();
+			nextPose.add(dx, dy, dth);
+			nextError = getPointError(border,nextPose);
+		}
+		nextPose.add(-dx, -dy, -dth);
+		return nextPose;
+	}
+	private double getPointError(final Line2D[] border, final RealPose2D inputPose){
+		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
+			public Double f(Tracker t){
+				double distance, minDistance;
+				minDistance = Double.POSITIVE_INFINITY;
+				for (int i = 0; i < 4; i++){
+					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPos()), null);
+					if (distance < minDistance) {
+						minDistance = distance;
+					}
+				}
+				return minDistance;
+			}
+		});
+		Double error = offsets.foldRight(new F2<Double,Double,Double>(){
+			public Double f(Double a, Double b){
+				return a+b;
+			}
+		}, 0.0);
+		return error;
 	}
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.
 	 * updateMazeWalls is called after robot position is set
 	 */
-	public void updateMazeWalls(){
+	public void updateMazeWalls(RealPose2D robotMazePose){
 		//TODO complete
 	}
+	
 	/**
 	 * Gets all tracker positions relative to robot
 	 * @return fj's List of RealPoint2D, relative to robot

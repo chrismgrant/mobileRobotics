@@ -74,7 +74,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	static final int DEFAULT_ROOM_SIZE = 4;
 
 	public Lab5() {
-		super("Lab 2");
+		super("Lab 5");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
@@ -410,8 +410,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				bac.updateMazePoseByBearing(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
 				trc.addTrackersFromSonar(soc.getSonarReadings());
 				trc.updateTrackers(bac.getDeltaPose());
-				bac.updateMazePoseBySonar(trc.getMazeOffset(bac.getMazePose()));
-				trc.updateMazeWalls();
+				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+				trc.updateMazeWalls(bac.getMazePose());
 
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
