@@ -388,7 +388,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
-			trc = new TrackerController();
+			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
 			bac = new BearingController();
 		}
@@ -444,7 +444,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
-			trc = new TrackerController();
+			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
 			bac = new BearingController();
 			bvc = new BehaviorController();

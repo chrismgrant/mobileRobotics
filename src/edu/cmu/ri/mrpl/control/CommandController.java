@@ -43,7 +43,7 @@ public class CommandController {
 		soc = new SonarController();
 		bc = new BumperController();
 		
-		trc = new TrackerController();
+		trc = new TrackerController("in.maze");
 		bac = new BearingController();
 		bhc = new BehaviorController();
 		vc = new VisualizeController();

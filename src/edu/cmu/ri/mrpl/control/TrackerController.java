@@ -2,6 +2,7 @@ package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class TrackerController {
 	private int followLostCounter;
 	private int ringCounter;
 	
-	public TrackerController(){
+	public TrackerController(String in){
 		ringCounter = 0;
 		
 		trackers = array();//Creates empty array
@@ -69,6 +70,16 @@ public class TrackerController {
 		follow = null;
 		followLostCounter = 0;
 		filteredTrackers = list();
+		try {
+			mazeWorld = new MazeWorld(in);
+		} catch (IOException e) {}
+	}
+	/**
+	 * Gets the maze world
+	 * @return
+	 */
+	public MazeWorld getMaze(){
+		return mazeWorld;
 	}
 	/**
 	 * Adds trackers from 16 sonar readings

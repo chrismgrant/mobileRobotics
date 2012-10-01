@@ -6,6 +6,7 @@
 package edu.cmu.ri.mrpl.lab;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -19,6 +20,7 @@ import edu.cmu.ri.mrpl.maze.MazeGraphics;
 import edu.cmu.ri.mrpl.control.BearingController;
 import edu.cmu.ri.mrpl.control.BehaviorController;
 import edu.cmu.ri.mrpl.control.BumperController;
+import edu.cmu.ri.mrpl.control.Convert;
 import edu.cmu.ri.mrpl.control.PathFinder;
 import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
@@ -385,21 +387,24 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class SonarTask extends Task {
-
+		MazeGraphics mg;
 		SonarTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
-			trc = new TrackerController();
+			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
 			bac = new BearingController();
+			mg = new MazeGraphics(trc.getMaze());
 		}
 
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-
+			ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
+			robots.add(null);
+			robots.add(null);
 			double[] sonars = new double[16];
 			while(!shouldStop()) {
 				robot.updateState();
@@ -407,22 +412,17 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				sc1.setSonars(sonars);
 				soc.updateSonars(sonars);
 				sc2.setSonars(soc.getSonarReadings());
-				bac.updateMazePoseByBearing(new RealPose2D(robot.getPosX(),robot.getPosY(),robot.getHeading()));
+				bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
 				trc.addTrackersFromSonar(soc.getSonarReadings());
 				trc.updateTrackers(bac.getDeltaPose());
-				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+//				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
 				trc.updateMazeWalls(bac.getMazePose());
-
-//				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
-//				vc.updateRobotPos(pc, robotPose)
-//				pc.drawAll(robot, RobotModel.ROBOT_RADIUS);
+				robots.set(0, new MazeGraphics.ContRobot(bac.getMazePose(), Color.GREEN));
+				robots.set(1, new MazeGraphics.ContRobot(Convert.getRobotPose(robot), Color.RED));
+				mg.setContRobots(robots);
+//				mg.paint(g)
 				
-				vc.updateRobotPos(pc, bac.getPose());
-
-				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
-
-				vc.updateVisualizer(pc, robot);
 				wc.setALVel(-.56, .32);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
@@ -449,7 +449,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
-			trc = new TrackerController();
+			trc = new TrackerController("in.maze");
 			vc = new VisualizeController();
 			bac = new BearingController();
 			bvc = new BehaviorController();
@@ -473,10 +473,13 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					sc1.setSonars(sonars);
 					soc.updateSonars(sonars);
 					sc2.setSonars(soc.getSonarReadings());
-					bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
+					bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
 					trc.addTrackersFromSonar(soc.getSonarReadings());
-					//trc.addTrackersFromSonar(sonars, bac.getPose());
 					trc.updateTrackers(bac.getPose());
+					bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+					trc.updateMazeWalls(bac.getMazePose());
+
+					
 					vc.updateRobotPos(pc, bac.getPose());
 					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
 					//vc.addPoints(pc, trc.getNewTrackerRPos(BearingController.getRPose(robot)));

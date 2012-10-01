@@ -430,7 +430,7 @@ public class Lab1 extends JFrame implements ActionListener, TaskController {
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
-			trc = new TrackerController();
+			trc = new TrackerController("in.maze");
 		}
 		int counter = 25, a = 1;
 		public void taskRun() {
