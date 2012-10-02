@@ -483,17 +483,21 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				double near = 1;
 				double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.2;
+
 				while(!shouldStop()) {
                     robot.updateState();
                     robot.getSonars(sonars);
                     sc1.setSonars(sonars);
                     soc.updateSonars(sonars);
                     sc2.setSonars(soc.getSonarReadings());
-                    bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-					trc.addTrackersFromSonar(soc.getSonarReadings());
-					trc.updateTrackers(bac.getPose());
-					bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-//					trc.updateMazeWalls(bac.getMazePose());
+                    if (bac.updateMazePoseByBearing(Convert.getRobotPose(robot))){
+                        trc.addTrackersFromSonar(soc.getSonarReadings());
+                        trc.updateTrackers(bac.getPose());
+                        bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+//					    trc.updateMazeWalls(bac.getMazePose());
+                    }
+
+
 //                    System.out.println(bac.getMazePose().toString());
 
                     robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));

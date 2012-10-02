@@ -215,10 +215,11 @@ public class BearingController {
 	 * The delta pose is vector-added to the maze pose.
 	 * @param newRobotPose robot's new pose in world
 	 */
-	public void updateMazePoseByBearing(RealPose2D newRobotPose){
+	public boolean updateMazePoseByBearing(RealPose2D newRobotPose){
         deltaPose = Convert.inverseMultiply(lastPose,newRobotPose);
         mazePose = Convert.multiply(mazePose,deltaPose);
 		lastPose = newRobotPose.clone();
+        return (deltaPose.getPosition().distance(0,0) > .02);
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall

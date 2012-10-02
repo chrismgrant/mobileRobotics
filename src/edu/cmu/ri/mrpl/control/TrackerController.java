@@ -38,7 +38,7 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
 public class TrackerController {
 
 	private static final double SONAR_ROBOT_RADIUS = .1905;
-	private static final int TRACKER_DECAY = 10;
+	private static final int TRACKER_DECAY = 5;
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .35;
 	private static final double DISTANCE_CLOSE_RANGE = .5;
@@ -46,7 +46,7 @@ public class TrackerController {
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final int PRECISION = 2;
 	private static final int TRACKER_MIN_COUNT = 3;
-	private static final double EPSILON = .05;
+	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
 	
 	private Array<List<Tracker>> trackers;
@@ -126,7 +126,7 @@ public class TrackerController {
 	public void updateTrackers(final RealPose2D delta){
 		
 		//Update robot positions of old trackers
-		trackers.map(new F<List<Tracker>,List<Tracker>>() {
+		trackers = trackers.map(new F<List<Tracker>,List<Tracker>>() {
 			public List<Tracker> f(List<Tracker> l){
 				l.foreach(new Effect<Tracker>() {
 					public void e(Tracker t){
@@ -184,10 +184,10 @@ public class TrackerController {
 		double xm, ym, xu,xd,yu,yd;
 		xm = Convert.meterToMazeUnit(oldMazePose.getX());
 		ym = Convert.meterToMazeUnit(oldMazePose.getY());
-		xu = Convert.mazeUnitToMeter(Math.ceil(xm));
-		xd = Convert.mazeUnitToMeter(Math.floor(xm));
-		yu = Convert.mazeUnitToMeter(Math.ceil(ym));
-		yd = Convert.mazeUnitToMeter(Math.floor(ym));
+		xu = Convert.mazeUnitToMeter(Math.rint(xm)+.5);
+		xd = Convert.mazeUnitToMeter(Math.rint(xm)-.5);
+		yu = Convert.mazeUnitToMeter(Math.rint(ym)+.5);
+		yd = Convert.mazeUnitToMeter(Math.rint(ym)-.5);
 		border[0] = new Line2D.Double(xu,yd,xu,yu);
 		border[1]= new Line2D.Double(xu,yu,xd,yu);
 		border[2] = new Line2D.Double(xd,yu,xd,yd);
@@ -195,10 +195,10 @@ public class TrackerController {
 		
 		//Compute gradient
 		double dx, dy, dth;
-        final double dp = .001;
+        final double dp = 0.0001;
 		dx = oldMazePose.getX()+dp;
 		dy = oldMazePose.getY()+dp;
-		dth = Angle.normalize(oldMazePose.getRotateTheta()+dp);
+		dth = Angle.normalize(oldMazePose.getRotateTheta()+dp/Math.PI);
 		double[] gradient = new double[3];
 		gradient[0] = (getPointError(border,new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
 				getPointError(border,oldMazePose))/dp;
@@ -223,7 +223,10 @@ public class TrackerController {
 		}
 		nextPose.add(-dx, -dy, -dth);
 
-		return nextPose;
+        if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
+		    return nextPose;
+        }
+        return oldMazePose;
 	}
 	private double getPointError(final Line2D[] border, final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
@@ -249,7 +252,7 @@ public class TrackerController {
 				return a+b;
 			}
 		}, 0.0);
-		return error;
+		return Math.sqrt(error);
 	}
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.
