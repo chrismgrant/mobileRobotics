@@ -473,6 +473,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
+				double near = 1;
+				double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.2;
+				
 				while(!shouldStop()) {
 					robot.updateState();
 					robot.getSonars(sonars);
@@ -484,6 +487,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					trc.updateTrackers(bac.getPose());
 					bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
 					trc.updateMazeWalls(bac.getMazePose());
+					
 
 					
 					vc.updateRobotPos(pc, bac.getPose());
@@ -497,8 +501,23 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 //					}
 					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
+				
+				/*
+				 * dumb wanderer stuff 
+				 */
+					front = soc.getFrontReadings(sonars);
+					left = soc.getLeftReadings(sonars);
+					right = soc.getRightReadings(sonars);
+//					pf.get(pf.size()-1);
+					
+					right = (right < vision)? right/vision*speed : speed;
+					front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
+					front = (right < left) ? -front/2 : front/2;
+					left = (left < vision)? left/vision*speed : speed;
 
-					wc.setWheelVel(bvc.getTarget().x,bvc.getTarget().y);
+					System.out.println("right: "+right+" left: "+left+" front: "+front);
+
+					wc.setWheelVel(right + front, left-front);
 					
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
