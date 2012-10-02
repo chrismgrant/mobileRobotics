@@ -217,23 +217,24 @@ public class BearingController {
 	 * @param newRobotPose robot's new pose in world
 	 */
 	public void updateMazePoseByBearing(RealPose2D newRobotPose){
-		deltaPose = Convert.inverseMultiply(lastPose, newRobotPose);
-		mazePose = Convert.multiply(mazePose,deltaPose);
-		lastPose = newRobotPose;
+        deltaPose = newRobotPose.clone();
+		deltaPose.add(-lastPose.getX(), -lastPose.getY(), -lastPose.getRotateTheta());
+		mazePose.add(deltaPose.getX(),deltaPose.getY(), deltaPose.getRotateTheta());
+		lastPose = newRobotPose.clone();
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall
 	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
 	public void updateMazePoseBySonar(RealPose2D sonarOffset){
-		mazePose = sonarOffset;
+		mazePose = sonarOffset.clone();
 	}
 	/**
 	 * Gets the mazePose of the robot, in meters relative to maze origin
 	 * @return mazePose
 	 */
 	public RealPose2D getMazePose(){
-		return mazePose;
+		return mazePose.clone();
 	}
 	/**
 	 * Gets mazePose of the robot, in Maze units.

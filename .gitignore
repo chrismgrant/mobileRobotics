@@ -32,3 +32,6 @@ bin/edu/cmu/ri/mrpl/maze/.svn/entries
 *.orig
 
 in.maze
+
+*.iml
+*.idea

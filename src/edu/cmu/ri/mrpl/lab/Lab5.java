@@ -27,6 +27,8 @@ import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.VisualizeController;
 import edu.cmu.ri.mrpl.control.WheelController;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
+import edu.cmu.ri.mrpl.maze.MazeGraphicsSwing;
+import edu.cmu.ri.mrpl.maze.MazeViewer;
 
 /**
  * A class that 
@@ -385,18 +387,21 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			return "sample program";
 		}
 	}
-
+    //This function requires in.maze to have an init pose. If not, the task will fail horridly.
 	class LocalizeTask extends Task {
 		MazeGraphics mg;
+        JPanel mazeContainer;
+        VisualizeController.MazeViewer mv;
 		LocalizeTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
-//			vc = new VisualizeController();
+			vc = new VisualizeController();
 			bac = new BearingController(trc.getMazeInit());
 			mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
 		}
 
 		public void taskRun() {
@@ -414,9 +419,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				soc.updateSonars(sonars);
 				sc2.setSonars(soc.getSonarReadings());
 				bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-				trc.addTrackersFromSonar(soc.getSonarReadings());
-				trc.updateTrackers(bac.getDeltaPose());
-				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+//				trc.addTrackersFromSonar(soc.getSonarReadings());
+//				trc.updateTrackers(bac.getDeltaPose());
+//				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
 //				trc.updateMazeWalls(RealPose2D pose);
 
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
@@ -426,7 +431,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				
 				heading = bac.getMazePoseInMazeCoordinates();
 				System.out.println(heading[0]+","+heading[1]+","+heading[2]);
+                System.out.println(bac.getMazePose().getX()+","+bac.getMazePose().getY()+","+bac.getMazePose().getRotateTheta());
 				mg.setContRobots(robots);
+                mv.recreateMazeGraphics(mg);
 //				mg.paint(g)
 				
 				wc.setALVel(-.56, .32);
