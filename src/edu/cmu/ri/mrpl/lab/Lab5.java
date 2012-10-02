@@ -408,6 +408,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			double[] heading;
 			showSC();
 			robot.turnSonarsOn();
+            robot.updateState();
+            bac.setInitPose(Convert.getRobotPose(robot));
 			ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
 			robots.add(null);
 			robots.add(null);
@@ -426,12 +428,15 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
-				robots.set(0, new MazeGraphics.ContRobot(bac.getMazePose(), Color.GREEN));
-				robots.set(1, new MazeGraphics.ContRobot(Convert.getRobotPose(robot), Color.RED));
+				robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
+				robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
+                        Convert.inverseMultiply(bac.getInitPose(),Convert.getRobotPose(robot))), Color.RED));
 				
 				heading = bac.getMazePoseInMazeCoordinates();
 				System.out.println(heading[0]+","+heading[1]+","+heading[2]);
-                System.out.println(bac.getMazePose().getX()+","+bac.getMazePose().getY()+","+bac.getMazePose().getRotateTheta());
+                System.out.println(bac.getMazePose().getX()+","+
+                        bac.getMazePose().getY()+","+
+                        bac.getMazePose().getRotateTheta());
 				mg.setContRobots(robots);
                 mv.recreateMazeGraphics(mg);
 //				mg.paint(g)
@@ -471,7 +476,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
-
+            robot.updateState();
+            bac.setInitPose(Convert.getRobotPose(robot));
 			double[] sonars = new double[16];
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");

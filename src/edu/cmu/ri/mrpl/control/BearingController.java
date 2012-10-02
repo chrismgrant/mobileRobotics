@@ -67,13 +67,12 @@ public class BearingController {
 		}
 		th = Convert.mazeDirectionToRadian(th);
 		mazePose = new RealPose2D(x,y,th);
-		lastPose = new RealPose2D();
-		initPose = new RealPose2D();
+
 	}
-	public BearingController(MazeState init, Robot r){
-		this(init);
-		initPose = new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
-	}
+    public void setInitPose(RealPose2D robotInit){
+        initPose = robotInit.clone();
+        lastPose = initPose.clone();
+    }
 	
 	/**
 	 * Updates robot's pose using linear and angular velocity.
@@ -246,6 +245,10 @@ public class BearingController {
 		ret[0] = Convert.meterToMazeUnit(mazePose.getX());
 		ret[1] = Convert.meterToMazeUnit(mazePose.getY());
 		ret[2] = Convert.radianToMazeDirection(mazePose.getTh());
+        ret[2] = (ret[2] >= 0)? ret[2] : 4 + ret[2];
 		return ret;
 	}
+    public RealPose2D getInitPose(){
+        return initPose;
+    }
 }

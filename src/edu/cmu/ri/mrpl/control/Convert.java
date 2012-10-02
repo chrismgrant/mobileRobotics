@@ -71,6 +71,18 @@ public final class Convert {
 	public static double meterToMazeUnit(double meters){
 		return meters * meterToMazeUnit;
 	}
+
+    /**
+     * Converts pose from meters to maze units.
+     * Assumes pose is WRT maze origin
+     * @param input input pose
+     * @return equivalent maze pose
+     */
+    public static RealPose2D meterToMazeUnit(RealPose2D input){
+        return new RealPose2D(meterToMazeUnit(input.getX()),
+                meterToMazeUnit(input.getY()),
+                input.getTh());
+    }
 	/**
 	 * Converts mazeUnits to distance in meters
 	 * @param mazeUnit input units
