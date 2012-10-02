@@ -493,8 +493,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					trc.addTrackersFromSonar(soc.getSonarReadings());
 					trc.updateTrackers(bac.getPose());
 					bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-					trc.updateMazeWalls(bac.getMazePose());
-                    System.out.println(bac.getMazePose().toString());
+//					trc.updateMazeWalls(bac.getMazePose());
+//                    System.out.println(bac.getMazePose().toString());
 
                     robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
                     robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
@@ -522,7 +522,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					front = (right < left) ? -front/2 : front/2;
 					left = (left < vision)? left/vision*speed : speed;
 //					System.out.println("right: "+right+" left: "+left+" front: "+front);
-					wc.setWheelVel(right + front, left-front);
+//					wc.setWheelVel(right + front, left-front);
+                    wc.setWheelVel(0,0);
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
 					try {

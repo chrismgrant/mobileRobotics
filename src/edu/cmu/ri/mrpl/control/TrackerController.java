@@ -44,6 +44,7 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
+    private static final int PRECISION = 2;
 	private static final int TRACKER_MIN_COUNT = 3;
 	private static final double EPSILON = .05;
 	private static final double T9inchesToMeters = 0.7366;
@@ -94,8 +95,6 @@ public class TrackerController {
 	/**
 	 * Adds trackers from 16 sonar readings
 	 * @param sonarReadings standard 16-array of sonar readings
-	 * @param robotPose pose of Robot
-	 * @param ignore whether to ignore the current readings
 	 */
 	public void addTrackersFromSonar(double[] sonarReadings){
 			newTrackers = list();
@@ -137,7 +136,7 @@ public class TrackerController {
 				return l;
 			}
 		});
-		
+//		System.out.println(newTrackers.length());
 		trackers.set(ringCounter, newTrackers);//Remove old trackers and add new trackers
 		ringCounter = (ringCounter >= TRACKER_DECAY-1) ? 0 : ringCounter+1;
 		
@@ -149,12 +148,15 @@ public class TrackerController {
 		filteredTrackers = list();
 		//Collapse array
 		for (List<Tracker> l : trackers){
-			trackerList.append(l);
-		}
-		//Add trackers to pointcloud
+			trackerList=trackerList.append(l);
+        }
+//        System.out.println(trackerList.length());
+
+        //Add trackers to pointcloud
+        double pow = Math.pow(10.0,PRECISION);
 		for (Tracker t : trackerList){
-			x = ((int)(t.getX()*100))/100.0;
-			y = ((int)(t.getY()*100))/100.0;
+			x = ((int)(t.getX()*pow))/pow;
+			y = ((int)(t.getY()*pow))/pow;
 			p = new RealPoint2D(x,y);
 			if (pointCloud.containsKey(p)){
 				pointCloud.put(p, pointCloud.get(p)+1);
@@ -165,9 +167,10 @@ public class TrackerController {
 		//Filter pointCloud
 		for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
 			if (e.getValue() > TRACKER_MIN_COUNT){
-				filteredTrackers.cons(new Tracker(e.getKey()));
+				filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
 			}
 		}
+//        System.out.println(filteredTrackers.length());
 	}
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
@@ -192,16 +195,19 @@ public class TrackerController {
 		
 		//Compute gradient
 		double dx, dy, dth;
-		dx = oldMazePose.getX()+Double.MIN_VALUE;
-		dy = oldMazePose.getY()+Double.MIN_VALUE;
-		dth = Angle.normalize(oldMazePose.getRotateTheta()+Double.MIN_VALUE);
+        final double dp = .001;
+		dx = oldMazePose.getX()+dp;
+		dy = oldMazePose.getY()+dp;
+		dth = Angle.normalize(oldMazePose.getRotateTheta()+dp);
 		double[] gradient = new double[3];
 		gradient[0] = (getPointError(border,new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
-				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+				getPointError(border,oldMazePose))/dp;
 		gradient[1] = (getPointError(border,new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) - 
-				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+				getPointError(border,oldMazePose))/dp;
 		gradient[2] = (getPointError(border,new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) - 
-				getPointError(border,oldMazePose))/Double.MIN_VALUE;
+				getPointError(border,oldMazePose))/dp;
+//        System.out.println(getPointError(border,oldMazePose));
+        System.out.println(gradient[0]+","+gradient[1]+","+gradient[2]);
 		
 		//Traverse down gradient
 		double last = Double.POSITIVE_INFINITY;
@@ -216,15 +222,17 @@ public class TrackerController {
 			nextError = getPointError(border,nextPose);
 		}
 		nextPose.add(-dx, -dy, -dth);
+
 		return nextPose;
 	}
 	private double getPointError(final Line2D[] border, final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
 				double distance, minDistance;
+                Point2D holder = new Point2D.Double();
 				minDistance = Double.POSITIVE_INFINITY;
 				for (int i = 0; i < 4; i++){
-					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), null);
+					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
 					if (distance < minDistance) {
 						minDistance = distance;
 					}
@@ -232,6 +240,10 @@ public class TrackerController {
 				return minDistance;
 			}
 		});
+//        for (Double d : offsets){
+//            System.out.print(d+",");
+//        }
+//        System.out.println(offsets.length());
 		Double error = offsets.foldRight(new F2<Double,Double,Double>(){
 			public Double f(Double a, Double b){
 				return a+b;
