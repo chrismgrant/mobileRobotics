@@ -216,9 +216,8 @@ public class BearingController {
 	 * @param newRobotPose robot's new pose in world
 	 */
 	public void updateMazePoseByBearing(RealPose2D newRobotPose){
-        deltaPose = newRobotPose.clone();
-		deltaPose.add(-lastPose.getX(), -lastPose.getY(), -lastPose.getRotateTheta());
-		mazePose.add(deltaPose.getX(),deltaPose.getY(), deltaPose.getRotateTheta());
+        deltaPose = Convert.inverseMultiply(lastPose,newRobotPose);
+        mazePose = Convert.multiply(mazePose,deltaPose);
 		lastPose = newRobotPose.clone();
 	}
 	/**
