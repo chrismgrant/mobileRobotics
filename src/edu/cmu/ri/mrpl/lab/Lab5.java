@@ -5,31 +5,22 @@
  */
 package edu.cmu.ri.mrpl.lab;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
-import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
-import edu.cmu.ri.mrpl.kinematics2D.Angle;
-import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.*;
+import edu.cmu.ri.mrpl.control.*;
+import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
 
-import edu.cmu.ri.mrpl.control.BearingController;
-import edu.cmu.ri.mrpl.control.BehaviorController;
-import edu.cmu.ri.mrpl.control.BumperController;
-import edu.cmu.ri.mrpl.control.Convert;
-import edu.cmu.ri.mrpl.control.PathFinder;
-import edu.cmu.ri.mrpl.control.SonarController;
-import edu.cmu.ri.mrpl.control.TrackerController;
-import edu.cmu.ri.mrpl.control.VisualizeController;
-import edu.cmu.ri.mrpl.control.WheelController;
-import edu.cmu.ri.mrpl.gui.PointsConsole;
-import edu.cmu.ri.mrpl.maze.MazeGraphicsSwing;
-import edu.cmu.ri.mrpl.maze.MazeViewer;
-import quicktime.streaming.SourcerTimingParams;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * A class that 
