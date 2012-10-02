@@ -502,7 +502,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
                     robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
                     robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
-                            Convert.inverseMultiply(bac.getInitPose(), Convert.getRobotPose(robot))), Color.RED));
+                            Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot))), Color.RED));
 
                     heading = bac.getMazePoseInMazeCoordinates();
 //                    System.out.println(heading[0]+","+heading[1]+","+heading[2]);

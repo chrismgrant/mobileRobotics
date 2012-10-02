@@ -20,10 +20,7 @@ public class BearingController {
 	/**
 	 * mazePose is a realPose relative to the maze origin, with units in m.
 	 */
-	private RealPose2D mazePose;
-	private RealPose2D lastPose;
-	private RealPose2D initPose;
-	private RealPose2D deltaPose;
+	private RealPose2D mazePose, lastPose, initPose,deltaPose,initMazePose;
 
 	private Date clock;
 	private long lastClock;
@@ -67,13 +64,17 @@ public class BearingController {
 		}
 		th = Convert.mazeDirectionToRadian(th);
 		mazePose = new RealPose2D(x,y,th);
+        initMazePose = mazePose.clone();
 
 	}
     public void setInitPose(RealPose2D robotInit){
         initPose = robotInit.clone();
         lastPose = initPose.clone();
     }
-	
+
+    public RealPose2D getInitMazePose(){
+        return initMazePose;
+    }
 	/**
 	 * Updates robot's pose using linear and angular velocity.
 	 * Robot velocity will be freshest for use here
