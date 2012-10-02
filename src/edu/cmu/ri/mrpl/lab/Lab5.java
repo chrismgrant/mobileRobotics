@@ -27,6 +27,8 @@ import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.VisualizeController;
 import edu.cmu.ri.mrpl.control.WheelController;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
+import edu.cmu.ri.mrpl.maze.MazeGraphicsSwing;
+import edu.cmu.ri.mrpl.maze.MazeViewer;
 
 /**
  * A class that 
@@ -193,9 +195,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		// PMF: Creating a new points console for displaying robot-relative points.
 		// takes arguments( top-left-x, top-left-y, window-width,window-height)
 		// next set the bounds of the viewport.
-		pc = new PointsConsole(768-640, 1024-640, 640, 640);
-		pc.setWorldViewport(-1.0 * DEFAULT_ROOM_SIZE, -1.0 * DEFAULT_ROOM_SIZE, 1.0 * DEFAULT_ROOM_SIZE - 0.5, 1.0 * DEFAULT_ROOM_SIZE - 0.5);
-		// PMF: End new code for Points console
+//		pc = new PointsConsole(768-640, 1024-640, 640, 640);
+//		pc.setWorldViewport(-1.0 * DEFAULT_ROOM_SIZE, -1.0 * DEFAULT_ROOM_SIZE, 1.0 * DEFAULT_ROOM_SIZE - 0.5, 1.0 * DEFAULT_ROOM_SIZE - 0.5);
+//		// PMF: End new code for Points console
 //		mc = new MazeGraphics();
 		
 		// construct tasks
@@ -205,11 +207,11 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 		// PMF: Creating a frame to put the PointsConsole panel in. 
 		// get the panel that 
-		Frame f = new Frame();
-		f.setTitle("Points Console");
-		f.add(pc.getPanel());
-		f.setSize(pc.getPanel().getSize());
-		f.setVisible(true);
+//		Frame f = new Frame();
+//		f.setTitle("Points Console");
+//		f.add(pc.getPanel());
+//		f.setSize(pc.getPanel().getSize());
+//		f.setVisible(true);
 		// PMF: end of displaying PointsConsole
 
 		robot=new SimRobot();
@@ -385,24 +387,28 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			return "sample program";
 		}
 	}
-
+    //This function requires in.maze to have an init pose. If not, the task will fail horridly.
 	class LocalizeTask extends Task {
 		MazeGraphics mg;
+        VisualizeController.MazeViewer mv;
 		LocalizeTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
 			soc = new SonarController();
 			bc = new BumperController();
 			trc = new TrackerController("in.maze");
-//			vc = new VisualizeController();
+			vc = new VisualizeController();
 			bac = new BearingController(trc.getMazeInit());
 			mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
 		}
 
 		public void taskRun() {
 			double[] heading;
 			showSC();
 			robot.turnSonarsOn();
+            robot.updateState();
+            bac.setInitPose(Convert.getRobotPose(robot));
 			ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
 			robots.add(null);
 			robots.add(null);
@@ -414,22 +420,27 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				soc.updateSonars(sonars);
 				sc2.setSonars(soc.getSonarReadings());
 				bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-				trc.addTrackersFromSonar(soc.getSonarReadings());
-				trc.updateTrackers(bac.getDeltaPose());
-				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+//				trc.addTrackersFromSonar(soc.getSonarReadings());
+//				trc.updateTrackers(bac.getDeltaPose());
+//				bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
 //				trc.updateMazeWalls(RealPose2D pose);
 
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
-				robots.set(0, new MazeGraphics.ContRobot(bac.getMazePose(), Color.GREEN));
-				robots.set(1, new MazeGraphics.ContRobot(Convert.getRobotPose(robot), Color.RED));
+				robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
+				robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
+                        Convert.inverseMultiply(bac.getInitPose(),Convert.getRobotPose(robot))), Color.RED));
 				
 				heading = bac.getMazePoseInMazeCoordinates();
 				System.out.println(heading[0]+","+heading[1]+","+heading[2]);
+//                System.out.println(bac.getMazePose().getX()+","+
+//                        bac.getMazePose().getY()+","+
+//                        bac.getMazePose().getRotateTheta());
 				mg.setContRobots(robots);
+                mv.recreateMazeGraphics(mg);
 //				mg.paint(g)
 				
-				wc.setALVel(-.56, .32);
+				wc.setALVel(0,0);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
 				try {
@@ -449,7 +460,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	}
 
 	class MapLocalizationTask extends Task {
-
+        MazeGraphics mg;
+        VisualizeController.MazeViewer mv;
 		MapLocalizationTask(TaskController tc) {
 			super(tc);
 			wc = new WheelController();
@@ -459,12 +471,19 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			vc = new VisualizeController();
 			bac = new BearingController(trc.getMazeInit());
 			bvc = new BehaviorController();
+            mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
 		}
 
 		public void taskRun() {
-			showSC();
+            double[] heading;
+            showSC();
 			robot.turnSonarsOn();
-
+            robot.updateState();
+            bac.setInitPose(Convert.getRobotPose(robot));
+            ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
+            robots.add(null);
+            robots.add(null);
 			double[] sonars = new double[16];
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
@@ -489,17 +508,19 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					trc.updateMazeWalls(bac.getMazePose());
 					
 
-					
-					vc.updateRobotPos(pc, bac.getPose());
-					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
-					//vc.addPoints(pc, trc.getNewTrackerRPos(BearingController.getRPose(robot)));
-					vc.updateVisualizer(pc, robot);
-					System.out.println(trc.toString());
-//					for(int i = 0; i < trc.getAllTrackerRPos().length(); i++){
-//						System.out.print(trc.getAllTrackerRPos().toArray().get(i));
-//						
-//					}
-					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
+
+                    robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
+                    robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
+                            Convert.inverseMultiply(bac.getInitPose(),Convert.getRobotPose(robot))), Color.RED));
+
+                    heading = bac.getMazePoseInMazeCoordinates();
+                    System.out.println(heading[0]+","+heading[1]+","+heading[2]);
+//                System.out.println(bac.getMazePose().getX()+","+
+//                        bac.getMazePose().getY()+","+
+//                        bac.getMazePose().getRotateTheta());
+                    mv.recreateMazeGraphics(mg);
+
+                    bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
 				
 				/*

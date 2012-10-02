@@ -67,13 +67,12 @@ public class BearingController {
 		}
 		th = Convert.mazeDirectionToRadian(th);
 		mazePose = new RealPose2D(x,y,th);
-		lastPose = new RealPose2D();
-		initPose = new RealPose2D();
+
 	}
-	public BearingController(MazeState init, Robot r){
-		this(init);
-		initPose = new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
-	}
+    public void setInitPose(RealPose2D robotInit){
+        initPose = robotInit.clone();
+        lastPose = initPose.clone();
+    }
 	
 	/**
 	 * Updates robot's pose using linear and angular velocity.
@@ -217,23 +216,24 @@ public class BearingController {
 	 * @param newRobotPose robot's new pose in world
 	 */
 	public void updateMazePoseByBearing(RealPose2D newRobotPose){
-		deltaPose = Convert.inverseMultiply(lastPose, newRobotPose);
-		mazePose = Convert.multiply(mazePose,deltaPose);
-		lastPose = newRobotPose;
+        deltaPose = newRobotPose.clone();
+		deltaPose.add(-lastPose.getX(), -lastPose.getY(), -lastPose.getRotateTheta());
+		mazePose.add(deltaPose.getX(),deltaPose.getY(), deltaPose.getRotateTheta());
+		lastPose = newRobotPose.clone();
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall
 	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
 	public void updateMazePoseBySonar(RealPose2D sonarOffset){
-		mazePose = sonarOffset;
+		mazePose = sonarOffset.clone();
 	}
 	/**
 	 * Gets the mazePose of the robot, in meters relative to maze origin
 	 * @return mazePose
 	 */
 	public RealPose2D getMazePose(){
-		return mazePose;
+		return mazePose.clone();
 	}
 	/**
 	 * Gets mazePose of the robot, in Maze units.
@@ -245,6 +245,10 @@ public class BearingController {
 		ret[0] = Convert.meterToMazeUnit(mazePose.getX());
 		ret[1] = Convert.meterToMazeUnit(mazePose.getY());
 		ret[2] = Convert.radianToMazeDirection(mazePose.getTh());
+        ret[2] = (ret[2] >= 0)? ret[2] : 4 + ret[2];
 		return ret;
 	}
+    public RealPose2D getInitPose(){
+        return initPose;
+    }
 }
