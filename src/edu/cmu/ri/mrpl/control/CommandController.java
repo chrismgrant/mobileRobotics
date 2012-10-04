@@ -5,6 +5,7 @@ import java.lang.*;
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 
@@ -25,16 +26,20 @@ public class CommandController {
 	VisualizeController vc;
 	
 	Robot robot;
+    PointsConsole pointsConsole;
 	
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
 	private Command active;
 	private CommandSequence executeQueue;
+
+    boolean debugFlag;
 	
 	/**
 	 * Initializes a new CommandController
 	 */
 	public CommandController(){
+        debugFlag = false;
 		executeQueue = new CommandSequence();
 		active = new Command();
 		
@@ -51,9 +56,10 @@ public class CommandController {
 	 * Passes robot object to CommandController. Must be called in run thread before while loop
 	 * @param r robot
 	 */
-	public synchronized void syncRobot(Robot r){
+	public synchronized void syncRobot(Robot r, PointsConsole pc){
 		robot = r;
-		exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
+        pointsConsole = pc;
+		exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
 	}
 	/**
 	 * Gets filtered sonar readings for sonar console
@@ -120,7 +126,9 @@ public class CommandController {
 		bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 		trc.addTrackersFromSonar(soc.getSonarReadings());
 		trc.updateTrackers( bac.getDeltaPose());
-		//TODO add VC update
+        vc.updateRobotPos(pointsConsole, bac.getMazePose());
+        vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
+        vc.updateVisualizer(pointsConsole, robot);
 
 	}
 	/**
@@ -130,7 +138,7 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
-			exe = new ExecuteTask(this, robot, active, bac.getRPoseWithError(robot));
+			exe = new ExecuteTask(this, pointsConsole, robot, active, bac.getRPoseWithError(robot));
 		}
 	}
 	public synchronized void haltThread() {

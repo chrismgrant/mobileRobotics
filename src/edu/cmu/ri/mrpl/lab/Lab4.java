@@ -1,14 +1,14 @@
 //package edu.cmu.ri.mrpl.lab;
 ///*
 //
-// * Sample code for the 16x62 class taught at the Robotics Institute
-// * of Carnegie Mellon University
-// *
-// * written from scratch by Martin Stolle in 2006
-// *
-// * inspired by code started by Illah Nourbakhsh and used
-// * for many years.
-// */
+//* Sample code for the 16x62 class taught at the Robotics Institute
+//* of Carnegie Mellon University
+//*
+//* written from scratch by Martin Stolle in 2006
+//*
+//* inspired by code started by Illah Nourbakhsh and used
+//* for many years.
+//*/
 //
 //import java.io.*;
 //import java.awt.*;
@@ -279,11 +279,11 @@
 //				 outCommand.print(command);
 //				 commandFile.close();
 //			} catch (IOException e1) {
-//				
+//
 //				e1.printStackTrace();
 //			}
-//			
-//			
+//
+//
 //		}
 //	}
 //
@@ -324,13 +324,13 @@
 //		public TrackerController trc;
 //		public BearingController bac;
 //		public CommandController cc;
-//		
+//
 //		RotateTask(TaskController tc) {
 //			super(tc);
-//			wc = new WheelController();
-//			soc = new SonarController();
-//			bc = new BumperController();
-//			bac = new BearingController();
+////			wc = new WheelController();
+////			soc = new SonarController();
+////			bc = new BumperController();
+////			bac = new BearingController();
 //		}
 //
 //		public void taskRun() {
@@ -347,7 +347,7 @@
 //				FileWriter outFileRobVel = new FileWriter("RobVelData.csv");
 //				FileWriter outFileCtrVel = new FileWriter("CtrVelData.csv");
 //				FileWriter outFileData = new FileWriter("Data.csv");
-//				
+//
 //				PrintWriter outRobPos = new PrintWriter(outFileRobPos);
 //				PrintWriter outCalcPos = new PrintWriter(outFileCalcPos);
 //				PrintWriter outRobVel = new PrintWriter(outFileRobVel);
@@ -355,7 +355,7 @@
 //				PrintWriter outData = new PrintWriter(outFileData);
 //
 //				outData.println("Bearring, Robot, Velocity, Comand");
-//				
+//
 //				double robotDistance = 0;
 //				while(!shouldStop()) {
 //					robot.updateState();
@@ -367,7 +367,7 @@
 //					outCalcPos.print(bac.getX()+",");
 //					outRobPos.print(bac.getRPose(robot).getX()+",");
 //					outRobVel.print(wc.getRobLVel(robot)+",");
-//					robotDistance = Math.hypot(robot.getPosX(),robot.getPosY()); 
+//					robotDistance = Math.hypot(robot.getPosX(),robot.getPosY());
 //					outData.print(bac.getX()+","+robotDistance+","+wc.getRobLVel(robot)+",");
 //					if (counter >= 0){
 //						wc.setALVel(0, 1);
@@ -414,10 +414,10 @@
 //
 //		ForwardTask(TaskController tc) {
 //			super(tc);
-//			wc = new WheelController();
-//			soc = new SonarController();
-//			bc = new BumperController();
-//			bac = new BearingController();
+////			wc = new WheelController();
+////			soc = new SonarController();
+////			bc = new BumperController();
+////			bac = new BearingController();
 //		}
 //
 //		public void taskRun() {
@@ -426,7 +426,7 @@
 //			wc.setALVel(0,0);
 //			double[] sonars = new double[16];
 //			double speed = 0, target = 0;
-//			
+//
 //			try{
 //				FileWriter outFileRawSonar = new FileWriter("FwdRawSonarData");
 //				FileWriter outFileFiltSonar = new FileWriter("FwdFiltSonarData");
@@ -474,12 +474,12 @@
 //	class TrackTask extends Task {
 //
 //		CommandController cc;
-//		
+//
 //		TrackTask(TaskController tc) {
 //			super(tc);
-//			
+//
 //			cc = new CommandController();
-//		
+//
 //			cc.addCommandFromFile("in.txt");
 //
 //		}
@@ -487,8 +487,8 @@
 //		public void taskRun() {
 ////			showSC();
 //			robot.turnSonarsOn();
-//			cc.syncRobot(robot);
-//			
+//			cc.syncRobot(robot, );
+//
 //			try{
 //				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
 //				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
@@ -514,7 +514,7 @@
 //				e.printStackTrace();
 //			}
 //			cc.haltThread();
-//			
+//
 //			robot.turnSonarsOff();
 //			robot.setVel(0.0f, 0.0f);
 ////			hideSC();
@@ -523,11 +523,11 @@
 //		public String toString() {
 //			return "\"both\"";
 //		}
-//		
-//		
+//
+//
 //	}
-//	
-//	
+//
+//
 //	private static final long serialVersionUID = 0;
 //}
 //

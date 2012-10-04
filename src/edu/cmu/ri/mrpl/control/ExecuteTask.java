@@ -7,6 +7,7 @@ import edu.cmu.ri.mrpl.Command.PathArgument;
 import edu.cmu.ri.mrpl.Command.PoseArgument;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
@@ -28,6 +29,7 @@ public class ExecuteTask implements Runnable{
 	private static enum ArgType {DISTANCE, ANGLE};
 
 	private Robot robot;
+    private PointsConsole pointsConsole;
 	Thread t;
 	private Command active;
 	private boolean taskComplete, running;
@@ -56,8 +58,9 @@ public class ExecuteTask implements Runnable{
 	 * @param c command
 	 * @param p initial Pose at execution time
 	 */
-	public ExecuteTask(CommandController parentController, Robot r, Command c, RealPose2D p){
+	public ExecuteTask(CommandController parentController, PointsConsole pc, Robot r, Command c, RealPose2D p){
 		t = new Thread(this, "ExecuteTask");
+        pointsConsole = pc;
 		active = c;
 		robot = r;
 		taskComplete = false;
