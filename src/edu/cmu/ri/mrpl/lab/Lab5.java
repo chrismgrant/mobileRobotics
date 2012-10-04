@@ -474,10 +474,14 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
             robots.add(null);
 			double[] sonars = new double[16];
 			try{
-				FileWriter outFileRobo = new FileWriter("TrackRawSonarData");
+				FileWriter outFileRobo = new FileWriter("TrackRobo");
+				FileWriter outFileRoboE = new FileWriter("TrackRoboEn");
+				FileWriter outFileRoboM = new FileWriter("TrackRoboMa");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
 				FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
 				PrintWriter outRobo = new PrintWriter(outFileRobo);
+				PrintWriter outRoboEncode = new PrintWriter(outFileRoboE);
+				PrintWriter outRoboMaze = new PrintWriter(outFileRoboM);
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				double near = 1;
@@ -525,16 +529,17 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 //                    bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
-				/*
-				 * Data Logging
-				 */
-                    if(true){
+				
+				 
+                 // Data Logging
+   				    if(true){
                     for(int i = 0; i< trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().length(); i++){
                     	outFollowTracker.print(trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().get(i).toString()+";");
                     }
                     outFollowTracker.println();
                     outRobo.println(BearingController.getRPose(robot).toString());
-                    
+                    outRoboEncode.println(Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot)).toString());
+                    outRoboMaze.println(bac.getMazePose().toString());
                     }
                     
 				/*
@@ -559,6 +564,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					}
 				}
 				outRobo.close();
+				outRoboEncode.close();
+				outRoboMaze.close();
 				outFiltSonar.close();
 				outFollowTracker.close();
 			} catch (IOException e){
