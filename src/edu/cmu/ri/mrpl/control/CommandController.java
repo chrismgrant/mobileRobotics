@@ -123,9 +123,16 @@ public class CommandController {
 	public synchronized void updateControllers(double[] sonars){
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
-		bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
-		trc.addTrackersFromSonar(soc.getSonarReadings());
-		trc.updateTrackers( bac.getDeltaPose());
+
+        if (bac.updateMazePoseByBearing(Convert.getRobotPose(robot))){
+            trc.addTrackersFromSonar(soc.getSonarReadings());
+            trc.updateTrackers(bac.getDeltaPose());
+            bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+        } else {
+            trc.addTrackersFromSonar(soc.getSonarReadings());
+            trc.updateTrackers(bac.getDeltaPose());
+        }
+
         vc.updateRobotPos(pointsConsole, bac.getMazePose());
         vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
         vc.updateVisualizer(pointsConsole, robot);

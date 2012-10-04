@@ -171,8 +171,9 @@ public class ExecuteTask implements Runnable{
 			case FOLLOWPATH:{//Targets are relative to world
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
-				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, BearingController.getRPose(robot).getPosition(), i);
-				currentError = currentTarget.getPosition().distance(BearingController.getRPose(robot).getPosition());
+                RealPose2D currentPose = parent.bac.getMazePose();
+				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, currentPose.getPosition(), i);
+				currentError = currentTarget.getPosition().distance(currentPose.getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
 						taskComplete = true;
@@ -184,8 +185,8 @@ public class ExecuteTask implements Runnable{
 						
 						//Calculate error
 						double ex, ey;
-						ex = BearingController.getRX(robot) - currentTarget.getX();
-						ey = BearingController.getRY(robot) - currentTarget.getY();
+						ex = currentPose.getX() - currentTarget.getX();
+						ey = currentPose.getY() - currentTarget.getY();
 						parent.bac.updateError(ex,ey,currentError);
 //					} else if (pthArg.size() <= 2){//If intermediary step achieved
 //						pthArg.remove(0);
@@ -194,17 +195,17 @@ public class ExecuteTask implements Runnable{
 					} else {
 						i++;
 						currentTarget = pthArg.get(i);
-						targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), currentTarget);
+						targetWRTRob = Convert.WRTRobot(currentPose, currentTarget);
 						double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 						parent.wc.setALVel(speed[0], speed[1]);
 						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
-				} else if(closePoint.distance(Convert.getRobotPose(robot).getPosition()) > .1){//Move toward closest point on path
-					targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), new RealPose2D(closePoint,0.0));
+				} else if(closePoint.distance(currentPose.getPosition()) > .1){//Move toward closest point on path
+					targetWRTRob = Convert.WRTRobot(currentPose, new RealPose2D(closePoint,0.0));
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 					parent.wc.setALVel(speed[0], speed[1]);
 				} else { //Move to next way point
-					targetWRTRob = Convert.WRTRobot(Convert.getRobotPose(robot), currentTarget);
+					targetWRTRob = Convert.WRTRobot(currentPose, currentTarget);
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 					parent.wc.setALVel(speed[0], speed[1]);
 				}
