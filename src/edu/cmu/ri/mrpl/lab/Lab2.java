@@ -356,9 +356,9 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //				pf.get(pf.size()-1);
 				
 				right = (right < vision)? right/vision*speed : speed;
-				front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
-				front = (right < left) ? -front/2 : front/2;
-				left = (left < vision)? left/vision*speed : speed;
+                front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
+                front = (right < left) ? -front/2 : front/2;
+                left = (left < vision)? left/vision*speed : speed;
 
 				System.out.println("right: "+right+" left: "+left+" front: "+front);
 
@@ -407,7 +407,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				
 				bac.updateBearing(WheelController.getRobLVel(robot), WheelController.getRobAVel(robot));
 				trc.addTrackersFromSonar(soc.getSonarReadings());
-				trc.updateTrackers(bac.getDeltaPose());
+				trc.updateTrackers(bac.getPose());
 //				trc.addTrackersFromSonar(sonars, bac.getPose());
 				
 //				vc.updateRobotPos(pc, robotPose)
@@ -418,7 +418,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
 
 				vc.updateVisualizer(pc, robot);
-				wc.setALVel(.87, 0);
+				wc.setALVel(.3, .3);
 				wc.updateWheels(robot, bc.isBumped(robot));
 				
 				try {

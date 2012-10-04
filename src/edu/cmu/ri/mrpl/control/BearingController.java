@@ -220,7 +220,7 @@ public class BearingController {
         deltaPose = Convert.inverseMultiply(lastPose,newRobotPose);
         mazePose = Convert.multiply(mazePose,deltaPose);
 		lastPose = newRobotPose.clone();
-        return (deltaPose.getPosition().distance(0,0) > .02);
+        return (deltaPose.getPosition().distance(0,0) > .05);
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall

@@ -38,14 +38,14 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
 public class TrackerController {
 
 	private static final double SONAR_ROBOT_RADIUS = .1905;
-	private static final int TRACKER_DECAY = 5;
+	private static final int TRACKER_DECAY = 10;
 	private static final double DISTANCE_MAX = 2.2;
 	private static final double DISTANCE_TOLERANCE = .35;
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final int PRECISION = 2;
-	private static final int TRACKER_MIN_COUNT = 3;
+    private static final double PRECISION = 3;
+	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
 	
@@ -144,13 +144,15 @@ public class TrackerController {
 		double x,y;
 		RealPoint2D p;
 		List<Tracker> trackerList = list();
+//        List<Tracker> trackerList = newTrackers;
 		Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
 		filteredTrackers = list();
 		//Collapse array
 		for (List<Tracker> l : trackers){
 			trackerList=trackerList.append(l);
         }
-//        System.out.println(trackerList.length());
+
+        System.out.print(trackerList.length()+",");
 
         //Add trackers to pointcloud
         double pow = Math.pow(10.0,PRECISION);
@@ -164,13 +166,15 @@ public class TrackerController {
 				pointCloud.put(p, 1);
 			}
 		}
+        System.out.print(pointCloud.size()+",");
 		//Filter pointCloud
 		for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
-			if (e.getValue() > TRACKER_MIN_COUNT){
+			if (e.getValue() >= TRACKER_MIN_COUNT){
 				filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
 			}
 		}
-//        System.out.println(filteredTrackers.length());
+        System.out.println("Filtering");
+        System.out.println(filteredTrackers.length());
 	}
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
@@ -310,6 +314,14 @@ public class TrackerController {
 			}
 		});
 	}
+    public List<RealPoint2D> getFilteredTrackerRPos(){
+        return filteredTrackers.map(new F<Tracker, RealPoint2D>() {
+            @Override
+            public RealPoint2D f(Tracker tracker) {
+                return tracker.getRPoint();
+            }
+        });
+    }
 	/**
 	 * Gets all tracker positions relative to world
 	 * @return fj's List of RealPoint2D 

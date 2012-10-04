@@ -187,10 +187,9 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		// PMF: Creating a new points console for displaying robot-relative points.
 		// takes arguments( top-left-x, top-left-y, window-width,window-height)
 		// next set the bounds of the viewport.
-//		pc = new PointsConsole(768-640, 1024-640, 640, 640);
-//		pc.setWorldViewport(-1.0 * DEFAULT_ROOM_SIZE, -1.0 * DEFAULT_ROOM_SIZE, 1.0 * DEFAULT_ROOM_SIZE - 0.5, 1.0 * DEFAULT_ROOM_SIZE - 0.5);
-//		// PMF: End new code for Points console
-//		mc = new MazeGraphics();
+		pc = new PointsConsole(768-640, 1024-640, 640, 640);
+		pc.setWorldViewport(-1.0 * DEFAULT_ROOM_SIZE, -1.0 * DEFAULT_ROOM_SIZE, 1.0 * DEFAULT_ROOM_SIZE - 0.5, 1.0 * DEFAULT_ROOM_SIZE - 0.5);
+		// PMF: End new code for Points console
 		
 		// construct tasks
 		reactTask = new ReactTask(this);
@@ -199,11 +198,11 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 		// PMF: Creating a frame to put the PointsConsole panel in. 
 		// get the panel that 
-//		Frame f = new Frame();
-//		f.setTitle("Points Console");
-//		f.add(pc.getPanel());
-//		f.setSize(pc.getPanel().getSize());
-//		f.setVisible(true);
+		Frame f = new Frame();
+		f.setTitle("Points Console");
+		f.add(pc.getPanel());
+		f.setSize(pc.getPanel().getSize());
+		f.setVisible(true);
 		// PMF: end of displaying PointsConsole
 
 		robot=new SimRobot();
@@ -492,10 +491,22 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
                     sc2.setSonars(soc.getSonarReadings());
                     if (bac.updateMazePoseByBearing(Convert.getRobotPose(robot))){
                         trc.addTrackersFromSonar(soc.getSonarReadings());
-                        trc.updateTrackers(bac.getPose());
+                        trc.updateTrackers(bac.getDeltaPose());
                         bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
 //					    trc.updateMazeWalls(bac.getMazePose());
+                    } else {
+                        trc.addTrackersFromSonar(soc.getSonarReadings());
+                        trc.updateTrackers(bac.getDeltaPose());
                     }
+
+//                    vc.updateRobotPos(pc, Convert.getRobotPose(robot));
+                    vc.updateRobotPos(pc, bac.getMazePose());
+
+//                    vc.addPoints(pc, trc.getNewTrackerRPos(bac.getMazePose()));
+//                    System.out.println(trc.getFilteredTrackerRPos().length());
+                    vc.addPoints(pc, trc.getFilteredTrackerRPos());
+
+                    vc.updateVisualizer(pc, robot);
 
 
 //                    System.out.println(bac.getMazePose().toString());
@@ -526,8 +537,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					front = (right < left) ? -front/2 : front/2;
 					left = (left < vision)? left/vision*speed : speed;
 //					System.out.println("right: "+right+" left: "+left+" front: "+front);
-//					wc.setWheelVel(right + front, left-front);
-                    wc.setWheelVel(0,0);
+					wc.setWheelVel(right + front, left-front);
+//                    wc.setWheelVel(0,0);
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
 					try {
