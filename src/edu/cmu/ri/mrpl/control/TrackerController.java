@@ -227,24 +227,29 @@ public class TrackerController {
 		}
 		nextPose.add(-dx, -dy, -dth);
 
-        if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
+//        if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
 		    return nextPose;
-        }
-        return oldMazePose;
+//        }
+//        return oldMazePose;
 	}
 	private double getPointError(final Line2D[] border, final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
 				double distance, minDistance;
                 Point2D holder = new Point2D.Double();
+                RealPoint2D worldPoint;
 				minDistance = Double.POSITIVE_INFINITY;
-				for (int i = 0; i < 4; i++){
-					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
-					if (distance < minDistance) {
-						minDistance = distance;
-					}
-				}
-				return minDistance;
+                worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
+//                for (int i = 0; i < 4; i++){
+////					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
+//					if (distance < minDistance) {
+//						minDistance = distance;
+//					}
+//				}
+                distance = Math.min(Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2),
+                        Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters));
+
+                return distance;
 			}
 		});
 //        for (Double d : offsets){
