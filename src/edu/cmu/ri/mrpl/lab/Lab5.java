@@ -474,10 +474,10 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
             robots.add(null);
 			double[] sonars = new double[16];
 			try{
-				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
+				FileWriter outFileRobo = new FileWriter("TrackRawSonarData");
 				FileWriter outFileFiltSonar = new FileWriter("TrackFiltSonarData");
 				FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
-				PrintWriter outRawSonar = new PrintWriter(outFileRawSonar);
+				PrintWriter outRobo = new PrintWriter(outFileRobo);
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
 				double near = 1;
@@ -525,7 +525,18 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 //                    bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
-				
+				/*
+				 * Data Logging
+				 */
+                    if(true){
+                    for(int i = 0; i< trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().length(); i++){
+                    	outFollowTracker.print(trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().get(i).toString()+";");
+                    }
+                    outFollowTracker.println();
+                    outRobo.println(BearingController.getRPose(robot).toString());
+                    
+                    }
+                    
 				/*
 				 * dumb wanderer stuff 
 				 */
@@ -547,7 +558,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 						System.out.println("\"Both\" sleep interrupted");
 					}
 				}
-				outRawSonar.close();
+				outRobo.close();
 				outFiltSonar.close();
 				outFollowTracker.close();
 			} catch (IOException e){
