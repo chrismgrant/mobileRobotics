@@ -176,6 +176,7 @@ public class ExecuteTask implements Runnable{
 				currentError = currentTarget.getPosition().distance(currentPose.getPosition());
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
+						System.out.println("testing...Condition: Reached");
 						taskComplete = true;
 						stop();
 						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
