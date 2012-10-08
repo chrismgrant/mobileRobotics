@@ -138,7 +138,7 @@ public class ExecuteTask implements Runnable{
 	 */
 	private boolean isInThreshold(double error, ArgType argtype){
 		double threshold = (argtype == ArgType.DISTANCE)?DIST_THRESHOLD:ANG_THRESHOLD;
-		return Math.abs(error) < ((isContinuous) ? 700*threshold:threshold) ;
+		return Math.abs(error) < ((isContinuous) ? 300*threshold:threshold) ;
 	}
 	/**
 	 * Stops the robot
@@ -188,10 +188,6 @@ public class ExecuteTask implements Runnable{
 						ex = currentPose.getX() - currentTarget.getX();
 						ey = currentPose.getY() - currentTarget.getY();
 						parent.bac.updateError(ex,ey,currentError);
-//					} else if (pthArg.size() <= 2){//If intermediary step achieved
-//						pthArg.remove(0);
-//						currentTarget = pthArg.get(0);
-//						isContinuous = (pthArg.size()<=1)?false:true;
 					} else {
 						i++;
 						currentTarget = pthArg.get(i);
@@ -200,7 +196,7 @@ public class ExecuteTask implements Runnable{
 						parent.wc.setALVel(speed[0], speed[1]);
 						isContinuous = (i >= pthArg.size()-1)?false:true;
 					}
-				} else if(closePoint.distance(currentPose.getPosition()) > .1){//Move toward closest point on path
+				} else if(closePoint.distance(currentPose.getPosition()) > .7){//Move toward closest point on path
 					targetWRTRob = Convert.WRTRobot(currentPose, new RealPose2D(closePoint,0.0));
 					double[] speed = parent.bhc.shadowPoint(targetWRTRob.getPosition());
 					parent.wc.setALVel(speed[0], speed[1]);
