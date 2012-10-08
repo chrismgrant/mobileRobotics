@@ -9,8 +9,9 @@ import fj.F;
 import fj.F2;
 import fj.data.List;
 
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.*;
+import java.util.StringTokenizer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,7 +35,7 @@ public class test {
                 minDistance = Double.POSITIVE_INFINITY;
                 worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
 //                for (int i = 0; i < 4; i++){
-////					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
+//					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
 //					if (distance < minDistance) {
 //						minDistance = distance;
 //					}
@@ -55,8 +56,41 @@ public class test {
         }, 0.0);
         return Math.sqrt(error);
     }
+    private static RealPose2D gradient(RealPose2D robotPose, List<RealPoint2D> points) {
+        return null;
+    }
+
 
     public static void main(String[] argv){
+        File trackerFile = new File("");
+        File robFile = new File("");
+        List<Tracker> trackerList = List.list();
+        double x,y,th;
+        try {
+            BufferedReader trackerBuf = new BufferedReader(new FileReader(trackerFile));
+            BufferedReader robotBuf = new BufferedReader(new FileReader(robFile));
+            String trackerLine = null;
+            String robLine = null;
+
+            while (((trackerLine = trackerBuf.readLine()) != null) && ((robLine = robotBuf.readLine()) != null)) {
+                StringTokenizer stPt = new StringTokenizer(trackerLine, ";");
+                StringTokenizer robPse = new StringTokenizer(robLine, ",");
+                while (stPt.hasMoreTokens()) {
+                    StringTokenizer stPos = new StringTokenizer(stPt.nextToken(), ",");
+                    x = Double.valueOf(stPos.nextToken());
+                    y = Double.valueOf(stPos.nextToken());
+                    trackerList = trackerList.cons(new Tracker(new RealPoint2D(x,y)));
+                }
+                x = Double.valueOf(robPse.nextToken());
+                y = Double.valueOf(robPse.nextToken());
+                th = Double.valueOf(robPse.nextToken());
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+
         RealPose2D oldMazePose = new RealPose2D(.7366,.7366,1.57);
         double dx, dy, dth;
         final double dp = 0.0001;
