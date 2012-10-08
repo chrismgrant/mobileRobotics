@@ -484,7 +484,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outRoboMaze = new PrintWriter(outFileRoboM);
 				PrintWriter outFiltSonar = new PrintWriter(outFileFiltSonar);
 				PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
-				double near = 1;
+				double near = 1, lastDistance;
 				double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.2;
 
 				while(!shouldStop()) {
@@ -493,14 +493,11 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
                     sc1.setSonars(sonars);
                     soc.updateSonars(sonars);
                     sc2.setSonars(soc.getSonarReadings());
-                    if (bac.updateMazePoseByBearing(Convert.getRobotPose(robot))){
-                        trc.addTrackersFromSonar(soc.getSonarReadings());
-                        trc.updateTrackers(bac.getDeltaPose());
+                    lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
+                    trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
+                    trc.updateTrackers(bac.getDeltaPose());
+                    if (lastDistance == 0) {
                         bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-//					    trc.updateMazeWalls(bac.getMazePose());
-                    } else {
-                        trc.addTrackersFromSonar(soc.getSonarReadings());
-                        trc.updateTrackers(bac.getDeltaPose());
                     }
 
 //                    vc.updateRobotPos(pc, Convert.getRobotPose(robot));

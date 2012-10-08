@@ -32,13 +32,14 @@ public class CommandController {
 	private final Command nullCommand = new Command();
 	private Command active;
 	private CommandSequence executeQueue;
+    private boolean useVisualization;
 
     boolean debugFlag;
 	
 	/**
 	 * Initializes a new CommandController
 	 */
-	public CommandController(){
+	public CommandController(boolean useSonarVisualization){
         debugFlag = false;
 		executeQueue = new CommandSequence();
 		active = new Command();
@@ -56,9 +57,15 @@ public class CommandController {
 	 * Passes robot object to CommandController. Must be called in run thread before while loop
 	 * @param r robot
 	 */
+    public synchronized void syncRobot(Robot r){
+        robot = r;
+        exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
+    }
 	public synchronized void syncRobot(Robot r, PointsConsole pc){
 		robot = r;
-        pointsConsole = pc;
+        if (useVisualization){
+            pointsConsole = pc;
+        }
 		exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
 	}
 	/**
@@ -121,20 +128,22 @@ public class CommandController {
 	 * @param sonars array of raw sonar values
 	 */
 	public synchronized void updateControllers(double[] sonars){
-        boolean sonarUpdateFlag = false;
+        double lastDistance = 0;
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
 
-        sonarUpdateFlag = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-        trc.addTrackersFromSonar(soc.getSonarReadings());
+        lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
+        trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
         trc.updateTrackers(bac.getDeltaPose());
-        if (sonarUpdateFlag) {
+        if (lastDistance == 0) {
             bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
         }
 
-        vc.updateRobotPos(pointsConsole, bac.getMazePose());
-        vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
-        vc.updateVisualizer(pointsConsole, robot);
+        if (useVisualization){
+            vc.updateRobotPos(pointsConsole, bac.getMazePose());
+            vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
+            vc.updateVisualizer(pointsConsole, robot);
+        }
 
 	}
 	/**

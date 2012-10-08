@@ -217,19 +217,17 @@ public class BearingController {
 	 * Updates the robot's maze pose by providing a delta vector specifying how much x, y, and th have changed.
 	 * The delta pose is vector-added to the maze pose.
 	 * @param newRobotPose robot's new pose in world.
-     * @return whether a sonar update is required.
+     * @return distance since last update. If 0, then robot needs updating
 	 */
-	public boolean updateMazePoseByBearing(RealPose2D newRobotPose){
+	public double updateMazePoseByBearing(RealPose2D newRobotPose){
         deltaPose = Convert.inverseMultiply(lastPose,newRobotPose);
         mazePose = Convert.multiply(mazePose,deltaPose);
 		lastPose = newRobotPose.clone();
         distLastUpdate += deltaPose.getPosition().distance(0,0);
         if (distLastUpdate > UPDATE_DISTANCE) {
             distLastUpdate = 0;
-            return true;
-        } else {
-            return false;
         }
+        return distLastUpdate;
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall

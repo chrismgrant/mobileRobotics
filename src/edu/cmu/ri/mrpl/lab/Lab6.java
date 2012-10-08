@@ -498,7 +498,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
         TrackTask(TaskController tc) {
             super(tc);
 
-            cc = new CommandController();
+            cc = new CommandController(true);
 
             cc.addCommandFromFile("in.txt");
 
