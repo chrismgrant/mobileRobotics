@@ -60,13 +60,13 @@ public class CommandController {
     public synchronized void syncRobot(Robot r){
         robot = r;
         exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
+        bac.setInitPose(Convert.getRobotPose(r));
     }
 	public synchronized void syncRobot(Robot r, PointsConsole pc){
-		robot = r;
+		this.syncRobot(r);
         if (useVisualization){
             pointsConsole = pc;
         }
-		exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
 	}
 	/**
 	 * Gets filtered sonar readings for sonar console
