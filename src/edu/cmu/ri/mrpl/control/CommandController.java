@@ -121,16 +121,15 @@ public class CommandController {
 	 * @param sonars array of raw sonar values
 	 */
 	public synchronized void updateControllers(double[] sonars){
+        boolean sonarUpdateFlag = false;
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
 
-        if (bac.updateMazePoseByBearing(Convert.getRobotPose(robot))){
-            trc.addTrackersFromSonar(soc.getSonarReadings());
-            trc.updateTrackers(bac.getDeltaPose());
+        sonarUpdateFlag = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
+        trc.addTrackersFromSonar(soc.getSonarReadings());
+        trc.updateTrackers(bac.getDeltaPose());
+        if (sonarUpdateFlag) {
             bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-        } else {
-            trc.addTrackersFromSonar(soc.getSonarReadings());
-            trc.updateTrackers(bac.getDeltaPose());
         }
 
         vc.updateRobotPos(pointsConsole, bac.getMazePose());

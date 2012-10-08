@@ -59,15 +59,15 @@ public class ExecuteTask implements Runnable{
 	 * @param p initial Pose at execution time
 	 */
 	public ExecuteTask(CommandController parentController, PointsConsole pc, Robot r, Command c, RealPose2D p){
-		t = new Thread(this, "ExecuteTask");
-        pointsConsole = pc;
-		active = c;
-		robot = r;
-		taskComplete = false;
-		running = true;
-		initPose = p;
-		parent = parentController;
-		isContinuous = c.isContinuous;
+            t = new Thread(this, "ExecuteTask");
+            pointsConsole = pc;
+            active = c;
+            robot = r;
+            taskComplete = false;
+            running = true;
+            initPose = p;
+            parent = parentController;
+            isContinuous = c.isContinuous;
 		
 		switch (active.type){
 		case FOLLOWPATH: {

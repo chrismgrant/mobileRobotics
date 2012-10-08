@@ -14,19 +14,20 @@ import edu.cmu.ri.mrpl.maze.MazeState;
  */
 public class BearingController {
 
-
+    private static final double UPDATE_DISTANCE = 3.0;
 	
 	private RealPose2D pose;
 	/**
 	 * mazePose is a realPose relative to the maze origin, with units in m.
 	 */
-	private RealPose2D mazePose, lastPose, initPose,deltaPose,initMazePose;
+	private RealPose2D mazePose, lastPose, initPose, deltaPose, initMazePose;
 
 	private Date clock;
 	private long lastClock;
 	private double xError;
 	private double yError;
 	private double thError;
+    private double distLastUpdate;
 	/**
 	 * Creates new bearing controller and initializes values
 	 */
@@ -37,6 +38,7 @@ public class BearingController {
 		xError = 0;
 		yError = 0;
 		thError = 0;
+        distLastUpdate = 0;
 		double x,y,th;
 		x = Convert.mazeUnitToMeter(init.x());
 		y = Convert.mazeUnitToMeter(init.y());
@@ -214,13 +216,20 @@ public class BearingController {
 	/**
 	 * Updates the robot's maze pose by providing a delta vector specifying how much x, y, and th have changed.
 	 * The delta pose is vector-added to the maze pose.
-	 * @param newRobotPose robot's new pose in world
+	 * @param newRobotPose robot's new pose in world.
+     * @return whether a sonar update is required.
 	 */
 	public boolean updateMazePoseByBearing(RealPose2D newRobotPose){
         deltaPose = Convert.inverseMultiply(lastPose,newRobotPose);
         mazePose = Convert.multiply(mazePose,deltaPose);
 		lastPose = newRobotPose.clone();
-        return (deltaPose.getPosition().distance(0,0) > .05);
+        distLastUpdate += deltaPose.getPosition().distance(0,0);
+        if (distLastUpdate > UPDATE_DISTANCE) {
+            distLastUpdate = 0;
+            return true;
+        } else {
+            return false;
+        }
 	}
 	/**
 	 * Updates the robot's maze pose by looking at sonars, then correcting mazePose to match sonar readings to wall

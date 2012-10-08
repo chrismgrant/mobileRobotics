@@ -153,8 +153,8 @@ public class BehaviorController {
 		} else {
 			path.setLine(l.get(index-1).getPosition(), l.get(index).getPosition());
 			LineSegment.closestPointOnLineSegment(path, pos, closest);
-		}
-		return closest;
+            return closest;
+        }
 	}
  	/**
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
