@@ -20,7 +20,8 @@ public class BearingController {
 	/**
 	 * mazePose is a realPose relative to the maze origin, with units in m.
 	 */
-	private RealPose2D mazePose, lastPose, initPose, deltaPose, initMazePose;
+    private final RealPose2D initPose;
+	private RealPose2D mazePose, lastPose, deltaPose, initMazePose;
 
 	private Date clock;
 	private long lastClock;
@@ -31,7 +32,7 @@ public class BearingController {
 	/**
 	 * Creates new bearing controller and initializes values
 	 */
-	public BearingController(MazeState init){
+	public BearingController(MazeState init, RealPose2D robotInit){
 		pose = new RealPose2D();
 		lastClock = 0;
 		clock = new Date();
@@ -39,6 +40,8 @@ public class BearingController {
 		yError = 0;
 		thError = 0;
         distLastUpdate = 0;
+        initPose = robotInit.clone();
+        lastPose = initPose.clone();
 		double x,y,th;
 		x = Convert.mazeUnitToMeter(init.x());
 		y = Convert.mazeUnitToMeter(init.y());
@@ -69,10 +72,6 @@ public class BearingController {
         initMazePose = mazePose.clone();
 
 	}
-    public void setInitPose(RealPose2D robotInit){
-        initPose = robotInit.clone();
-        lastPose = initPose.clone();
-    }
 
     public RealPose2D getInitMazePose(){
         return initMazePose;

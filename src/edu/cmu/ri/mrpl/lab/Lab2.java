@@ -12,17 +12,10 @@ import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.control.*;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
-import edu.cmu.ri.mrpl.control.BearingController;
-import edu.cmu.ri.mrpl.control.BehaviorController;
-import edu.cmu.ri.mrpl.control.BumperController;
-import edu.cmu.ri.mrpl.control.PathFinder;
-import edu.cmu.ri.mrpl.control.SonarController;
-import edu.cmu.ri.mrpl.control.TrackerController;
-import edu.cmu.ri.mrpl.control.VisualizeController;
-import edu.cmu.ri.mrpl.control.WheelController;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 
 /**
@@ -385,17 +378,18 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 		SonarTask(TaskController tc) {
 			super(tc);
-			wc = new WheelController();
-			soc = new SonarController();
-			bc = new BumperController();
-			trc = new TrackerController("in.maze");
-			vc = new VisualizeController();
-			bac = new BearingController(trc.getMazeInit());
+
 		}
 
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
+            wc = new WheelController();
+            soc = new SonarController();
+            bc = new BumperController();
+            trc = new TrackerController("in.maze");
+            vc = new VisualizeController();
+            bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
 
 			double[] sonars = new double[16];
 			while(!shouldStop()) {
@@ -441,18 +435,19 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 
 		StateWanderTask(TaskController tc) {
 			super(tc);
-			wc = new WheelController();
-			soc = new SonarController();
-			bc = new BumperController();
-			trc = new TrackerController("in.maze");
-			vc = new VisualizeController();
-			bac = new BearingController(trc.getMazeInit());
-			bvc = new BehaviorController();
+
 		}
 
 		public void taskRun() {
 			showSC();
 			robot.turnSonarsOn();
+            wc = new WheelController();
+            soc = new SonarController();
+            bc = new BumperController();
+            trc = new TrackerController("in.maze");
+            vc = new VisualizeController();
+            bac = new BearingController(trc.getMazeInit(),Convert.getRobotPose(robot));
+            bvc = new BehaviorController();
 
 			double[] sonars = new double[16];
 			try{

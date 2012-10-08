@@ -383,14 +383,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		MazeGraphics mg;
 		LocalizeTask(TaskController tc) {
 			super(tc);
-			wc = new WheelController();
-			soc = new SonarController();
-			bc = new BumperController();
-			trc = new TrackerController("in.maze");
-			vc = new VisualizeController();
-			bac = new BearingController(trc.getMazeInit());
-			mg = new MazeGraphics(trc.getMaze());
-            mv = vc.new MazeViewer(mg);
+
 		}
 
 		public void taskRun() {
@@ -398,7 +391,14 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 			showSC();
 			robot.turnSonarsOn();
             robot.updateState();
-            bac.setInitPose(Convert.getRobotPose(robot));
+            wc = new WheelController();
+            soc = new SonarController();
+            bc = new BumperController();
+            trc = new TrackerController("in.maze");
+            vc = new VisualizeController();
+            bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
+            mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
 			ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
 			robots.add(null);
 			robots.add(null);
@@ -453,14 +453,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
         MazeGraphics mg;
 		MapLocalizationTask(TaskController tc) {
             super(tc);
-            wc = new WheelController();
-            soc = new SonarController();
-            bc = new BumperController();
-            trc = new TrackerController("in.maze");
-            vc = new VisualizeController();
-            bac = new BearingController(trc.getMazeInit());
-            mg = new MazeGraphics(trc.getMaze());
-            mv = vc.new MazeViewer(mg);
+
 		}
 
 		public void taskRun() {
@@ -468,7 +461,15 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
             showSC();
 			robot.turnSonarsOn();
             robot.updateState();
-            bac.setInitPose(Convert.getRobotPose(robot));
+            wc = new WheelController();
+            soc = new SonarController();
+            bc = new BumperController();
+            trc = new TrackerController("in.maze");
+            vc = new VisualizeController();
+            bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
+            mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
+
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
             robots.add(null);

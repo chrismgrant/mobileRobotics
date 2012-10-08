@@ -14,7 +14,7 @@ import fj.F;
 
 public class BehaviorController {
 
-	private final double MAX_SPEED = .25;
+	private final double MAX_SPEED = .25;//Robot's absolute max speed is .886
 	private final double THRESHOLD = .05;
 	private final static double POINT_DIST = .3;
 	private RealPoint2D targetPoint;
@@ -157,23 +157,26 @@ public class BehaviorController {
         }
 	}
  	/**
+     *
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
+     * @param initPose initial pose of path WRT world
  	 * @param l input path
  	 * @return path spaced with intermediary points
  	 */
 	
- 	public static Path refinePath(Path l){
+ 	public static Path refinePath(RealPose2D initPose, Path l){
 		Path betterList = new Path();
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
-		RealPose2D newPoint = new RealPose2D();
-		RealPose2D nextPoint = new RealPose2D();
-		RealPose2D startPoint = new RealPose2D();
+		RealPose2D newPoint, nextPoint, temp, startPoint = initPose;
 		Line2D path = new Line2D.Float();
 
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-			nextPoint = l.get(i);
+            nextPoint = initPose.clone();
+            temp = l.get(i);
+            nextPoint.add(temp.getX(), temp.getY(), temp.getTh() - nextPoint.getTh());
+
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			//Add points that are the right distance away

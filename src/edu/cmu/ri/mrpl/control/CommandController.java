@@ -39,35 +39,31 @@ public class CommandController {
 	/**
 	 * Initializes a new CommandController
 	 */
-	public CommandController(boolean useSonarVisualization){
+	public CommandController(Robot r){
         debugFlag = false;
 		executeQueue = new CommandSequence();
 		active = new Command();
+        useVisualization = false;
+        robot = r;
 		
 		wc = new WheelController();
 		soc = new SonarController();
 		bc = new BumperController();
 		
 		trc = new TrackerController("in.maze");
-		bac = new BearingController(trc.getMazeInit());
+		bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
 		bhc = new BehaviorController();
-		vc = new VisualizeController();
-	}
-	/**
-	 * Passes robot object to CommandController. Must be called in run thread before while loop
-	 * @param r robot
-	 */
-    public synchronized void syncRobot(Robot r){
+
         robot = r;
         exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
-        bac.setInitPose(Convert.getRobotPose(r));
-    }
-	public synchronized void syncRobot(Robot r, PointsConsole pc){
-		this.syncRobot(r);
-        if (useVisualization){
-            pointsConsole = pc;
-        }
 	}
+    public CommandController(Robot r, PointsConsole pc) {
+        this(r);
+        useVisualization = true;
+        vc = new VisualizeController();
+
+        pointsConsole = pc;
+    }
 	/**
 	 * Gets filtered sonar readings for sonar console
 	 * @return array of sonar readings

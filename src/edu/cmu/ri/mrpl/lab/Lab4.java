@@ -477,17 +477,13 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 		TrackTask(TaskController tc) {
 			super(tc);
-
-			cc = new CommandController(false);
-
-			cc.addCommandFromFile("in.txt");
-
 		}
 //		int counter = 25, a = 1;
 		public void taskRun() {
 //			showSC();
 			robot.turnSonarsOn();
-			cc.syncRobot(robot);
+            cc = new CommandController(robot);
+            cc.addCommandFromFile("in.txt");
 
 			try{
 				FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
