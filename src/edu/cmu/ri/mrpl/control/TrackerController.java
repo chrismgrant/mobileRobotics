@@ -1,23 +1,18 @@
 package edu.cmu.ri.mrpl.control;
 
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import fj.data.List;
 import static fj.data.List.list;
-import fj.data.Array;
-import static fj.data.Array.array;
-import fj.Effect;
-import fj.F;  
+
+import fj.F;
 import fj.F2;
 
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
-import edu.cmu.ri.mrpl.kinematics2D.LineSegment;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.kinematics2D.Units;
@@ -139,6 +134,16 @@ public class TrackerController {
             newTrackers = list();
         }
 	}
+    private class PointCloudKey {
+        int x, y;
+        PointCloudKey(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        boolean equals(PointCloudKey other) {
+            return (x == other.x && y == other.y);
+        }
+    }
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
 	 * getMazeOffset is called after new sonar readings are passed in
@@ -148,17 +153,18 @@ public class TrackerController {
 	public RealPose2D getMazeCorrection(RealPose2D oldMazePose){
 
         //Begin point cloud filter
-        double x,y;
-        RealPoint2D p;
-        Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
+        int x,y;
+        PointCloudKey p;
+        RealPoint2D tempPoint;
+        Map<PointCloudKey,Integer> pointCloud = new HashMap<PointCloudKey,Integer>();
         filteredTrackers = list();
 
         //Add trackers to pointcloud
         double pow = Math.pow(10.0,PRECISION);
         for (Tracker t : trackers){
-            x = ((int)(t.getX()*pow))/pow;
-            y = ((int)(t.getY()*pow))/pow;
-            p = new RealPoint2D(x,y);
+            x = ((int)(t.getX()*pow));
+            y = ((int)(t.getY()*pow));
+            p = new PointCloudKey(x,y);
             if (pointCloud.containsKey(p)){
                 pointCloud.put(p, pointCloud.get(p)+1);
             } else {
@@ -167,9 +173,10 @@ public class TrackerController {
         }
         System.out.print(pointCloud.size()+",");
         //Filter pointCloud
-        for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
+        for (Map.Entry<PointCloudKey, Integer> e : pointCloud.entrySet()){
             if (e.getValue() >= TRACKER_MIN_COUNT){
-                filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
+                tempPoint = new RealPoint2D(e.getKey().x,e.getKey().y);
+                filteredTrackers = filteredTrackers.cons(new Tracker(tempPoint));
             }
         }
         System.out.println("Filtering");

@@ -506,10 +506,10 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 //                    vc.addPoints(pc, trc.getNewTrackerWPos(Convert.getRobotPose(robot)));
 //                    System.out.println(trc.getFilteredTrackerRPos().length());
-                    vc.addPoints(pc, trc.getAllTrackerWPos(bac.getMazePose()));
+                    vc.addPoints(pc, trc.getAllTrackerRPos(bac.getMazePose()));
 
-//                    vc.updateVisualizer(pc, robot);
-                    pc.drawWorld();
+                    vc.updateVisualizer(pc, robot);
+//                    pc.drawWorld();
 
 //                    System.out.println(bac.getMazePose().toString());
 
