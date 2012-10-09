@@ -206,6 +206,10 @@ public class CommandController {
 	}
 	public synchronized void haltThread() {
 		System.out.println("Halting...");
+        outRobo.close();
+        outRoboEncode.close();
+        outRoboMaze.close();
+        outFollowTracker.close();
 		exe.halt();
 		System.out.println("Halt sent");
 	}
