@@ -160,7 +160,7 @@ public class BehaviorController {
      *
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
      * @param initPose initial pose of path WRT world
- 	 * @param l input path
+ 	 * @param l input path WRT Robot
  	 * @return path spaced with intermediary points
  	 */
 	
@@ -173,9 +173,7 @@ public class BehaviorController {
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-            nextPoint = startPoint.clone();
-            temp = l.get(i);
-            nextPoint.add(temp.getX(), temp.getY(), temp.getTh() - nextPoint.getTh());
+            nextPoint = Convert.multiply(startPoint, l.get(i));
 
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());

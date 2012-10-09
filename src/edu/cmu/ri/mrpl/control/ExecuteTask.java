@@ -74,7 +74,7 @@ public class ExecuteTask implements Runnable{
 			PathArgument arg = (PathArgument)(active.argument);
 			pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
 			isContinuous = true;
-			speech = "Pathing to the path, damnit.";
+			speech = "Following path.";
 			break;
 		}
 		case POSETO: {
