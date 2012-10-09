@@ -53,20 +53,19 @@ public class TrackerController {
 	private List<Tracker> newTrackers;
 	private List<Tracker> filteredTrackers;
 	private MazeWorld mazeWorld;
-//	private Set<Tracker> trackers; //Map of trackers, 
+    private RealPose2D last;
 	private Tracker active;
 	private Tracker follow;
 	private int followLostCounter;
 	private int ringCounter;
     private double lastSonarRecordDistance;
 
-    public TrackerController(String in){
+    public TrackerController(RealPose2D initPose, String in){
 		ringCounter = 0;
         lastSonarRecordDistance = 0;
-		trackers = list();//Creates empty array
-
+		trackers = list();
 		newTrackers = list();
-
+        last = initPose;
 		active = null;
 		follow = null;
 		followLostCounter = 0;
@@ -123,18 +122,21 @@ public class TrackerController {
 	/**
 	 * Update tracker states. Removes any beyond decay time.
 	 * Call after other TC setter methods to apply updates.
-     * @param delta deltaPose between robot's last pose and current pose.
+     * @param newPose deltaPose between robot's last pose and current pose.
 	 */
-	public void updateTrackers(final RealPose2D delta){
+	public void updateTrackers(RealPose2D newPose){
 		//Update robot positions of old trackers
-		trackers.foreach(new Effect<Tracker>() {
-            public void e(Tracker t) {
+        final RealPose2D delta = Convert.inverseMultiply(last,newPose);
+		trackers = trackers.map(new F<Tracker,Tracker>() {
+            public Tracker f(Tracker t) {
                 t.updateRobotCoords(delta);
+                return t;
             }
         });
 //		System.out.println(newTrackers.length());
         if (newTrackers.length() > 0) {
             trackers = trackers.append(newTrackers);
+            newTrackers = list();
         }
 	}
 	/**
@@ -261,7 +263,6 @@ public class TrackerController {
 	 * @return fj's List of RealPoint2D, relative to robot
 	 */
 	public List<RealPoint2D> getAllTrackerRPos(final RealPose2D robotPose){
-
 		return trackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
 				Point2D sol = t.getRPoint();
@@ -301,6 +302,14 @@ public class TrackerController {
 			}
 		});
 	}
+    public List<RealPoint2D> getNewTrackerWPos(final RealPose2D robotPose) {
+        return trackers.map(new F<Tracker, RealPoint2D>() {
+            @Override
+            public RealPoint2D f(Tracker tracker) {
+                return Convert.WRTWorld(robotPose,tracker.getRPoint());
+            }
+        });
+    }
 //	private int adjacentDirection(int lastDirection, int delta){
 //		if (delta >= 0){
 //			int d = (lastDirection >= 16-delta) ? lastDirection - 16 + delta: lastDirection + delta;

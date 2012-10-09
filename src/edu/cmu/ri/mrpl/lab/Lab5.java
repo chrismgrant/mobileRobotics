@@ -394,7 +394,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
             wc = new WheelController();
             soc = new SonarController();
             bc = new BumperController();
-            trc = new TrackerController("in.maze");
+            trc = new TrackerController(Convert.getRobotPose(robot), "in.maze");
             vc = new VisualizeController();
             bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
             mg = new MazeGraphics(trc.getMaze());
@@ -464,7 +464,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
             wc = new WheelController();
             soc = new SonarController();
             bc = new BumperController();
-            trc = new TrackerController("in.maze");
+            trc = new TrackerController(Convert.getRobotPose(robot), "in.maze");
             vc = new VisualizeController();
             bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
             mg = new MazeGraphics(trc.getMaze());
@@ -502,14 +502,14 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
                     }
 
 //                    vc.updateRobotPos(pc, Convert.getRobotPose(robot));
-                    vc.updateRobotPos(pc, bac.getMazePose());
+//                    vc.updateRobotPos(pc, bac.getMazePose());
 
-//                    vc.addPoints(pc, trc.getNewTrackerRPos(bac.getMazePose()));
+//                    vc.addPoints(pc, trc.getNewTrackerWPos(Convert.getRobotPose(robot)));
 //                    System.out.println(trc.getFilteredTrackerRPos().length());
-                    vc.addPoints(pc, trc.getFilteredTrackerRPos());
+                    vc.addPoints(pc, trc.getAllTrackerWPos(bac.getMazePose()));
 
-                    vc.updateVisualizer(pc, robot);
-
+//                    vc.updateVisualizer(pc, robot);
+                    pc.drawWorld();
 
 //                    System.out.println(bac.getMazePose().toString());
 
@@ -551,8 +551,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 					front = (right < left) ? -front/2 : front/2;
 					left = (left < vision)? left/vision*speed : speed;
 //					System.out.println("right: "+right+" left: "+left+" front: "+front);
-					wc.setWheelVel(right + front, left-front);
-//                    wc.setWheelVel(0,0);
+//					wc.setWheelVel(right + front, left-front);
+                    wc.setALVel(.3,.3);
 					wc.updateWheels(robot, bc.isBumped(robot));
 								
 					try {
