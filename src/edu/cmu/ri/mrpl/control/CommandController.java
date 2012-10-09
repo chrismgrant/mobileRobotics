@@ -131,11 +131,11 @@ public class CommandController {
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
         trc.updateTrackers(bac.getDeltaPose());
-        if (lastDistance == 0) {
-            bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-        }
 
         if (useVisualization){
+            if (lastDistance == 0) {
+                bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
+            }
             vc.updateRobotPos(pointsConsole, bac.getMazePose());
             vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             vc.updateVisualizer(pointsConsole, robot);

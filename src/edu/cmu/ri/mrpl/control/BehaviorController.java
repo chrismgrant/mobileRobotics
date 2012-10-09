@@ -167,13 +167,13 @@ public class BehaviorController {
  	public static Path refinePath(RealPose2D initPose, Path l){
 		Path betterList = new Path();
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
-		RealPose2D newPoint, nextPoint, temp, startPoint = initPose;
+		RealPose2D newPoint, nextPoint, temp, startPoint = initPose.clone();
 		Line2D path = new Line2D.Float();
 
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-            nextPoint = initPose.clone();
+            nextPoint = startPoint.clone();
             temp = l.get(i);
             nextPoint.add(temp.getX(), temp.getY(), temp.getTh() - nextPoint.getTh());
 
@@ -276,6 +276,7 @@ public class BehaviorController {
 		double lVel=0;
 		double[] speed = {0,0};
 		double newRadius = calculateRadiusOfTurning(p);
+        System.out.println("newRadius:"+newRadius);
 
 		curv = 1/newRadius;
 		if (Math.abs(newRadius)> .3){

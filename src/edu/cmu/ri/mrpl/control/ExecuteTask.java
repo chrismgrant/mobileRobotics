@@ -74,7 +74,7 @@ public class ExecuteTask implements Runnable{
 			PathArgument arg = (PathArgument)(active.argument);
 			pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
 			isContinuous = true;
-			speech = "Pathing";
+			speech = "Pathing to the path, damnit.";
 			break;
 		}
 		case POSETO: {
@@ -165,16 +165,19 @@ public class ExecuteTask implements Runnable{
 			robot.updateState();
 			robot.getSonars(sonars);
 			parent.updateControllers(sonars);
-			
+
+            System.out.println("RobotMazePose:"+parent.bac.getMazePose());
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
+                System.out.println("TargetPose:"+currentTarget);
                 RealPose2D currentPose = parent.bac.getMazePose();
 				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, currentPose.getPosition(), i);
 				currentError = currentTarget.getPosition().distance(currentPose.getPosition());
-				if (isInThreshold(currentError, ArgType.DISTANCE)){
+                System.out.println("Error: "+currentError);
+                if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
 						taskComplete = true;
 						stop();
