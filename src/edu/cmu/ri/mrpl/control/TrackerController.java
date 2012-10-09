@@ -303,7 +303,7 @@ public class TrackerController {
 		});
 	}
     public List<RealPoint2D> getNewTrackerWPos(final RealPose2D robotPose) {
-        return trackers.map(new F<Tracker, RealPoint2D>() {
+        return newTrackers.map(new F<Tracker, RealPoint2D>() {
             @Override
             public RealPoint2D f(Tracker tracker) {
                 return Convert.WRTWorld(robotPose,tracker.getRPoint());
