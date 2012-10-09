@@ -38,11 +38,11 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final double PRECISION = 1.7;
-	private static final int TRACKER_MIN_COUNT = 2;
+    private static final double PRECISION = 3;
+	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = .1;
+    private static final double UPDATE_DISTANCE = .5;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -193,7 +193,7 @@ public class TrackerController {
 		gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) -
 				getPointError(oldMazePose))/dp;
 		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
-				getPointError(oldMazePose))/dp;
+				getPointError(oldMazePose))/(dp/Math.PI);
 //        System.out.println(getPointError(border,oldMazePose));
         System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");
 		

@@ -500,7 +500,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
         }
 
         public void taskRun() {
-			showSC();
+//			showSC();
             robot.turnSonarsOn();
             cc = new CommandController(robot, pc);
             cc.addCommandFromFile("in.txt");
@@ -533,7 +533,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
 
             robot.turnSonarsOff();
             robot.setVel(0.0f, 0.0f);
-			hideSC();
+//			hideSC();
         }
 
         public String toString() {

@@ -1,12 +1,16 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.*;
 import java.io.IOException;
 import java.lang.*;
+import java.util.ArrayList;
+
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.maze.MazeGraphics;
 
 
 /**
@@ -24,6 +28,7 @@ public class CommandController {
 	BehaviorController bhc;
 	
 	VisualizeController vc;
+    VisualizeController.MazeViewer mv;
 	
 	Robot robot;
     PointsConsole pointsConsole;
@@ -35,8 +40,9 @@ public class CommandController {
     private boolean useVisualization;
 
     boolean debugFlag;
-	
-	/**
+    private MazeGraphics mg;
+
+    /**
 	 * Initializes a new CommandController
 	 */
 	public CommandController(Robot r){
@@ -61,6 +67,8 @@ public class CommandController {
         this(r);
         useVisualization = true;
         vc = new VisualizeController();
+        mg = new MazeGraphics(trc.getMaze());
+        mv = vc.new MazeViewer(mg);
 
         pointsConsole = pc;
     }
@@ -133,12 +141,21 @@ public class CommandController {
         trc.updateTrackers(bac.getDeltaPose());
 
         if (useVisualization){
+            ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
+            robots.add(null);
+            robots.add(null);
             if (lastDistance == 0) {
                 bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
             }
             vc.updateRobotPos(pointsConsole, bac.getMazePose());
             vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             vc.updateVisualizer(pointsConsole, robot);
+
+            robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
+            robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
+                    Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot))), Color.RED));
+            mg.setContRobots(robots);
+            mv.recreateMazeGraphics(mg);
         }
 
 	}
