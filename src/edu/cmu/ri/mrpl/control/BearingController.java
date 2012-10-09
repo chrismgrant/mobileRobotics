@@ -14,7 +14,7 @@ import edu.cmu.ri.mrpl.maze.MazeState;
  */
 public class BearingController {
 
-    private static final double UPDATE_DISTANCE = 3.0;
+    private static final double UPDATE_DISTANCE = 1.50;
 	
 	private RealPose2D pose;
 	/**
@@ -233,6 +233,8 @@ public class BearingController {
 	 * @param sonarOffset calculated offset using sonars. Done by trc. 
 	 */
 	public void updateMazePoseBySonar(RealPose2D sonarOffset){
+        System.out.println("MazePose updated to: "+sonarOffset.toString());
+        System.out.println("Error corrected: "+Convert.inverseMultiply(mazePose,sonarOffset).toString());
 		mazePose = sonarOffset.clone();
 	}
 	/**

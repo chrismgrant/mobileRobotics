@@ -274,7 +274,7 @@ public class BehaviorController {
 		double lVel=0;
 		double[] speed = {0,0};
 		double newRadius = calculateRadiusOfTurning(p);
-        System.out.println("newRadius:"+newRadius);
+//        System.out.println("newRadius:"+newRadius);
 
 		curv = 1/newRadius;
 		if (Math.abs(newRadius)> .3){
@@ -313,8 +313,8 @@ public class BehaviorController {
 		}
 		
 		
-		System.out.println("  R:"+radius +" ,Th:"+theta+" ,D:"+distance);
-		System.out.println("  Speed A:"+speed[0]+" ,L:"+speed[1]);
+//		System.out.println("  R:"+radius +" ,Th:"+theta+" ,D:"+distance);
+//		System.out.println("  Speed A:"+speed[0]+" ,L:"+speed[1]);
 		return speed;
 	}
 	

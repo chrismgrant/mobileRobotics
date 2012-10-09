@@ -38,11 +38,11 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final double PRECISION = 3;
+    private static final double PRECISION = 1.7;
 	private static final int TRACKER_MIN_COUNT = 2;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = .3;
+    private static final double UPDATE_DISTANCE = .1;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -171,7 +171,7 @@ public class TrackerController {
                 pointCloud.put(p, 1);
             }
         }
-        System.out.print(pointCloud.size()+",");
+        System.out.print(pointCloud.size()+" trackers total, ");
         //Filter pointCloud
         for (Map.Entry<PointCloudKey, Integer> e : pointCloud.entrySet()){
             if (e.getValue() >= TRACKER_MIN_COUNT){
@@ -179,8 +179,7 @@ public class TrackerController {
                 filteredTrackers = filteredTrackers.cons(new Tracker(tempPoint));
             }
         }
-        System.out.println("Filtering");
-        System.out.println(filteredTrackers.length());
+        System.out.println("Filtered "+filteredTrackers.length()+" trackers.");
 
 		//Compute gradient
 		double dx, dy, dth;
@@ -196,7 +195,7 @@ public class TrackerController {
 		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
 				getPointError(oldMazePose))/dp;
 //        System.out.println(getPointError(border,oldMazePose));
-        System.out.println(gradient[0]+","+gradient[1]+","+gradient[2]);
+        System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");
 		
 		//Traverse down gradient
 		double lastError = Double.POSITIVE_INFINITY;
