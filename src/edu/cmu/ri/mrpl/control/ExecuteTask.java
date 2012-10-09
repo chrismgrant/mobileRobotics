@@ -181,6 +181,15 @@ public class ExecuteTask implements Runnable{
                 if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
 						taskComplete = true;
+                        currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
+                        while (!isInThreshold(currentError, ArgType.ANGLE)) {
+                            currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
+                            parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
+                            parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {}
+                        }
 						stop();
 						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
 						try {
