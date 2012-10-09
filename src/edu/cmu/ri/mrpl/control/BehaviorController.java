@@ -14,7 +14,7 @@ import fj.F;
 
 public class BehaviorController {
 
-	private final double MAX_SPEED = .25;
+	private final double MAX_SPEED = .25;//Robot's absolute max speed is .886
 	private final double THRESHOLD = .05;
 	private final static double POINT_DIST = .3;
 	private RealPoint2D targetPoint;
@@ -157,23 +157,24 @@ public class BehaviorController {
         }
 	}
  	/**
+     *
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
- 	 * @param l input path
+     * @param initPose initial pose of path WRT world
+ 	 * @param l input path WRT Robot
  	 * @return path spaced with intermediary points
  	 */
 	
- 	public static Path refinePath(Path l){
+ 	public static Path refinePath(RealPose2D initPose, Path l){
 		Path betterList = new Path();
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
-		RealPose2D newPoint = new RealPose2D();
-		RealPose2D nextPoint = new RealPose2D();
-		RealPose2D startPoint = new RealPose2D();
+		RealPose2D newPoint, nextPoint, temp, startPoint = initPose.clone();
 		Line2D path = new Line2D.Float();
 
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-			nextPoint = l.get(i);
+            nextPoint = Convert.multiply(initPose, l.get(i));
+
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			//Add points that are the right distance away
@@ -273,6 +274,7 @@ public class BehaviorController {
 		double lVel=0;
 		double[] speed = {0,0};
 		double newRadius = calculateRadiusOfTurning(p);
+        System.out.println("newRadius:"+newRadius);
 
 		curv = 1/newRadius;
 		if (Math.abs(newRadius)> .3){

@@ -72,9 +72,10 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-			pthArg = parent.bhc.refinePath(arg.path);
+			pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
+            System.out.println(pthArg.toString());
 			isContinuous = true;
-			speech = "Pathing";
+			speech = "Following path.";
 			break;
 		}
 		case POSETO: {
@@ -165,19 +166,31 @@ public class ExecuteTask implements Runnable{
 			robot.updateState();
 			robot.getSonars(sonars);
 			parent.updateControllers(sonars);
-			
+
+            System.out.println("RobotMazePose:"+parent.bac.getMazePose());
 			//Loop VM
 			switch (active.type){
 			case FOLLOWPATH:{//Targets are relative to world
 				RealPose2D targetWRTRob = null;
 				RealPose2D currentTarget = pthArg.get(i);
+                System.out.println("TargetPose:"+currentTarget);
                 RealPose2D currentPose = parent.bac.getMazePose();
 				RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, currentPose.getPosition(), i);
 				currentError = currentTarget.getPosition().distance(currentPose.getPosition());
-				if (isInThreshold(currentError, ArgType.DISTANCE)){
+                System.out.println("Error: "+currentError);
+                if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
 						System.out.println("testing...Condition: Reached");
 						taskComplete = true;
+                        currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
+                        while (!isInThreshold(currentError, ArgType.ANGLE)) {
+                            currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
+                            parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
+                            parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {}
+                        }
 						stop();
 						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
 						try {

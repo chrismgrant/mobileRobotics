@@ -28,7 +28,6 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
  * TrackerController handles judging where all objects are around the robot.
  * TC first reads in sonar readings and generates a point cloud.
  * Then, the point cloud gets cleaned to drop outliers, and converted into likely wall candidates.
- * Then, walls are placed (or [god forbid] removed) in a MazeWorld instance.
  * 
  * Trackers in the point cloud are stored relative to the robot.
  * As the robot moves, the trackers will be updated so that their position stays relative to the robot
@@ -45,11 +44,12 @@ public class TrackerController {
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
-	private static final int TRACKER_MIN_COUNT = 1;
+	private static final int TRACKER_MIN_COUNT = 2;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
-	
-	private Array<List<Tracker>> trackers;
+    private static final double UPDATE_DISTANCE = .3;
+
+    private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
 	private List<Tracker> filteredTrackers;
 	private MazeWorld mazeWorld;
@@ -58,16 +58,13 @@ public class TrackerController {
 	private Tracker follow;
 	private int followLostCounter;
 	private int ringCounter;
-	
-	public TrackerController(String in){
+    private double lastSonarRecordDistance;
+
+    public TrackerController(String in){
 		ringCounter = 0;
-		
-		trackers = array();//Creates empty array
-		for (int i = 0; i < TRACKER_DECAY; i++){//Adds T_DECAY many array indices with lists 
-			List<Tracker> a = list();
-			Array<List<Tracker>> b = array(a);
-			trackers = trackers.append(b);
-		}
+        lastSonarRecordDistance = 0;
+		trackers = list();//Creates empty array
+
 		newTrackers = list();
 
 		active = null;
@@ -94,9 +91,11 @@ public class TrackerController {
 	}
 	/**
 	 * Adds trackers from 16 sonar readings
+     * @param totalDistance total distance traveled since last update
 	 * @param sonarReadings standard 16-array of sonar readings
 	 */
-	public void addTrackersFromSonar(double[] sonarReadings){
+	public void addTrackersFromSonar(double totalDistance, double[] sonarReadings){
+        if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
 			newTrackers = list();
 			RealPoint2D position;
 			double x,y,th;
@@ -108,7 +107,9 @@ public class TrackerController {
 					position = new RealPoint2D(x,y);
 					addTracker(position);
 				
-			}
+			    }
+            }
+            lastSonarRecordDistance = totalDistance;
 		}
 	}
 	/**
@@ -122,59 +123,19 @@ public class TrackerController {
 	/**
 	 * Update tracker states. Removes any beyond decay time.
 	 * Call after other TC setter methods to apply updates.
+     * @param delta deltaPose between robot's last pose and current pose.
 	 */
 	public void updateTrackers(final RealPose2D delta){
-		
 		//Update robot positions of old trackers
-		trackers = trackers.map(new F<List<Tracker>,List<Tracker>>() {
-			public List<Tracker> f(List<Tracker> l){
-				l.foreach(new Effect<Tracker>() {
-					public void e(Tracker t){
-						t.updateRobotCoords(delta);
-					}
-				});
-				return l;
-			}
-		});
+		trackers.foreach(new Effect<Tracker>() {
+            public void e(Tracker t) {
+                t.updateRobotCoords(delta);
+            }
+        });
 //		System.out.println(newTrackers.length());
-		trackers.set(ringCounter, newTrackers);//Remove old trackers and add new trackers
-		ringCounter = (ringCounter >= TRACKER_DECAY-1) ? 0 : ringCounter+1;
-		
-		//Begin point cloud filter
-		double x,y;
-		RealPoint2D p;
-		List<Tracker> trackerList = list();
-//        List<Tracker> trackerList = newTrackers;
-		Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
-		filteredTrackers = list();
-		//Collapse array
-		for (List<Tracker> l : trackers){
-			trackerList=trackerList.append(l);
+        if (newTrackers.length() > 0) {
+            trackers = trackers.append(newTrackers);
         }
-
-        System.out.print(trackerList.length()+",");
-
-        //Add trackers to pointcloud
-        double pow = Math.pow(10.0,PRECISION);
-		for (Tracker t : trackerList){
-			x = ((int)(t.getX()*pow))/pow;
-			y = ((int)(t.getY()*pow))/pow;
-			p = new RealPoint2D(x,y);
-			if (pointCloud.containsKey(p)){
-				pointCloud.put(p, pointCloud.get(p)+1);
-			} else {
-				pointCloud.put(p, 1);
-			}
-		}
-        System.out.print(pointCloud.size()+",");
-		//Filter pointCloud
-		for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
-			if (e.getValue() >= TRACKER_MIN_COUNT){
-				filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
-			}
-		}
-        System.out.println("Filtering");
-        System.out.println(filteredTrackers.length());
 	}
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
@@ -183,20 +144,35 @@ public class TrackerController {
 	 * @return new pose relative to maze
 	 */
 	public RealPose2D getMazeCorrection(RealPose2D oldMazePose){
-		//Calculate wall border
-		Line2D[] border = new Line2D[4];// [right, up, left, down]
-		double xm, ym, xu,xd,yu,yd;
-		xm = Convert.meterToMazeUnit(oldMazePose.getX());
-		ym = Convert.meterToMazeUnit(oldMazePose.getY());
-		xu = Convert.mazeUnitToMeter(Math.rint(xm)+.5);
-		xd = Convert.mazeUnitToMeter(Math.rint(xm)-.5);
-		yu = Convert.mazeUnitToMeter(Math.rint(ym)+.5);
-		yd = Convert.mazeUnitToMeter(Math.rint(ym)-.5);
-		border[0] = new Line2D.Double(xu,yd,xu,yu);
-		border[1]= new Line2D.Double(xu,yu,xd,yu);
-		border[2] = new Line2D.Double(xd,yu,xd,yd);
-		border[3] = new Line2D.Double(xd,yd,xu,yd);
-		
+
+        //Begin point cloud filter
+        double x,y;
+        RealPoint2D p;
+        Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
+        filteredTrackers = list();
+
+        //Add trackers to pointcloud
+        double pow = Math.pow(10.0,PRECISION);
+        for (Tracker t : trackers){
+            x = ((int)(t.getX()*pow))/pow;
+            y = ((int)(t.getY()*pow))/pow;
+            p = new RealPoint2D(x,y);
+            if (pointCloud.containsKey(p)){
+                pointCloud.put(p, pointCloud.get(p)+1);
+            } else {
+                pointCloud.put(p, 1);
+            }
+        }
+        System.out.print(pointCloud.size()+",");
+        //Filter pointCloud
+        for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
+            if (e.getValue() >= TRACKER_MIN_COUNT){
+                filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
+            }
+        }
+        System.out.println("Filtering");
+        System.out.println(filteredTrackers.length());
+
 		//Compute gradient
 		double dx, dy, dth;
         final double dp = 0.0001;
@@ -204,35 +180,35 @@ public class TrackerController {
 		dy = oldMazePose.getY()+dp;
 		dth = Angle.normalize(oldMazePose.getRotateTheta()+dp/Math.PI);
 		double[] gradient = new double[3];
-		gradient[0] = (getPointError(border,new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
-				getPointError(border,oldMazePose))/dp;
-		gradient[1] = (getPointError(border,new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) - 
-				getPointError(border,oldMazePose))/dp;
-		gradient[2] = (getPointError(border,new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) - 
-				getPointError(border,oldMazePose))/dp;
+		gradient[0] = (getPointError(new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
+				getPointError(oldMazePose))/dp;
+		gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) -
+				getPointError(oldMazePose))/dp;
+		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
+				getPointError(oldMazePose))/dp;
 //        System.out.println(getPointError(border,oldMazePose));
         System.out.println(gradient[0]+","+gradient[1]+","+gradient[2]);
 		
 		//Traverse down gradient
-		double last = Double.POSITIVE_INFINITY;
+		double lastError = Double.POSITIVE_INFINITY;
 		RealPose2D nextPose = oldMazePose.clone();
-		double nextError = getPointError(border, nextPose);
-		while (last > nextError) {
-			last = nextError;
+		double nextError = getPointError(nextPose);
+		while (nextError < lastError) {
+			lastError = nextError;
 			dx = -EPSILON * gradient[0]*nextPose.getX();
 			dy = -EPSILON * gradient[1]*nextPose.getY();
 			dth = -EPSILON * gradient[2]*nextPose.getTh();
 			nextPose.add(dx, dy, dth);
-			nextError = getPointError(border,nextPose);
+			nextError = getPointError(nextPose);
 		}
 		nextPose.add(-dx, -dy, -dth);
 
-//        if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
-		    return nextPose;
-//        }
-//        return oldMazePose;
+        //Resets trackers after computing
+        trackers = list();
+        lastSonarRecordDistance = 0;
+        return nextPose;
 	}
-	private double getPointError(final Line2D[] border, final RealPose2D inputPose){
+	private double getPointError(final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
 				double distance, minDistance;
@@ -267,9 +243,9 @@ public class TrackerController {
 	 * Adds walls where sonar readings suggest a wall will be.
 	 * updateMazeWalls is called after robot position is set
 	 */
-	public void updateMazeWalls(RealPose2D pose){
+	public void updateMazeWalls(RealPose2D mazePose){
 		for (int i = 0; i < filteredTrackers.length(); i++){
-			RealPoint2D convertedPoint = Convert.WRTWorld(pose, filteredTrackers.index(i).getRPoint());
+			RealPoint2D convertedPoint = Convert.WRTWorld(mazePose, filteredTrackers.index(i).getRPoint());
 			int x = (int) Math.rint(Convert.meterToMazeUnit(convertedPoint.x));
 			int y = (int)Math.rint(Convert.meterToMazeUnit(convertedPoint.y));
 			double distance =  Convert.mazeUnitToMeter((int)((x / T9inchesToMeters)));
@@ -285,22 +261,8 @@ public class TrackerController {
 	 * @return fj's List of RealPoint2D, relative to robot
 	 */
 	public List<RealPoint2D> getAllTrackerRPos(final RealPose2D robotPose){
-		List<Tracker> e = list();
-		List<Tracker> l = list();
-		if (trackers.isNotEmpty()){
-//			Collection<List<Tracker>> a = trackers.toCollection();
-//			for (List<Tracker> li : a) {
-//				l=l.append(li);
-//			}
-			l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
-				public List<Tracker> f(List<Tracker> out, List<Tracker> current){
-					return out.append(current);
-				}
-			},e);
-			System.out.println(l.length());
-		}
-		
-		return l.map(new F<Tracker, RealPoint2D>() {
+
+		return trackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
 				Point2D sol = t.getRPoint();
 				return new RealPoint2D(sol.getX(),sol.getY()) ;
@@ -332,13 +294,8 @@ public class TrackerController {
 	 * @return fj's List of RealPoint2D 
 	 */
 	public List<RealPoint2D> getAllTrackerWPos(final RealPose2D robotPose){
-		List<Tracker> e = list();
-		List<Tracker> l = trackers.foldLeft(new F2<List<Tracker>, List<Tracker>, List<Tracker>>() {
-			public List<Tracker> f(List<Tracker> out, List<Tracker> current){
-				return out.append(current);
-			}
-		},e);
-		return l.map(new F<Tracker, RealPoint2D>() {
+
+		return trackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
 				return Convert.WRTWorld(robotPose, t.getRPoint());
 			}
