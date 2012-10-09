@@ -42,7 +42,7 @@ public class TrackerController {
 	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = .5;
+    private static final double UPDATE_DISTANCE = 1;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -271,8 +271,7 @@ public class TrackerController {
 	public List<RealPoint2D> getAllTrackerRPos(final RealPose2D robotPose){
 		return trackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
-				Point2D sol = t.getRPoint();
-				return new RealPoint2D(sol.getX(),sol.getY()) ;
+				return t.getRPoint() ;
 			}
 		});
 	}
