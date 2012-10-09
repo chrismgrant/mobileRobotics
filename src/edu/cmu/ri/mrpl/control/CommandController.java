@@ -1,7 +1,9 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.awt.*;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.*;
 import java.util.ArrayList;
 
@@ -9,6 +11,7 @@ import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
 
 
@@ -31,7 +34,8 @@ public class CommandController {
 	
 	Robot robot;
     PointsConsole pointsConsole;
-	
+
+    private static final boolean DEBUGFLAG = true;
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
 	private Command active;
@@ -40,6 +44,11 @@ public class CommandController {
 
     boolean debugFlag;
     private MazeGraphics mg;
+
+    PrintWriter outRobo;
+    PrintWriter outRoboEncode;
+    PrintWriter outRoboMaze;
+    PrintWriter outFollowTracker;
 
     /**
 	 * Initializes a new CommandController
@@ -66,6 +75,20 @@ public class CommandController {
             mg = new MazeGraphics(trc.getMaze());
             mv = vc.new MazeViewer(mg);
             pointsConsole = pc;
+        }
+
+        if (DEBUGFLAG) {
+            try {
+                FileWriter outFileRobo = new FileWriter("TrackRobo");
+                FileWriter outFileRoboE = new FileWriter("TrackRoboEn");
+                FileWriter outFileRoboM = new FileWriter("TrackRoboMa");
+                FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
+
+                outRobo = new PrintWriter(outFileRobo);
+                outRoboEncode = new PrintWriter(outFileRoboE);
+                outRoboMaze = new PrintWriter(outFileRoboM);
+                outFollowTracker = new PrintWriter(outFileFollowTracker);
+            } catch (IOException e) {}
         }
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
 
@@ -160,6 +183,16 @@ public class CommandController {
             mv.recreateMazeGraphics(mg);
         }
 
+        if (DEBUGFLAG) {
+            for (RealPoint2D p : trc.getAllTrackerRPos(BearingController.getRPose(robot))) {
+                outFollowTracker.print(p.toString()+";");
+            }
+            outFollowTracker.println();
+            outRobo.println(BearingController.getRPose(robot).toString());
+            outRoboEncode.println(Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot)).toString());
+            outRoboMaze.println(bac.getMazePose().toString());
+        }
+
 	}
 	/**
 	 * Creates new execution thread to complete pending command.
@@ -175,7 +208,6 @@ public class CommandController {
 		System.out.println("Halting...");
 		exe.halt();
 		System.out.println("Halt sent");
-		
 	}
 	
 	

@@ -40,7 +40,7 @@ public class TrackerController {
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
 	private static final int TRACKER_MIN_COUNT = 1;
-	private static final double EPSILON = .00001;
+	private static final double EPSILON = .0001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = 1;
 
@@ -183,18 +183,16 @@ public class TrackerController {
 
 		//Compute gradient
 		double dx, dy, dth;
-        final double dp = 0.0001;
-		dx = oldMazePose.getX()+dp;
-		dy = oldMazePose.getY()+dp;
-		dth = Angle.normalize(oldMazePose.getRotateTheta()+dp/Math.PI);
+		dx = oldMazePose.getX()+EPSILON;
+		dy = oldMazePose.getY()+EPSILON;
+		dth = Angle.normalize(oldMazePose.getRotateTheta()+EPSILON/Math.PI);
 		double[] gradient = new double[3];
 		gradient[0] = (getPointError(new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
-				getPointError(oldMazePose))/dp;
+				getPointError(oldMazePose))/EPSILON;
 		gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) -
-				getPointError(oldMazePose))/dp;
+				getPointError(oldMazePose))/EPSILON;
 		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
-				getPointError(oldMazePose))/(dp/Math.PI);
-//        System.out.println(getPointError(border,oldMazePose));
+				getPointError(oldMazePose))/(EPSILON/Math.PI);
         System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");
 		
 		//Traverse down gradient
@@ -205,7 +203,7 @@ public class TrackerController {
 			lastError = nextError;
 			dx = -EPSILON * gradient[0]*nextPose.getX();
 			dy = -EPSILON * gradient[1]*nextPose.getY();
-			dth = -EPSILON * gradient[2]*nextPose.getTh();
+			dth = -EPSILON/Math.PI * gradient[2]*nextPose.getTh();
 			nextPose.add(dx, dy, dth);
 			nextError = getPointError(nextPose);
 		}
