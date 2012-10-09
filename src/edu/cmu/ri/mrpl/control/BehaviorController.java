@@ -173,7 +173,7 @@ public class BehaviorController {
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-            nextPoint = Convert.multiply(startPoint, l.get(i));
+            nextPoint = Convert.multiply(initPose, l.get(i));
 
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
