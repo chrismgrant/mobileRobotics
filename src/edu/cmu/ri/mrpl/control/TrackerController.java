@@ -28,7 +28,6 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
  * TrackerController handles judging where all objects are around the robot.
  * TC first reads in sonar readings and generates a point cloud.
  * Then, the point cloud gets cleaned to drop outliers, and converted into likely wall candidates.
- * Then, walls are placed (or [god forbid] removed) in a MazeWorld instance.
  * 
  * Trackers in the point cloud are stored relative to the robot.
  * As the robot moves, the trackers will be updated so that their position stays relative to the robot
@@ -45,7 +44,7 @@ public class TrackerController {
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
-	private static final int TRACKER_MIN_COUNT = 1;
+	private static final int TRACKER_MIN_COUNT = 2;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = .3;
@@ -124,9 +123,9 @@ public class TrackerController {
 	/**
 	 * Update tracker states. Removes any beyond decay time.
 	 * Call after other TC setter methods to apply updates.
+     * @param delta deltaPose between robot's last pose and current pose.
 	 */
 	public void updateTrackers(final RealPose2D delta){
-		
 		//Update robot positions of old trackers
 		trackers.foreach(new Effect<Tracker>() {
             public void e(Tracker t) {
@@ -134,35 +133,9 @@ public class TrackerController {
             }
         });
 //		System.out.println(newTrackers.length());
-		trackers.append(newTrackers);//Add new trackers
-
-		//Begin point cloud filter
-		double x,y;
-		RealPoint2D p;
-		Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
-		filteredTrackers = list();
-
-        //Add trackers to pointcloud
-        double pow = Math.pow(10.0,PRECISION);
-		for (Tracker t : trackers){
-			x = ((int)(t.getX()*pow))/pow;
-			y = ((int)(t.getY()*pow))/pow;
-			p = new RealPoint2D(x,y);
-			if (pointCloud.containsKey(p)){
-				pointCloud.put(p, pointCloud.get(p)+1);
-			} else {
-				pointCloud.put(p, 1);
-			}
-		}
-        System.out.print(pointCloud.size()+",");
-		//Filter pointCloud
-		for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
-			if (e.getValue() >= TRACKER_MIN_COUNT){
-				filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
-			}
-		}
-        System.out.println("Filtering");
-        System.out.println(filteredTrackers.length());
+        if (newTrackers.length() > 0) {
+            trackers = trackers.append(newTrackers);
+        }
 	}
 	/**
 	 * Calculates the offset using the oldPose, sonar readings, and grid alignment
@@ -171,6 +144,34 @@ public class TrackerController {
 	 * @return new pose relative to maze
 	 */
 	public RealPose2D getMazeCorrection(RealPose2D oldMazePose){
+
+        //Begin point cloud filter
+        double x,y;
+        RealPoint2D p;
+        Map<RealPoint2D,Integer> pointCloud = new HashMap<RealPoint2D,Integer>();
+        filteredTrackers = list();
+
+        //Add trackers to pointcloud
+        double pow = Math.pow(10.0,PRECISION);
+        for (Tracker t : trackers){
+            x = ((int)(t.getX()*pow))/pow;
+            y = ((int)(t.getY()*pow))/pow;
+            p = new RealPoint2D(x,y);
+            if (pointCloud.containsKey(p)){
+                pointCloud.put(p, pointCloud.get(p)+1);
+            } else {
+                pointCloud.put(p, 1);
+            }
+        }
+        System.out.print(pointCloud.size()+",");
+        //Filter pointCloud
+        for (Map.Entry<RealPoint2D, Integer> e : pointCloud.entrySet()){
+            if (e.getValue() >= TRACKER_MIN_COUNT){
+                filteredTrackers = filteredTrackers.cons(new Tracker(e.getKey()));
+            }
+        }
+        System.out.println("Filtering");
+        System.out.println(filteredTrackers.length());
 
 		//Compute gradient
 		double dx, dy, dth;
@@ -204,6 +205,7 @@ public class TrackerController {
 
         //Resets trackers after computing
         trackers = list();
+        lastSonarRecordDistance = 0;
         return nextPose;
 	}
 	private double getPointError(final RealPose2D inputPose){
