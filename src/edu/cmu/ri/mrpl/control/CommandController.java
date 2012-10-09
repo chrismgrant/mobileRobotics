@@ -9,7 +9,6 @@ import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
-import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
 
 
@@ -45,33 +44,36 @@ public class CommandController {
     /**
 	 * Initializes a new CommandController
 	 */
-	public CommandController(Robot r){
-        debugFlag = false;
-		executeQueue = new CommandSequence();
-		active = new Command();
-        useVisualization = false;
-        robot = r;
-		
-		wc = new WheelController();
-		soc = new SonarController();
-		bc = new BumperController();
-		
-		trc = new TrackerController(Convert.getRobotPose(robot) ,"in.maze");
-		bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
-		bhc = new BehaviorController();
-
-        robot = r;
-        exe = new ExecuteTask(this, pointsConsole, robot, nullCommand, bac.getPose());
-	}
     public CommandController(Robot r, PointsConsole pc) {
-        this(r);
-        useVisualization = true;
-        vc = new VisualizeController();
-        mg = new MazeGraphics(trc.getMaze());
-        mv = vc.new MazeViewer(mg);
+        debugFlag = false;
+        executeQueue = new CommandSequence();
+        active = new Command();
+        robot = r;
 
-        pointsConsole = pc;
+        wc = new WheelController();
+        soc = new SonarController();
+        bc = new BumperController();
+
+        trc = new TrackerController(Convert.getRobotPose(robot) ,"in.maze");
+        bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
+        bhc = new BehaviorController();
+
+        robot = r;
+
+        useVisualization = (pc == null)?false:true;
+        if (useVisualization){
+            vc = new VisualizeController();
+            mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
+            pointsConsole = pc;
+        }
+        exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
+
     }
+	public CommandController(Robot r){
+        this(r,null);
+	}
+
 	/**
 	 * Gets filtered sonar readings for sonar console
 	 * @return array of sonar readings
@@ -166,7 +168,7 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
-			exe = new ExecuteTask(this, pointsConsole, robot, active, bac.getRPoseWithError(robot));
+			exe = new ExecuteTask(this, robot, active, bac.getRPoseWithError(robot));
 		}
 	}
 	public synchronized void haltThread() {

@@ -33,7 +33,7 @@ public class VisualizeController {
 	 * @param pc PointsConsole
 	 * @param robotPose Pose of robot in world
 	 */
-	public void updateRobotPos(PointsConsole pc,RealPose2D robotPose){
+	public synchronized void updateRobotPos(PointsConsole pc,RealPose2D robotPose){
 		pc.setReference(robotPose);
 	}
 	/**

@@ -29,8 +29,7 @@ public class ExecuteTask implements Runnable{
 	private static enum ArgType {DISTANCE, ANGLE};
 
 	private Robot robot;
-    private PointsConsole pointsConsole;
-	Thread t;
+    Thread t;
 	private Command active;
 	private boolean taskComplete, running;
 	private RealPose2D initPose;
@@ -54,14 +53,13 @@ public class ExecuteTask implements Runnable{
 	
 	/**
 	 * Initializes execution thread
-	 * @param r robot
-	 * @param c command
-	 * @param p initial Pose at execution time
-	 */
-	public ExecuteTask(CommandController parentController, PointsConsole pc, Robot r, Command c, RealPose2D p){
+     * @param r robot
+     * @param c command
+     * @param p initial Pose at execution time
+     */
+	public ExecuteTask(CommandController parentController, Robot r, Command c, RealPose2D p){
             t = new Thread(this, "ExecuteTask");
-            pointsConsole = pc;
-            active = c;
+        active = c;
             robot = r;
             taskComplete = false;
             running = true;

@@ -30,7 +30,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
     public Robot robot;
     private SonarConsole sc;
     private SonarConsole sc2;
-    private PointsConsole pc; // Added for displaying points. PMF
+    public PointsConsole pc; // Added for displaying points. PMF
     private JFrame scFrame;
     private JFrame sc2Frame;
 
