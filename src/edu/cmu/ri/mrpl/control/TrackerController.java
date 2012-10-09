@@ -40,7 +40,7 @@ public class TrackerController {
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
 	private static final int TRACKER_MIN_COUNT = 1;
-	private static final double EPSILON = .001;
+	private static final double EPSILON = .00001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = 1;
 
@@ -94,7 +94,7 @@ public class TrackerController {
 			RealPoint2D position;
 			double x,y,th;
 			for (int i = 0; i < sonarReadings.length; i++){
-				if (!Double.isInfinite(sonarReadings[i])){
+				if (SonarController.isWithinRange(sonarReadings[i])){
 					th = i * 22.5*Units.degToRad;
 					x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 					y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);

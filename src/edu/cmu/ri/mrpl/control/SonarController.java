@@ -94,10 +94,10 @@ public class SonarController {
 		}
 		return sum / sonars.length;
 	}
-	private boolean isOutOfRange(double sonarVal){
+	static boolean isOutOfRange(double sonarVal){
 		return (sonarVal > SONAR_RANGE) ? true : false;
 	}
-	private boolean isWithinRange (double sonarVal){
+	static boolean isWithinRange (double sonarVal){
 		return (sonarVal < SONAR_RANGE) ? true:false;
 	}
 	public int getPositionShortestSonar(){

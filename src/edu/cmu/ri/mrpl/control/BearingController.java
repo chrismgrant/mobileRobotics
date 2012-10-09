@@ -39,7 +39,7 @@ public class BearingController {
 		xError = 0;
 		yError = 0;
 		thError = 0;
-        distLastUpdate = 0;
+        distLastUpdate = UPDATE_DISTANCE - .1;
         initPose = robotInit.clone();
         lastPose = initPose.clone();
 		double x,y,th;
