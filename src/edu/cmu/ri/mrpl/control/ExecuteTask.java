@@ -184,6 +184,9 @@ public class ExecuteTask implements Runnable{
 						taskComplete = true;
                         currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
                         while (!isInThreshold(currentError, ArgType.ANGLE)) {
+                            robot.updateState();
+                            robot.getSonars(sonars);
+                            parent.updateControllers(sonars);
                             currentError = Angle.normalize(pthArg.get(i).getTh() + initPose.getTh() - parent.bac.getMazePose().getTh());
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
                             parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
