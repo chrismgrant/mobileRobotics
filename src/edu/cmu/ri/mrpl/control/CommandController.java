@@ -169,9 +169,9 @@ public class CommandController {
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
             robots.add(null);
-            if (lastDistance == 0) {
+//            if (lastDistance == 0) {
                 bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-            }
+//            }
             vc.updateRobotPos(pointsConsole, bac.getMazePose());
             vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             vc.updateVisualizer(pointsConsole, robot);

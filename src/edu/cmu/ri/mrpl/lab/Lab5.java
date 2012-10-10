@@ -61,7 +61,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	private VisualizeController vc;
 	private BehaviorController bvc;
 	
-	private ReactTask reactTask;
+	private GradientTask gradientTask;
 	private LocalizeTask sonarTask;
 	private MapLocalizationTask bothTask;
 
@@ -75,7 +75,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		reactButton = new JButton("Run Reactive Wander!");
+		reactButton = new JButton("Run Gradient Test!");
 		sonarButton = new JButton("Run Visualizer!");
 		bothButton = new JButton("Run Stateful Wander!");
 		stopButton = new JButton(">> stop <<");
@@ -192,7 +192,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		// PMF: End new code for Points console
 		
 		// construct tasks
-		reactTask = new ReactTask(this);
+		gradientTask = new GradientTask(this);
 		sonarTask = new LocalizeTask(this);
 		bothTask = new MapLocalizationTask(this);
 
@@ -294,7 +294,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 		} else if ( source==quitButton ) {
 			quit();
 		} else if ( source==reactButton ) {
-			(new Thread(reactTask)).start();
+			(new Thread(gradientTask)).start();
 		} else if ( source==sonarButton ) {
 			(new Thread(sonarTask)).start();
 		} else if ( source==bothButton ) {
@@ -332,40 +332,24 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 	// as Tasks
 	//
 
-	class ReactTask extends Task {
+	class GradientTask extends Task {
 
-		ReactTask(TaskController tc) {
+        CommandController cc;
+
+		GradientTask(TaskController tc) {
 			super(tc);
-//			pf = new PathFinder();
 		}
 
 		public void taskRun() {
 			robot.turnSonarsOn();
 
-			double[] sonars = new double[16];
-			double near = 1;
-			double avel = 0, lvel = 0, front, left, right,speed = .6, vision = 1.2;
+            cc = new CommandController(robot, pc);
+//            cc.addCommandFromFile("in.txt");
+
 			while(!shouldStop()) {
-				robot.updateState();
-				robot.getSonars(sonars);
-				front = soc.getFrontReadings(sonars);
-				left = soc.getLeftReadings(sonars);
-				right = soc.getRightReadings(sonars);
-//				pf.get(pf.size()-1);
-				
-				right = (right < vision)? right/vision*speed : speed;
-				front = (front < vision /2)? speed-(speed*front/(vision/2)):0;
-				front = (right < left) ? -front/2 : front/2;
-				left = (left < vision)? left/vision*speed : speed;
-
-				System.out.println("right: "+right+" left: "+left+" front: "+front);
-
-				wc.setWheelVel(right + front, left-front);
-				wc.updateWheels(robot, bc.isBumped(robot));
-				
-
+                cc.execute();
 				try {
-					Thread.sleep(50);
+					Thread.sleep(100);
 				} catch(InterruptedException iex) {
 					System.out.println("sample program sleep interrupted");
 				}

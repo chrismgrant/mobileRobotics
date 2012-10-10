@@ -106,4 +106,7 @@ public class Tracker {
 	public void updateRobotCoords(RealPose2D delta){
 		robotCoord = Convert.inverseMultiply(delta, new RealPose2D(robotCoord.getX(),robotCoord.getY(),0)).getPosition();
 	}
+    public String toString() {
+        return robotCoord.toString();
+    }
 }

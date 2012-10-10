@@ -110,10 +110,12 @@ public class ExecuteTask implements Runnable{
 			break;
 		}
 		}
-		st = new SpeechController(this,speech);
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {}
+        if (!speech.isEmpty()) {
+            st = new SpeechController(this,speech);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {}
+        }
 		t.start();
 	}
 	

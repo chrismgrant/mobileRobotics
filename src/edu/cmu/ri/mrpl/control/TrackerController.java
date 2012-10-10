@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import fj.data.List;
+
+import static fj.data.List.fromString;
 import static fj.data.List.list;
 
 import fj.F;
@@ -89,7 +91,7 @@ public class TrackerController {
 	 * @param sonarReadings standard 16-array of sonar readings
 	 */
 	public void addTrackersFromSonar(double totalDistance, double[] sonarReadings){
-        if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
+//        if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
 			newTrackers = list();
 			RealPoint2D position;
 			double x,y,th;
@@ -104,7 +106,7 @@ public class TrackerController {
 			    }
             }
             lastSonarRecordDistance = totalDistance;
-		}
+//		}
 	}
 	/**
 	 * Adds a tracker to the tracking list
@@ -133,6 +135,10 @@ public class TrackerController {
             trackers = trackers.append(newTrackers);
             newTrackers = list();
         }
+        for (Tracker t : trackers) {
+            System.out.print(t.toString());
+        }
+        System.out.println();
 	}
     private class PointCloudKey {
         int x, y;
@@ -181,6 +187,7 @@ public class TrackerController {
         }
         System.out.println("Filtered "+filteredTrackers.length()+" trackers.");
 
+        System.out.println("PointError: "+getPointError(oldMazePose));
 		//Compute gradient
 		double dx, dy, dth;
 		dx = oldMazePose.getX()+EPSILON;
