@@ -26,22 +26,53 @@ public class MotionPlanController {
         MazeState mazeState;
         Path pathToState;
         String dirToState;
-        MazeStateNode(MazeState mazeState, Path path) {
+        MazeStateNode(MazeState mazeState, Path path, String directionsToState) {
             this.mazeState = mazeState;
             this.pathToState = path;
+            dirToState = directionsToState;
         }
 
         int getDistance() {
             return pathToState.size();
         }
+
+        MazeStateNode getNext(MazeWorld.Direction next) {
+            MazeState nextMazeState;
+            switch (next) {
+                case North:
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y()+1, MazeWorld.Direction.North);
+                    break;
+                case East:
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x()+1,mazeState.y(), MazeWorld.Direction.East);
+                    break;
+                case South:
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y()-1, MazeWorld.Direction.South);
+                    break;
+                case West:
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x()-1,mazeState.y(), MazeWorld.Direction.West);
+                    break;
+                default:
+                    nextMazeState = null;
+            }
+            Path nextPath = (Path)pathToState.clone();
+            nextPath.add(Convert.MazeStateToRealPose(mazeState));
+
+            String nextAction = "";
+            if (mazeState.dir().left() == next) {
+                nextAction = "L ";
+            }
+            if (mazeState.dir().right() == next) {
+                nextAction = "R ";
+            }
+            if (mazeState.dir() == next) {
+                nextAction = "G ";
+            }
+            String nextDirToState = dirToState.concat(nextAction);
+
+            return new MazeStateNode(nextMazeState,nextPath,nextDirToState);
+        }
     }
 
-    List<MazeState> getNeighbors(MazeState mazeState) {
-        List<MazeState> neighbors = new ArrayList<MazeState>();
-        //TODO complete
-
-        return neighbors;
-    }
 
     public Path searchForPath() {
         return searchForPath((MazeState)(mazeWorld.getInits().toArray())[0]);
@@ -50,6 +81,7 @@ public class MotionPlanController {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
         Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
 
+        nextNodes.push(new MazeStateNode(initState,new Path(),""));
         while (!nextNodes.empty()) {
             //TODO complete
         }

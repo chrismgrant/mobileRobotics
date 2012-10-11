@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
+import edu.cmu.ri.mrpl.maze.MazeState;
 import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 public final class Convert {
@@ -115,6 +116,29 @@ public final class Convert {
 	public static RealPose2D getRobotPose(Robot r){
 		return new RealPose2D(r.getPosX(),r.getPosY(),r.getHeading());
 	}
+
+    public static RealPose2D MazeStateToRealPose(MazeState state) {
+        int dir;
+        switch (state.dir()) {
+            case East:
+                dir = 0;
+                break;
+            case North:
+                dir = 1;
+                break;
+            case West:
+                dir = 2;
+                break;
+            case South:
+                dir = 3;
+                break;
+            default:
+                dir = -1;
+                System.out.print("Warning: Converting illegal state direction.");
+                break;
+        }
+        return new RealPose2D(mazeUnitToMeter(state.x()),mazeUnitToMeter(state.y()),mazeDirectionToRadian(dir));
+    }
 	
 	/**
 	 * 
