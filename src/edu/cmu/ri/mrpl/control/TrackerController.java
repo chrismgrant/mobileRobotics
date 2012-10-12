@@ -90,7 +90,7 @@ public class TrackerController {
 	 * @param sonarReadings standard 16-array of sonar readings
 	 */
 	public void addTrackersFromSonar(double totalDistance, double[] sonarReadings){
-//        if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
+        if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
 			newTrackers = List.list();
 			RealPoint2D position;
 			double x,y,th;
@@ -105,7 +105,7 @@ public class TrackerController {
 			    }
             }
             lastSonarRecordDistance = totalDistance;
-//		}
+		}
 	}
 	/**
 	 * Adds a tracker to the tracking list
@@ -230,14 +230,8 @@ public class TrackerController {
 				double distance, minDistance;
                 Point2D holder = new Point2D.Double();
                 RealPoint2D worldPoint;
-				minDistance = Double.POSITIVE_INFINITY;
                 worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
-//                for (int i = 0; i < 4; i++){
-////					distance = LineSegment.closestPointOnLineSegment(border[i], Convert.WRTWorld(inputPose, t.getRPoint()), holder);
-//					if (distance < minDistance) {
-//						minDistance = distance;
-//					}
-//				}
+
                 distance = Math.min(Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2),
                         Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters));
 

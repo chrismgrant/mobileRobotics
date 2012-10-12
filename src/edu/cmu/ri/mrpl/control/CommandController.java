@@ -49,6 +49,8 @@ public class CommandController {
     PrintWriter outRoboEncode;
     PrintWriter outRoboMaze;
     PrintWriter outFollowTracker;
+    PrintWriter outTrackMaze;
+    PrintWriter outTrackRob;
 
     /**
 	 * Initializes a new CommandController
@@ -83,11 +85,15 @@ public class CommandController {
                 FileWriter outFileRoboE = new FileWriter("TrackRoboEn");
                 FileWriter outFileRoboM = new FileWriter("TrackRoboMa");
                 FileWriter outFileFollowTracker = new FileWriter("TrackFollowData");
+                FileWriter outFileTrackMaze = new FileWriter("TrackOutMaze.txt");
+                FileWriter outFileTrackRob = new FileWriter("TrackOutRob.txt");
 
                 outRobo = new PrintWriter(outFileRobo);
                 outRoboEncode = new PrintWriter(outFileRoboE);
                 outRoboMaze = new PrintWriter(outFileRoboM);
                 outFollowTracker = new PrintWriter(outFileFollowTracker);
+                outTrackMaze = new PrintWriter(outFileTrackMaze);
+                outTrackRob = new PrintWriter(outFileTrackMaze);
             } catch (IOException e) {}
         }
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
@@ -169,9 +175,21 @@ public class CommandController {
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
             robots.add(null);
-//            if (lastDistance == 0) {
+            if (lastDistance == 0) {
                 bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-//            }
+                if (DEBUGFLAG) {
+                    outTrackMaze.print("Gradient input: {");
+                    for (RealPoint2D p : trc.getAllTrackerWPos(bac.getMazePose())){
+                        outTrackMaze.print("{"+p.getX()+","+p.getY()+"},");
+                    }
+                    outTrackMaze.println("}");
+                    outTrackRob.print("Gradient input: {");
+                    for (RealPoint2D p : trc.getAllTrackerWPos(Convert.getRobotPose(robot))){
+                        outTrackRob.print("{"+p.getX()+","+p.getY()+"},");
+                    }
+                    outTrackRob.println("}");
+                }
+            }
             vc.updateRobotPos(pointsConsole, bac.getMazePose());
             vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             vc.updateVisualizer(pointsConsole, robot);
@@ -191,6 +209,16 @@ public class CommandController {
             outRobo.println(BearingController.getRPose(robot).toString());
             outRoboEncode.println(Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot)).toString());
             outRoboMaze.println(bac.getMazePose().toString());
+            outTrackMaze.print("{");
+            for (RealPoint2D p : trc.getAllTrackerWPos(bac.getMazePose())){
+                outTrackMaze.print("{"+p.getX()+","+p.getY()+"},");
+            }
+            outTrackMaze.println("}");
+            outTrackRob.print("{");
+            for (RealPoint2D p : trc.getAllTrackerWPos(Convert.getRobotPose(robot))){
+                outTrackRob.print("{"+p.getX()+","+p.getY()+"},");
+            }
+            outTrackRob.println("}");
         }
 
 	}
