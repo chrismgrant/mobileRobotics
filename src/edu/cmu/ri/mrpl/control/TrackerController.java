@@ -129,15 +129,12 @@ public class TrackerController {
                 return t;
             }
         });
+        last = newPose;
 //		System.out.println(newTrackers.length());
         if (newTrackers.length() > 0) {
             trackers = trackers.append(newTrackers);
             newTrackers = List.list();
         }
-        for (Tracker t : trackers) {
-            System.out.print(t.toString());
-        }
-        System.out.println();
 	}
     private class PointCloudKey {
         int x, y;
