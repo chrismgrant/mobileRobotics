@@ -93,7 +93,7 @@ public class CommandController {
                 outRoboMaze = new PrintWriter(outFileRoboM);
                 outFollowTracker = new PrintWriter(outFileFollowTracker);
                 outTrackMaze = new PrintWriter(outFileTrackMaze);
-                outTrackRob = new PrintWriter(outFileTrackMaze);
+                outTrackRob = new PrintWriter(outFileTrackRob);
             } catch (IOException e) {}
         }
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
