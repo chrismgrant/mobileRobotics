@@ -238,6 +238,8 @@ public class CommandController {
         outRoboEncode.close();
         outRoboMaze.close();
         outFollowTracker.close();
+        outTrackMaze.close();
+        outTrackRob.close();
 		exe.halt();
 		System.out.println("Halt sent");
 	}
