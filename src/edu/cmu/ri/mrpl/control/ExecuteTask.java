@@ -70,7 +70,7 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-			pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
+			pthArg = parent.bhc.refinePath(parent.bac.getInitMazePose(),arg.path);
             System.out.println(pthArg.toString());
 			isContinuous = true;
 			speech = "Following path.";
@@ -110,10 +110,12 @@ public class ExecuteTask implements Runnable{
 			break;
 		}
 		}
-		st = new SpeechController(this,speech);
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {}
+        if (!speech.isEmpty()) {
+            st = new SpeechController(this,speech);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {}
+        }
 		t.start();
 	}
 	
