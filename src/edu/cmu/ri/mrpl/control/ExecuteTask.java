@@ -70,7 +70,7 @@ public class ExecuteTask implements Runnable{
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-			pthArg = parent.bhc.refinePath(parent.bac.getInitPose(),arg.path);
+			pthArg = parent.bhc.refinePath(parent.bac.getInitMazePose(),arg.path);
             System.out.println(pthArg.toString());
 			isContinuous = true;
 			speech = "Following path.";
