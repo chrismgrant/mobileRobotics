@@ -43,7 +43,7 @@ public class TrackerController {
 	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .0001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = 1;
+    private static final double UPDATE_DISTANCE = .1;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -122,7 +122,7 @@ public class TrackerController {
 	 */
 	public void updateTrackers(RealPose2D newPose){
 		//Update robot positions of old trackers
-        final RealPose2D delta = Convert.inverseMultiply(last,newPose);
+        final RealPose2D delta = Convert.inverseMultiply(last,newPose).inverse();
 		trackers = trackers.map(new F<Tracker,Tracker>() {
             public Tracker f(Tracker t) {
                 t.updateRobotCoords(delta);
@@ -286,6 +286,11 @@ public class TrackerController {
 			}
 		});
 	}
+
+    /**
+     * Gets all filtered tracker positions relative to robot
+     * @return fj's List of RealPoint2D, relative to robot
+     */
     public List<RealPoint2D> getFilteredTrackerRPos(){
         return filteredTrackers.map(new F<Tracker, RealPoint2D>() {
             @Override
@@ -294,12 +299,22 @@ public class TrackerController {
             }
         });
     }
+    /**
+     * Gets all filtered tracker positions relative to world
+     * @return fj's List of RealPoint2D
+     */
+    public List<RealPoint2D> getFilteredTrackerWPos(final RealPose2D robotPose){
+        return filteredTrackers.map(new F<Tracker, RealPoint2D>() {
+            public RealPoint2D f(Tracker t){
+                return Convert.WRTWorld(robotPose, t.getRPoint());
+            }
+        });
+    }
 	/**
 	 * Gets all tracker positions relative to world
 	 * @return fj's List of RealPoint2D 
 	 */
 	public List<RealPoint2D> getAllTrackerWPos(final RealPose2D robotPose){
-
 		return trackers.map(new F<Tracker, RealPoint2D>() {
 			public RealPoint2D f(Tracker t){
 				return Convert.WRTWorld(robotPose, t.getRPoint());
