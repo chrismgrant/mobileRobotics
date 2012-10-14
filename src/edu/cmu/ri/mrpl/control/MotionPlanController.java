@@ -88,6 +88,7 @@ public class MotionPlanController {
             if (!visitedPositions.contains(currentNode.mazeState.pos())){
             	visitedPositions.add(currentNode.mazeState.pos());
             	nextStates.add(currentNode.mazeState);
+            	//need something indicative of a goal state to conduct check
             }
         }
         
