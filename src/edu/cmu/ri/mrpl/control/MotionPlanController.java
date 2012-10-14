@@ -80,11 +80,18 @@ public class MotionPlanController {
     public Path searchForPath(MazeState initState) {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
         Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
-
+        Set<MazeState> nextStates = new HashSet<MazeState>();
         nextNodes.push(new MazeStateNode(initState,new Path(),""));
+        Set <MazeState> neighborsSet = new HashSet<MazeState>();
         while (!nextNodes.empty()) {
-            //TODO complete
+        	MazeStateNode currentNode = nextNodes.pop();
+            if (!visitedPositions.contains(currentNode.mazeState.pos())){
+            	visitedPositions.add(currentNode.mazeState.pos());
+            	nextStates.add(currentNode.mazeState);
+            	//need something indicative of a goal state to conduct check
+            }
         }
+        
         return null;
     }
 
