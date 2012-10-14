@@ -106,6 +106,9 @@ public class TrackerController {
             }
             lastSonarRecordDistance = totalDistance;
 		}
+        if (trackers.length() > 100000) {
+            System.out.println("### WARNING: OVER 100000 TRACKERS STORED ###");
+        }
 	}
 	/**
 	 * Adds a tracker to the tracking list
@@ -177,7 +180,7 @@ public class TrackerController {
         //Filter pointCloud
         for (Map.Entry<PointCloudKey, Integer> e : pointCloud.entrySet()){
             if (e.getValue() >= TRACKER_MIN_COUNT){
-                tempPoint = new RealPoint2D(e.getKey().x,e.getKey().y);
+                tempPoint = new RealPoint2D(e.getKey().x/pow,e.getKey().y/pow);
                 filteredTrackers = filteredTrackers.cons(new Tracker(tempPoint));
             }
         }
@@ -197,7 +200,7 @@ public class TrackerController {
         System.out.println("NewError: "+getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)));
         System.out.println("OldError: "+getPointError(oldMazePose));
         System.out.print("dth: "+dth);
-        System.out.print(", oth: "+oldMazePose.getRotateTheta());
+        System.out.println(", oth: "+oldMazePose.getRotateTheta());
 		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
 				getPointError(oldMazePose))/(EPSILON/Math.PI);
         System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");

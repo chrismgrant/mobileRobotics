@@ -12,6 +12,7 @@ import edu.cmu.ri.mrpl.CommandSequence;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
+import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
 
 
@@ -181,6 +182,7 @@ public class CommandController {
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
             robots.add(null);
+            vc.updateRobotPos(pointsConsole, bac.getMazePose());
             if (lastDistance == 0) {
                 if (DEBUGFLAG) {
                     outTrackMaze.print("Gradient input: {");
@@ -207,9 +209,8 @@ public class CommandController {
                     }
                     outTrackFRob.println("}");
                 }
+                vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             }
-            vc.updateRobotPos(pointsConsole, bac.getMazePose());
-            vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             vc.updateVisualizer(pointsConsole, robot);
 
             robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
