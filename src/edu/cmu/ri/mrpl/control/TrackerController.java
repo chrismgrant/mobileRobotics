@@ -125,7 +125,7 @@ public class TrackerController {
 	 */
 	public void updateTrackers(RealPose2D newPose){
 		//Update robot positions of old trackers
-        final RealPose2D delta = Convert.inverseMultiply(last,newPose).inverse();
+        final RealPose2D delta = Convert.inverseMultiply(last,newPose);
 		trackers = trackers.map(new F<Tracker,Tracker>() {
             public Tracker f(Tracker t) {
                 t.updateRobotCoords(delta);
