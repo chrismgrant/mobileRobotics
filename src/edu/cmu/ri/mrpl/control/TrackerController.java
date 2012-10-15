@@ -129,7 +129,6 @@ public class TrackerController {
         final RealPose2D forwardDelta = Convert.inverseMultiply(last,newPose);
 		trackers.foreach(new Effect<Tracker>() {
             public void e(Tracker t) {
-                System.out.println(forwardDelta.toString());
                 t.updateRobotCoords(forwardDelta);
             }
         });
