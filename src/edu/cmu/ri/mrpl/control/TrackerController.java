@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import fj.Effect;
 import fj.data.List;
 
 import static fj.data.List.fromString;
@@ -125,11 +126,11 @@ public class TrackerController {
 	 */
 	public void updateTrackers(RealPose2D newPose){
 		//Update robot positions of old trackers
-        final RealPose2D delta = Convert.inverseMultiply(last,newPose);
-		trackers = trackers.map(new F<Tracker,Tracker>() {
-            public Tracker f(Tracker t) {
-                t.updateRobotCoords(delta);
-                return t;
+        final RealPose2D forwardDelta = Convert.inverseMultiply(last,newPose);
+		trackers.foreach(new Effect<Tracker>() {
+            public void e(Tracker t) {
+                System.out.println(forwardDelta.toString());
+                t.updateRobotCoords(forwardDelta);
             }
         });
         last = newPose;
@@ -227,15 +228,9 @@ public class TrackerController {
 	private double getPointError(final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
-				double distance, minDistance;
-                Point2D holder = new Point2D.Double();
-                RealPoint2D worldPoint;
-                worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
-
-                distance = Math.min(Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2),
+                RealPoint2D worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
+                return Math.min(Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2),
                         Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters));
-
-                return distance;
 			}
 		});
 //        for (Double d : offsets){

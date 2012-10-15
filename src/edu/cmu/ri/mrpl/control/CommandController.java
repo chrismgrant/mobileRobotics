@@ -176,7 +176,7 @@ public class CommandController {
 
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
-        trc.updateTrackers(bac.getDeltaPose());
+        trc.updateTrackers(bac.getMazePose());
 
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);

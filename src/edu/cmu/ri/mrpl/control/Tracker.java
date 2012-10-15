@@ -27,7 +27,7 @@ public class Tracker {
 	 * @param robotPos Position of tracker relative to robot
 	 */
 	public void updatePos(RealPoint2D robotPos){
-		robotCoord = (RealPoint2D) robotPos.clone();
+		robotCoord = new RealPoint2D(robotPos.getX(),robotPos.getY());
 		if (lost) {lost = false;}
 	}
 	public void lost(){
@@ -100,7 +100,7 @@ public class Tracker {
 		return newTh - oldTh;
 	}
 	/**
-	 * Updates the robot-centric coordinates given a delta pose
+	 * Updates the robot-centric coordinates given a forward delta pose
 	 * @param delta delta pose between robot poses
 	 */
 	public void updateRobotCoords(RealPose2D delta){
