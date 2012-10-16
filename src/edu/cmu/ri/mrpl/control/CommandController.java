@@ -261,7 +261,7 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
 		if (!exe.t.isAlive()){
 			getNext();
-			exe = new ExecuteTask(this, robot, active, bac.getRPoseWithError(robot));
+			exe = new ExecuteTask(this, robot, active, bac.getMazePose());
 		}
 	}
 	public synchronized void haltThread() {
