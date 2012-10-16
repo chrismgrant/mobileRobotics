@@ -166,6 +166,7 @@ public class BehaviorController {
 	
  	public static Path refinePath(RealPose2D initPose, Path l){
 		Path betterList = new Path();
+        System.out.println(l.toString());
 		ArrayList<Vector2D> newPoints = new ArrayList<Vector2D>();
 		RealPose2D newPoint, nextPoint, temp, startPoint = initPose.clone();
 		Line2D path = new Line2D.Float();
@@ -173,7 +174,9 @@ public class BehaviorController {
 		betterList.add(startPoint);
 		//Go through Each given point
 		for(int i = 0; i < l.size(); i++ ){
-            nextPoint = Convert.multiply(initPose, l.get(i));
+//            nextPoint = Convert.multiply(initPose, l.get(i));
+            nextPoint = l.get(i);
+            System.out.println("line from"+startPoint.toString()+"to "+nextPoint.toString());
 
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
@@ -181,11 +184,11 @@ public class BehaviorController {
 			while(LineSegment.radialPointsOnLineSegment(path, POINT_DIST, startPoint.getPosition(), newPoints)){
 				newPoint = new RealPose2D(newPoints.get(0).x,newPoints.get(0).y,startPoint.getTh());
 				betterList.add(newPoint);
-				startPoint = newPoint;
+				startPoint = newPoint.clone();
 				path.setLine(startPoint.getPosition(), nextPoint.getPosition());
 			}
 			betterList.add(nextPoint);
-			startPoint = nextPoint;
+			startPoint = nextPoint.clone();
 		}
 		return betterList;
 	}
