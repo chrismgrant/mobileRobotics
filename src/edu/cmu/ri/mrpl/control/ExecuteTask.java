@@ -169,7 +169,8 @@ public class ExecuteTask implements Runnable{
             for (int init = 0; init < INITIAL_SONARS; init++) {
                 robot.updateState();
                 robot.getSonars(sonars);
-                parent.trc.forceAddTrackersFromSonar(sonars);
+                parent.soc.updateSonars(sonars);
+                parent.trc.forceAddTrackersFromSonar(parent.soc.getSonarReadings());
                 parent.trc.updateTrackers(parent.bac.getMazePose());
                 try {
                     Thread.sleep(50);

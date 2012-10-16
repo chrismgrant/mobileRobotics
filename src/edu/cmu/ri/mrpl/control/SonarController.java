@@ -14,7 +14,7 @@ public class SonarController {
 	private int[] debounceBuffer;
 	private double[] avgSonars;
 	private NumberFormat filterFormat;
-	private static final double SONAR_RANGE = 1.2;//2.8
+	private static final double SONAR_RANGE = 1.0;//2.8
 	private static final double SONAR_TOLERANCE = 0.025;
 	private static final int SONAR_NOISE_FILTER = 8;
 	private static final double DEBOUNCE_TOLERANCE = 0.2;

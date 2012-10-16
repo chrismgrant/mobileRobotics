@@ -49,7 +49,7 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
 
     private RotateTask programTask;
     private ForwardTask sonarTask;
-    private TrackTask bothTask;
+    private SearchTask bothTask;
 
     private Task curTask = null;
 
@@ -63,7 +63,7 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
 
         rotateButton = new JButton("Run Rotate!");
         forwardButton = new JButton("Run Forward!");
-        bothButton = new JButton("Run Maze!");
+        bothButton = new JButton("Run Search!");
         stopButton = new JButton(">> stop <<");
         quitButton = new JButton(">> quit <<");
 
@@ -190,7 +190,7 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
         // construct tasks
         programTask = new RotateTask(this);
         sonarTask = new ForwardTask(this);
-        bothTask = new TrackTask(this);
+        bothTask = new SearchTask(this);
 
 
 
@@ -488,11 +488,11 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
         }
     }
 
-    class TrackTask extends Task {
+    class SearchTask extends Task {
 
         CommandController cc;
 
-        TrackTask(TaskController tc) {
+        SearchTask(TaskController tc) {
             super(tc);
         }
 
@@ -500,7 +500,6 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
 //			showSC();
             robot.turnSonarsOn();
             cc = new CommandController(robot, pc);
-            cc.addCommandFromFile("in.txt");
 
             try{
                 FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");

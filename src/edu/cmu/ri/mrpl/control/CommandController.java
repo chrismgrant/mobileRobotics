@@ -71,7 +71,7 @@ public class CommandController {
         soc = new SonarController();
         bc = new BumperController();
 
-        trc = new TrackerController(Convert.getRobotPose(robot) ,"in.maze");
+        trc = new TrackerController(Convert.getRobotPose(robot) ,"in2.maze");
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());

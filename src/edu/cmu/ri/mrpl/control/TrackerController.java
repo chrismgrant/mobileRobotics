@@ -248,8 +248,10 @@ public class TrackerController {
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
                 RealPoint2D worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
-                return Math.min(Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2),
-                        Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters));
+                double xerr = Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2);
+                double yerr = Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters/2);
+                return Math.min(xerr,yerr);
+
 			}
 		});
 //        for (Double d : offsets){

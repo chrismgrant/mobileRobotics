@@ -74,7 +74,7 @@ public class BearingController {
 	}
 
     public RealPose2D getInitMazePose(){
-        return initMazePose;
+        return initMazePose.clone();
     }
 	/**
 	 * Updates robot's pose using linear and angular velocity.
@@ -130,7 +130,7 @@ public class BearingController {
 	 * @return difference between last and this pose
 	 */
 	public synchronized RealPose2D getDeltaPose(){
-		return deltaPose;
+		return deltaPose.clone();
 	}
 	/**
 	 * Gets point of robot
@@ -258,6 +258,6 @@ public class BearingController {
 		return ret;
 	}
     public RealPose2D getInitPose(){
-        return initPose;
+        return initPose.clone();
     }
 }
