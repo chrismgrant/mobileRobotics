@@ -26,7 +26,9 @@ public class ExecuteTask implements Runnable{
 	private static final double DIST_THRESHOLD = .001;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
-	private static enum ArgType {DISTANCE, ANGLE};
+    private static final int INITIAL_SONARS = 50;
+
+    private static enum ArgType {DISTANCE, ANGLE};
 
 	private Robot robot;
     Thread t;
@@ -58,14 +60,14 @@ public class ExecuteTask implements Runnable{
      * @param p initial Pose at execution time
      */
 	public ExecuteTask(CommandController parentController, Robot r, Command c, RealPose2D p){
-            t = new Thread(this, "ExecuteTask");
+        t = new Thread(this, "ExecuteTask");
         active = c;
-            robot = r;
-            taskComplete = false;
-            running = true;
-            initPose = p;
-            parent = parentController;
-            isContinuous = c.isContinuous;
+        robot = r;
+        taskComplete = false;
+        running = true;
+        initPose = p;
+        parent = parentController;
+        isContinuous = c.isContinuous;
 		
 		switch (active.type){
 		case FOLLOWPATH: {
@@ -161,7 +163,21 @@ public class ExecuteTask implements Runnable{
 		boolean flag0 = false;
 		int i = 1;
 
-		while (running && !taskComplete){
+        for (int init = 0; init < INITIAL_SONARS; init++) {
+            robot.updateState();
+            robot.getSonars(sonars);
+            parent.trc.forceAddTrackersFromSonar(sonars);
+            parent.trc.updateTrackers(parent.bac.getMazePose());
+            try {
+                Thread.sleep(50);
+            } catch(InterruptedException iex) {
+                System.out.println("\"Both\" sleep interrupted");
+            }
+        }
+        parent.trc.getMazeCorrection(parent.bac.getMazePose());
+
+
+        while (running && !taskComplete){
 			// Loop header
 			robot.updateState();
 			robot.getSonars(sonars);

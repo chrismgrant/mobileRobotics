@@ -92,25 +92,31 @@ public class TrackerController {
 	 */
 	public void addTrackersFromSonar(double totalDistance, double[] sonarReadings){
         if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
-			newTrackers = List.list();
-			RealPoint2D position;
-			double x,y,th;
-			for (int i = 0; i < sonarReadings.length; i++){
-				if (SonarController.isWithinRange(sonarReadings[i])){
-					th = i * 22.5*Units.degToRad;
-					x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-					y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-					position = new RealPoint2D(x,y);
-					addTracker(position);
-				
-			    }
-            }
+			forceAddTrackersFromSonar(sonarReadings);
             lastSonarRecordDistance = totalDistance;
-		}
-        if (trackers.length() > 100000) {
-            System.out.println("### WARNING: OVER 100000 TRACKERS STORED ###");
         }
 	}
+
+    /**
+     * Adds trackers from 16 sonar readings regardless of last update
+     * @param sonarReadings standard 16-array of sonar readings
+     */
+    public void forceAddTrackersFromSonar(double[] sonarReadings) {
+        newTrackers = List.list();
+        RealPoint2D position;
+        double x,y,th;
+        for (int i = 0; i < sonarReadings.length; i++){
+            if (SonarController.isWithinRange(sonarReadings[i])){
+                th = i * 22.5*Units.degToRad;
+                x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+                position = new RealPoint2D(x,y);
+                addTracker(position);
+
+            }
+        }
+    }
+
 	/**
 	 * Adds a tracker to the tracking list
 	 * @param position Position of point relative to robot
@@ -120,7 +126,7 @@ public class TrackerController {
 		newTrackers = newTrackers.cons(newTracker);
 	}
 	/**
-	 * Update tracker states. Removes any beyond decay time.
+	 * Update tracker states.
 	 * Call after other TC setter methods to apply updates.
      * @param newPose deltaPose between robot's last pose and current pose.
 	 */
@@ -138,7 +144,8 @@ public class TrackerController {
             trackers = trackers.append(newTrackers);
             newTrackers = List.list();
         }
-	}
+    }
+
     private class PointCloudKey {
         int x, y;
         PointCloudKey(int x, int y) {

@@ -76,10 +76,14 @@ public class CommandController {
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
-        Path executePath = mpc.searchForPath(trc.getMazeInit());
+        if (false) {
+            Path executePath = mpc.searchForPath(trc.getMazeInit());
 
-        Command.PathArgument pArg = new Command.PathArgument(executePath);
-        addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+            Command.PathArgument pArg = new Command.PathArgument(executePath);
+            addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+        }
+
+
 
         robot = r;
 
