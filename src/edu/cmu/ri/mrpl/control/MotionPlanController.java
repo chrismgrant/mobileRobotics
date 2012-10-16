@@ -80,19 +80,37 @@ public class MotionPlanController {
     public Path searchForPath(MazeState initState) {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
         Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
-        Set<MazeState> nextStates = new HashSet<MazeState>();
         nextNodes.push(new MazeStateNode(initState,new Path(),""));
-        Set <MazeState> neighborsSet = new HashSet<MazeState>();
+        ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
+        Path resultPath = new Path();
         while (!nextNodes.empty()) {
         	MazeStateNode currentNode = nextNodes.pop();
-            if (!visitedPositions.contains(currentNode.mazeState.pos())){
-            	visitedPositions.add(currentNode.mazeState.pos());
-            	nextStates.add(currentNode.mazeState);
-            	//need something indicative of a goal state to conduct check
-            }
+        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
+        	}
+        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnLeft)).equals((currentNode.mazeState))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
+        	}
+        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnRight)).equals((currentNode.mazeState))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
+        	}
+
+        	for (int i = 0; i < neighborsSet.size(); i++){
+        		 if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
+                 	visitedPositions.add(neighborsSet.get(i).mazeState.pos());
+                 	if (mazeWorld.atGoal(neighborsSet.get(i).mazeState)){
+                 		resultPath = neighborsSet.get(i).pathToState;
+                 		System.out.println(neighborsSet.get(i).dirToState);
+                 		return resultPath;
+                 	}
+                 	else{
+                 		nextNodes.add(neighborsSet.get(i));
+                 	}
+                 }
+        	}
+        	neighborsSet.clear();
         }
-        
-        return null;
+        return resultPath;
     }
 
 }
