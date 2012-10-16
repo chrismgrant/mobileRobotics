@@ -171,11 +171,7 @@ public class ExecuteTask implements Runnable{
             robot.getSonars(sonars);
             parent.trc.forceAddTrackersFromSonar(sonars);
             parent.trc.updateTrackers(parent.bac.getMazePose());
-//            if (i < INITIAL_SONARS) {
-//                robot.setVel(.02,-.02);
-//            } else {
-//                robot.setVel(-.02,0.2);
-//            }
+
             try {
                 Thread.sleep(50);
             } catch(InterruptedException iex) {
