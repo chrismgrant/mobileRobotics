@@ -1,5 +1,6 @@
 package edu.cmu.ri.mrpl.control;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.cmu.ri.mrpl.kinematics2D.*;
 import fj.Effect;
 import fj.data.List;
 
@@ -15,10 +17,6 @@ import static fj.data.List.fromString;
 import fj.F;
 import fj.F2;
 
-import edu.cmu.ri.mrpl.kinematics2D.Angle;
-import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
-import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
-import edu.cmu.ri.mrpl.kinematics2D.Units;
 import edu.cmu.ri.mrpl.maze.MazeState;
 import edu.cmu.ri.mrpl.maze.MazeWorld;
 
@@ -180,14 +178,16 @@ public class TrackerController {
         RealPoint2D tempPoint;
         Map<PointCloudKey,Integer> pointCloud = new HashMap<PointCloudKey,Integer>();
         filteredTrackers = List.list();
-
+        Line2D[] border = getBorder(oldMazePose);
         //Add trackers to point cloud
         for (Tracker t : trackers){
-            p = new PointCloudKey(t);
-            if (pointCloud.containsKey(p)){
-                pointCloud.put(p, pointCloud.get(p)+1);
-            } else {
-                pointCloud.put(p, 1);
+            if (isClose(border, oldMazePose, t)) {
+                p = new PointCloudKey(t);
+                if (pointCloud.containsKey(p)){
+                    pointCloud.put(p, pointCloud.get(p)+1);
+                } else {
+                    pointCloud.put(p, 1);
+                }
             }
         }
         System.out.print(pointCloud.size()+" trackers total, ");
@@ -229,6 +229,33 @@ public class TrackerController {
         lastSonarRecordDistance = 0;
         return nextPose;
 	}
+
+    private boolean isClose(Line2D[] border, RealPose2D robotPose, Tracker t) {
+        double distance, minDistance = Double.POSITIVE_INFINITY;
+        Point2D holder = new Point2D.Double();
+        for (Line2D l : border) {
+            distance = LineSegment.closestPointOnLineSegment(l,Convert.WRTWorld(robotPose, t.getRPoint()),holder);
+            if (distance < minDistance) {
+                minDistance = distance;
+            }
+        }
+        return Math.sqrt(minDistance) < .18;
+    }
+
+    private Line2D[] getBorder(final RealPose2D mazePose) {
+        Line2D[] border = new Line2D[4];
+        double half = T9inchesToMeters / 2;
+        double x = mazePose.getX(), y = mazePose.getY();
+        double ex = (x + half) % T9inchesToMeters, ey = (y + half) % T9inchesToMeters;
+        double x1 = x - ex, y1 = y - ey;
+        double x2 = x1 + T9inchesToMeters, y2 = y1 + T9inchesToMeters;
+        border[0] = new Line2D.Double(x1,y1,x1,y2);
+        border[1] = new Line2D.Double(x1,y1,x2,y1);
+        border[2] = new Line2D.Double(x1,y2,x2,y2);
+        border[3] = new Line2D.Double(x2,y1,x2,y2);
+        return border;
+    }
+
     private double[] getGradient(RealPose2D pose) {
         double[] gradient = new double[3];
         double dx, dy, dth;
