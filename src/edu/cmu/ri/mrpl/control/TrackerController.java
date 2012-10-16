@@ -39,8 +39,8 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final double PRECISION = 0;
-	private static final int TRACKER_MIN_COUNT = 2;
+    private static final double PRECISION = 3;
+	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = .01;
@@ -277,7 +277,8 @@ public class TrackerController {
                 RealPoint2D worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
                 double xerr = Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2);
                 double yerr = Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters/2);
-                return xerr*yerr;
+                if (xerr - yerr < .1) return 0.0;
+                return Math.pow(Math.min(xerr,yerr),2);
 
 			}
 		});
@@ -285,12 +286,18 @@ public class TrackerController {
 //            System.out.print(d+",");
 //        }
 //        System.out.println(offsets.length());
+        offsets = offsets.filter(new F<Double, Boolean>() {
+            @Override
+            public Boolean f(Double aDouble) {
+                return (aDouble==0.0)?false:true;
+            }
+        });
 		Double error = offsets.foldRight(new F2<Double,Double,Double>(){
 			public Double f(Double a, Double b){
 				return a+b;
 			}
 		}, 0.0);
-		return error;
+		return Math.sqrt(error/offsets.length());
 	}
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.

@@ -165,7 +165,7 @@ public class ExecuteTask implements Runnable{
 		boolean flag0 = false;
 		int i = 1;
         boolean debugFlag = true;
-        if (active.type == Command.Type.FOLLOWPATH) {
+        if (active.type == Command.Type.FOLLOWPATH && false) {
             for (int init = 0; init < INITIAL_SONARS; init++) {
                 robot.updateState();
                 robot.getSonars(sonars);
