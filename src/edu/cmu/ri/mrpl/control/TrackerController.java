@@ -40,11 +40,11 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final double PRECISION = 3;
-	private static final int TRACKER_MIN_COUNT = 1;
-	private static final double EPSILON = .0001;
+    private static final double PRECISION = 2;
+	private static final int TRACKER_MIN_COUNT = 2;
+	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = .05;
+    private static final double UPDATE_DISTANCE = .01;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -148,9 +148,12 @@ public class TrackerController {
 
     private class PointCloudKey {
         int x, y;
-        PointCloudKey(int x, int y) {
-            this.x = x;
-            this.y = y;
+        Tracker t;
+        PointCloudKey(Tracker tracker) {
+            t = tracker;
+            double pow = Math.pow(10.0,PRECISION);
+            x = (int)(t.getX() / T9inchesToMeters * pow);
+            y = (int)(t.getY() / T9inchesToMeters * pow);
         }
         boolean equals(PointCloudKey other) {
             return (x == other.x && y == other.y);
@@ -171,12 +174,9 @@ public class TrackerController {
         Map<PointCloudKey,Integer> pointCloud = new HashMap<PointCloudKey,Integer>();
         filteredTrackers = List.list();
 
-        //Add trackers to pointcloud
-        double pow = Math.pow(10.0,PRECISION);
+        //Add trackers to point cloud
         for (Tracker t : trackers){
-            x = ((int)(t.getX()*pow));
-            y = ((int)(t.getY()*pow));
-            p = new PointCloudKey(x,y);
+            p = new PointCloudKey(t);
             if (pointCloud.containsKey(p)){
                 pointCloud.put(p, pointCloud.get(p)+1);
             } else {
@@ -187,8 +187,7 @@ public class TrackerController {
         //Filter pointCloud
         for (Map.Entry<PointCloudKey, Integer> e : pointCloud.entrySet()){
             if (e.getValue() >= TRACKER_MIN_COUNT){
-                tempPoint = new RealPoint2D(e.getKey().x/pow,e.getKey().y/pow);
-                filteredTrackers = filteredTrackers.cons(new Tracker(tempPoint));
+                filteredTrackers = filteredTrackers.cons(e.getKey().t);
             }
         }
         System.out.println("Filtered "+filteredTrackers.length()+" trackers.");
