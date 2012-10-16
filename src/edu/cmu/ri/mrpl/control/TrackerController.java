@@ -207,7 +207,7 @@ public class TrackerController {
         double nextError = getPointError(nextPose);
         double dx = 0, dy = 0, dth = 0;
         double[] gradient;
-        while (nextError < lastError) {
+        while (lastError - nextError > 0.0005) {
             lastError = nextError;
             gradient = getGradient(nextPose);
 

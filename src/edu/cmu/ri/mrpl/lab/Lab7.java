@@ -324,7 +324,7 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
     public static void main(String[] argv) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new Lab6();
+                new Lab7();
             }
         });
     }
