@@ -165,37 +165,33 @@ public class ExecuteTask implements Runnable{
 		boolean flag0 = false;
 		int i = 1;
         boolean debugFlag = true;
-
-        for (int init = 0; init < INITIAL_SONARS; init++) {
-            robot.updateState();
-            robot.getSonars(sonars);
-            parent.trc.forceAddTrackersFromSonar(sonars);
-            parent.trc.updateTrackers(parent.bac.getMazePose());
-//            if (i < INITIAL_SONARS) {
-//                robot.setVel(.02,-.02);
-//            } else {
-//                robot.setVel(-.02,0.2);
-//            }
-            try {
-                Thread.sleep(50);
-            } catch(InterruptedException iex) {
-                System.out.println("\"Both\" sleep interrupted");
+        if (active.type == Command.Type.FOLLOWPATH) {
+            for (int init = 0; init < INITIAL_SONARS; init++) {
+                robot.updateState();
+                robot.getSonars(sonars);
+                parent.trc.forceAddTrackersFromSonar(sonars);
+                parent.trc.updateTrackers(parent.bac.getMazePose());
+                try {
+                    Thread.sleep(50);
+                } catch(InterruptedException iex) {
+                    System.out.println("\"Both\" sleep interrupted");
+                }
             }
-        }
-        if (debugFlag) {
-            PrintWriter outTrackInit = null;
-            try {
-                FileWriter outFileTrackInit = new FileWriter("TrackOutInit.txt");
-                outTrackInit = new PrintWriter(outFileTrackInit);
-            } catch (IOException e) {}
-            outTrackInit.print("Gradient input: {");
-            for (RealPoint2D p : parent.trc.getAllTrackerWPos(parent.bac.getMazePose())){
-                outTrackInit.print("{"+p.getX()+","+p.getY()+"},");
+            if (debugFlag) {
+                PrintWriter outTrackInit = null;
+                try {
+                    FileWriter outFileTrackInit = new FileWriter("TrackOutInit.txt");
+                    outTrackInit = new PrintWriter(outFileTrackInit);
+                } catch (IOException e) {}
+                outTrackInit.print("Gradient input: {");
+                for (RealPoint2D p : parent.trc.getAllTrackerWPos(parent.bac.getMazePose())){
+                    outTrackInit.print("{"+p.getX()+","+p.getY()+"},");
+                }
+                outTrackInit.println("}");
+                outTrackInit.close();
             }
-            outTrackInit.println("}");
-            outTrackInit.close();
+            parent.bac.updateMazePoseBySonar(parent.trc.getMazeCorrection(parent.bac.getMazePose()));
         }
-        parent.bac.updateMazePoseBySonar(parent.trc.getMazeCorrection(parent.bac.getMazePose()));
 
         while (running && !taskComplete){
 			// Loop header

@@ -2,6 +2,7 @@ package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class TrackerController {
 	private static final double DISTANCE_CLOSE_RANGE = .5;
 	private static final double FAST_ANGULAR_SPEED = .3;
 	private static final int LOST_COUNTER_THRESHOLD = 3;
-    private static final double PRECISION = 2;
+    private static final double PRECISION = 0;
 	private static final int TRACKER_MIN_COUNT = 2;
 	private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
@@ -146,17 +147,23 @@ public class TrackerController {
         }
     }
 
-    private class PointCloudKey {
-        int x, y;
+    class PointCloudKey {
+        long x, y;
         Tracker t;
         PointCloudKey(Tracker tracker) {
             t = tracker;
             double pow = Math.pow(10.0,PRECISION);
-            x = (int)(t.getX() / T9inchesToMeters * pow);
-            y = (int)(t.getY() / T9inchesToMeters * pow);
+            x = Math.round(t.getX()*pow);
+            y = Math.round(t.getY()*pow);
         }
-        boolean equals(PointCloudKey other) {
-            return (x == other.x && y == other.y);
+        public boolean equals(Object other) {
+            if (other == null) return false;
+            if (!this.getClass().equals(other.getClass())) return false;
+            PointCloudKey otherP = (PointCloudKey) other;
+            return (x == otherP.x && y == otherP.y);
+        }
+        public int hashCode() {
+            return (int) (x*y);
         }
     }
 	/**
