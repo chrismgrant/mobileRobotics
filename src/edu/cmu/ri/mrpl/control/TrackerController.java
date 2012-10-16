@@ -216,11 +216,11 @@ public class TrackerController {
 		double lastError = Double.POSITIVE_INFINITY;
 		RealPose2D nextPose = oldMazePose.clone();
 		double nextError = getPointError(nextPose);
+        dx = -EPSILON * gradient[0];
+        dy = -EPSILON * gradient[1];
+        dth = -EPSILON/Math.PI * gradient[2];
 		while (nextError < lastError) {
 			lastError = nextError;
-			dx = -EPSILON * gradient[0]*nextPose.getX();
-			dy = -EPSILON * gradient[1]*nextPose.getY();
-			dth = -EPSILON/Math.PI * gradient[2]*nextPose.getTh();
 			nextPose.add(dx, dy, dth);
 			nextError = getPointError(nextPose);
 		}
