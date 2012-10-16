@@ -7,6 +7,7 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 import java.util.*;
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: WangHeli
@@ -88,28 +89,38 @@ public class MotionPlanController {
      */
     public Path searchForPath(MazeState initState) {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
-        Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
-        nextNodes.push(new MazeStateNode(initState,new Path(),""));
+        Queue<MazeStateNode> nextNodes = new LinkedList<MazeStateNode>();
+        nextNodes.offer(new MazeStateNode(initState,new Path(),""));
         ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
         Path resultPath = new Path();
-        while (!nextNodes.empty()) {
-        	MazeStateNode currentNode = nextNodes.pop();
+        while (!nextNodes.isEmpty()) {
+        	MazeStateNode currentNode = nextNodes.remove();
         	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
         		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
         	}
-        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnLeft)).equals((currentNode.mazeState))){
+        	MazeState turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnLeft);
+        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
         		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
         	}
-        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnRight)).equals((currentNode.mazeState))){
+        	turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnRight);
+
+        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
         		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
         	}
 
         	for (int i = 0; i < neighborsSet.size(); i++){
         		 if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
                  	visitedPositions.add(neighborsSet.get(i).mazeState.pos());
-                 	if (mazeWorld.atGoal(neighborsSet.get(i).mazeState)){
+                 	MazeState front, left, right, rear;
+                 	front = neighborsSet.get(i).mazeState;
+                 	left = new MazeState(front.x(),front.y(),front.dir().left());
+                 	right = new MazeState(front.x(), front.y(), front.dir().right());
+                 	rear = new MazeState(front.x(), front.y(), front.dir().rear());
+                 	
+                 	if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
                  		resultPath = neighborsSet.get(i).pathToState;
-                 		System.out.println(neighborsSet.get(i).dirToState);
+                 		System.out.println("Found: "+neighborsSet.get(i).dirToState);
+                 		resultPath.addAll(searchForPath(front));
                  		return resultPath;
                  	}
                  	else{
@@ -119,6 +130,7 @@ public class MotionPlanController {
         	}
         	neighborsSet.clear();
         }
+        System.out.println("NoPathFound");
         return resultPath;
     }
 
