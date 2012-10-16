@@ -41,32 +41,48 @@ public class MotionPlanController {
             MazeState nextMazeState;
             switch (next) {
                 case North:
-                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y()+1, MazeWorld.Direction.North);
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y(), MazeWorld.Direction.North);
                     break;
                 case East:
-                    nextMazeState = new MazeState(mazeWorld, mazeState.x()+1,mazeState.y(), MazeWorld.Direction.East);
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y(), MazeWorld.Direction.East);
                     break;
                 case South:
-                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y()-1, MazeWorld.Direction.South);
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y(), MazeWorld.Direction.South);
                     break;
                 case West:
-                    nextMazeState = new MazeState(mazeWorld, mazeState.x()-1,mazeState.y(), MazeWorld.Direction.West);
+                    nextMazeState = new MazeState(mazeWorld, mazeState.x(),mazeState.y(), MazeWorld.Direction.West);
                     break;
                 default:
                     nextMazeState = null;
             }
             Path nextPath = (Path)pathToState.clone();
-            nextPath.add(Convert.MazeStateToRealPose(mazeState));
 
             String nextAction = "";
             if (mazeState.dir().left() == next) {
-                nextAction = "L ";
+                nextAction = "L";
             }
             if (mazeState.dir().right() == next) {
-                nextAction = "R ";
+                nextAction = "R";
             }
             if (mazeState.dir() == next) {
                 nextAction = "G ";
+                nextPath.add(Convert.MazeStateToRealPose(mazeState));
+                switch (next) {
+                    case North:
+                        nextMazeState = new MazeState(mazeWorld, nextMazeState.x(),nextMazeState.y()+1, MazeWorld.Direction.North);
+                        break;
+                    case East:
+                        nextMazeState = new MazeState(mazeWorld, nextMazeState.x()+1,nextMazeState.y(), MazeWorld.Direction.East);
+                        break;
+                    case South:
+                        nextMazeState = new MazeState(mazeWorld, nextMazeState.x(),nextMazeState.y()-1, MazeWorld.Direction.South);
+                        break;
+                    case West:
+                        nextMazeState = new MazeState(mazeWorld, nextMazeState.x()-1,nextMazeState.y(), MazeWorld.Direction.West);
+                        break;
+                    default:
+                        nextMazeState = null;
+                }
             }
             String nextDirToState = dirToState.concat(nextAction);
 
@@ -88,7 +104,7 @@ public class MotionPlanController {
      * @return
      */
     public Path searchForPath(MazeState initState) {
-        Set<MazePos> visitedPositions = new HashSet<MazePos>();
+        Set<MazeState> visitedPositions = new HashSet<MazeState>();
         Queue<MazeStateNode> nextNodes = new LinkedList<MazeStateNode>();
         nextNodes.offer(new MazeStateNode(initState,new Path(),""));
         ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
@@ -98,26 +114,19 @@ public class MotionPlanController {
         	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
         		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
         	}
-        	MazeState turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnLeft);
-        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
-        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
-        	}
-        	turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnRight);
-
-        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
-        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
-        	}
+            neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
+            neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
 
         	for (int i = 0; i < neighborsSet.size(); i++){
-                if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
-                    visitedPositions.add(neighborsSet.get(i).mazeState.pos());
+                if (!visitedPositions.contains(neighborsSet.get(i).mazeState)){
+                    visitedPositions.add(neighborsSet.get(i).mazeState);
                     MazeState front, left, right, rear;
                     front = neighborsSet.get(i).mazeState;
                     left = new MazeState(front.x(),front.y(),front.dir().left());
                     right = new MazeState(front.x(), front.y(), front.dir().right());
                     rear = new MazeState(front.x(), front.y(), front.dir().rear());
 
-                    if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
+                    if (mazeWorld.atGoal(front)){
                         resultPath = neighborsSet.get(i).pathToState;
                         System.out.println("Found: "+neighborsSet.get(i).dirToState);
                         MazeState goalState = null;
@@ -130,7 +139,7 @@ public class MotionPlanController {
                         mazeWorld.removeGoal(rear);
                         mazeWorld.removeGoal(left);
                         mazeWorld.removeGoal(right);
-                        resultPath.addAll(searchForPath(front));
+//                        resultPath.addAll(searchForPath(front));
                         return resultPath;
 
                     } else {
