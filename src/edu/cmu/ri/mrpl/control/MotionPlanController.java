@@ -7,6 +7,7 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 import java.util.*;
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: WangHeli
@@ -88,20 +89,49 @@ public class MotionPlanController {
      */
     public Path searchForPath(MazeState initState) {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
-        Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
-        Set<MazeState> nextStates = new HashSet<MazeState>();
-        nextNodes.push(new MazeStateNode(initState,new Path(),""));
-        Set <MazeState> neighborsSet = new HashSet<MazeState>();
-        while (!nextNodes.empty()) {
-        	MazeStateNode currentNode = nextNodes.pop();
-            if (!visitedPositions.contains(currentNode.mazeState.pos())){
-            	visitedPositions.add(currentNode.mazeState.pos());
-            	nextStates.add(currentNode.mazeState);
-            	//need something indicative of a goal state to conduct check
-            }
+        Queue<MazeStateNode> nextNodes = new LinkedList<MazeStateNode>();
+        nextNodes.offer(new MazeStateNode(initState,new Path(),""));
+        ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
+        Path resultPath = new Path();
+        while (!nextNodes.isEmpty()) {
+        	MazeStateNode currentNode = nextNodes.remove();
+        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
+        	}
+        	MazeState turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnLeft);
+        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
+        	}
+        	turn = mazeWorld.act(currentNode.mazeState, MazeWorld.Action.TurnRight);
+
+        	if (!(mazeWorld.act(turn, MazeWorld.Action.GTNN)).equals((turn))){
+        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
+        	}
+
+        	for (int i = 0; i < neighborsSet.size(); i++){
+        		 if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
+                 	visitedPositions.add(neighborsSet.get(i).mazeState.pos());
+                 	MazeState front, left, right, rear;
+                 	front = neighborsSet.get(i).mazeState;
+                 	left = new MazeState(front.x(),front.y(),front.dir().left());
+                 	right = new MazeState(front.x(), front.y(), front.dir().right());
+                 	rear = new MazeState(front.x(), front.y(), front.dir().rear());
+                 	
+                 	if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
+                 		resultPath = neighborsSet.get(i).pathToState;
+                 		System.out.println("Found: "+neighborsSet.get(i).dirToState);
+                 		resultPath.addAll(searchForPath(front));
+                 		return resultPath;
+                 	}
+                 	else{
+                 		nextNodes.add(neighborsSet.get(i));
+                 	}
+                 }
+        	}
+        	neighborsSet.clear();
         }
-        
-        return null;
+        System.out.println("NoPathFound");
+        return resultPath;
     }
 
 }
