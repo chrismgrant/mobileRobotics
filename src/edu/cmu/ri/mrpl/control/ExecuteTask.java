@@ -13,7 +13,9 @@ import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 
 import java.awt.geom.Point2D;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 
 /**
@@ -162,20 +164,38 @@ public class ExecuteTask implements Runnable{
 		double[] sonars = new double[16];
 		boolean flag0 = false;
 		int i = 1;
+        boolean debugFlag = true;
 
         for (int init = 0; init < INITIAL_SONARS; init++) {
             robot.updateState();
             robot.getSonars(sonars);
             parent.trc.forceAddTrackersFromSonar(sonars);
             parent.trc.updateTrackers(parent.bac.getMazePose());
+//            if (i < INITIAL_SONARS) {
+//                robot.setVel(.02,-.02);
+//            } else {
+//                robot.setVel(-.02,0.2);
+//            }
             try {
                 Thread.sleep(50);
             } catch(InterruptedException iex) {
                 System.out.println("\"Both\" sleep interrupted");
             }
         }
-        parent.trc.getMazeCorrection(parent.bac.getMazePose());
-
+        if (debugFlag) {
+            PrintWriter outTrackInit = null;
+            try {
+                FileWriter outFileTrackInit = new FileWriter("TrackOutInit.txt");
+                outTrackInit = new PrintWriter(outFileTrackInit);
+            } catch (IOException e) {}
+            outTrackInit.print("Gradient input: {");
+            for (RealPoint2D p : parent.trc.getAllTrackerWPos(parent.bac.getMazePose())){
+                outTrackInit.print("{"+p.getX()+","+p.getY()+"},");
+            }
+            outTrackInit.println("}");
+            outTrackInit.close();
+        }
+        parent.bac.updateMazePoseBySonar(parent.trc.getMazeCorrection(parent.bac.getMazePose()));
 
         while (running && !taskComplete){
 			// Loop header
