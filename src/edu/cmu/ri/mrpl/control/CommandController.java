@@ -9,11 +9,13 @@ import java.util.ArrayList;
 
 import edu.cmu.ri.mrpl.Command;
 import edu.cmu.ri.mrpl.CommandSequence;
+import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
+import edu.cmu.ri.mrpl.maze.MazeState;
 
 
 /**
@@ -29,6 +31,7 @@ public class CommandController {
 	TrackerController trc;
 	BearingController bac;
 	BehaviorController bhc;
+    MotionPlanController mpc;
 	
 	VisualizeController vc;
     VisualizeController.MazeViewer mv;
@@ -71,6 +74,12 @@ public class CommandController {
         trc = new TrackerController(Convert.getRobotPose(robot) ,"in.maze");
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
         bhc = new BehaviorController();
+        mpc = new MotionPlanController(trc.getMaze());
+
+        Path executePath = mpc.searchForPath(trc.getMazeInit());
+
+        Command.PathArgument pArg = new Command.PathArgument(executePath);
+        addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
 
         robot = r;
 

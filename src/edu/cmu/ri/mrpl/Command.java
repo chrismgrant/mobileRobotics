@@ -157,7 +157,7 @@ public class Command
     public static class PathArgument extends Argument {
       public Path path;
 
-      PathArgument(Path p) { path = (Path)p.clone(); }
+      public PathArgument(Path p) { path = (Path)p.clone(); }
       PathArgument(String s) throws IOException {
         path = new Path();
         if (s.indexOf(';') >= 0)

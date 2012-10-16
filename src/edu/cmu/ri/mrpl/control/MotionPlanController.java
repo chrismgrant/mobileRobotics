@@ -73,10 +73,19 @@ public class MotionPlanController {
         }
     }
 
-
+    /**
+     *
+     * @return
+     */
     public Path searchForPath() {
         return searchForPath((MazeState)(mazeWorld.getInits().toArray())[0]);
     }
+
+    /**
+     *
+     * @param initState
+     * @return
+     */
     public Path searchForPath(MazeState initState) {
         Set<MazePos> visitedPositions = new HashSet<MazePos>();
         Stack<MazeStateNode> nextNodes = new Stack<MazeStateNode>();
