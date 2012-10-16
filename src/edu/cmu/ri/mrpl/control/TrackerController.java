@@ -250,7 +250,7 @@ public class TrackerController {
                 RealPoint2D worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
                 double xerr = Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2);
                 double yerr = Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters/2);
-                return Math.min(xerr,yerr);
+                return xerr*yerr;
 
 			}
 		});
@@ -263,7 +263,7 @@ public class TrackerController {
 				return a+b;
 			}
 		}, 0.0);
-		return Math.sqrt(error);
+		return error;
 	}
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.
