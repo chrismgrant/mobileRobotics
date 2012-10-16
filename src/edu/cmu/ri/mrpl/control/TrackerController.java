@@ -44,7 +44,7 @@ public class TrackerController {
 	private static final int TRACKER_MIN_COUNT = 1;
 	private static final double EPSILON = .0001;
 	private static final double T9inchesToMeters = 0.7366;
-    private static final double UPDATE_DISTANCE = .1;
+    private static final double UPDATE_DISTANCE = .05;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -195,42 +195,49 @@ public class TrackerController {
 
         System.out.println("PointError: "+getPointError(oldMazePose));
 		//Compute gradient
-		double dx, dy, dth;
-		dx = oldMazePose.getX()+EPSILON;
-		dy = oldMazePose.getY()+EPSILON;
-		dth = Angle.normalize(oldMazePose.getRotateTheta()+EPSILON/Math.PI);
-		double[] gradient = new double[3];
-		gradient[0] = (getPointError(new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
-				getPointError(oldMazePose))/EPSILON;
-		gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) -
-				getPointError(oldMazePose))/EPSILON;
-        System.out.println("NewError: "+getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)));
-        System.out.println("OldError: "+getPointError(oldMazePose));
-        System.out.print("dth: "+dth);
-        System.out.println(", oth: "+oldMazePose.getRotateTheta());
-		gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
-				getPointError(oldMazePose))/(EPSILON/Math.PI);
-        System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");
-		
-		//Traverse down gradient
-		double lastError = Double.POSITIVE_INFINITY;
-		RealPose2D nextPose = oldMazePose.clone();
-		double nextError = getPointError(nextPose);
-        dx = -EPSILON * gradient[0];
-        dy = -EPSILON * gradient[1];
-        dth = -EPSILON/Math.PI * gradient[2];
-		while (nextError < lastError) {
-			lastError = nextError;
-			nextPose.add(dx, dy, dth);
-			nextError = getPointError(nextPose);
-		}
-		nextPose.add(-dx, -dy, -dth);
+
+        double lastError = Double.POSITIVE_INFINITY;
+        RealPose2D nextPose = oldMazePose.clone();
+        double nextError = getPointError(nextPose);
+        double dx = 0, dy = 0, dth = 0;
+        double[] gradient;
+        while (nextError < lastError) {
+            lastError = nextError;
+            gradient = getGradient(nextPose);
+
+            System.out.println("Gradient: ["+gradient[0]+","+gradient[1]+","+gradient[2]+"]");
+
+            dx = -EPSILON * gradient[0];
+            dy = -EPSILON * gradient[1];
+            dth = -EPSILON * gradient[2];
+            nextPose.add(dx,dy,dth);
+            nextError = getPointError(nextPose);
+
+            System.out.println("nextError: "+getPointError(nextPose));
+
+        }
+        nextPose.add(-dx,-dy,-dth);
 
         //Resets trackers after computing
         trackers = List.list();
         lastSonarRecordDistance = 0;
         return nextPose;
 	}
+    private double[] getGradient(RealPose2D pose) {
+        double[] gradient = new double[3];
+        double dx, dy, dth;
+        dx = pose.getX()+EPSILON;
+        dy = pose.getY()+EPSILON;
+        dth = Angle.normalize(pose.getRotateTheta()+EPSILON);
+        gradient[0] = (getPointError(new RealPose2D(dx, pose.getY(),pose.getRotateTheta())) -
+                getPointError(pose))/EPSILON;
+        gradient[1] = (getPointError(new RealPose2D(pose.getX(),dy,pose.getRotateTheta())) -
+                getPointError(pose))/EPSILON;
+
+        gradient[2] = (getPointError(new RealPose2D(pose.getX(), pose.getY(),dth)) -
+                getPointError(pose))/(EPSILON);
+        return gradient;
+    }
 	private double getPointError(final RealPose2D inputPose){
 		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
