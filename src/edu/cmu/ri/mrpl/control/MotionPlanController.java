@@ -20,7 +20,7 @@ public class MotionPlanController {
     private MazeWorld mazeWorld;
 
     public MotionPlanController(MazeWorld mazeWorld){
-        this.mazeWorld = mazeWorld;
+        this.mazeWorld = new MazeWorld(mazeWorld);
     }
 
     class MazeStateNode {
@@ -109,24 +109,28 @@ public class MotionPlanController {
         	}
 
         	for (int i = 0; i < neighborsSet.size(); i++){
-        		 if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
-                 	visitedPositions.add(neighborsSet.get(i).mazeState.pos());
-                 	MazeState front, left, right, rear;
-                 	front = neighborsSet.get(i).mazeState;
-                 	left = new MazeState(front.x(),front.y(),front.dir().left());
-                 	right = new MazeState(front.x(), front.y(), front.dir().right());
-                 	rear = new MazeState(front.x(), front.y(), front.dir().rear());
-                 	
-                 	if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
-                 		resultPath = neighborsSet.get(i).pathToState;
-                 		System.out.println("Found: "+neighborsSet.get(i).dirToState);
-                 		resultPath.addAll(searchForPath(front));
-                 		return resultPath;
-                 	}
-                 	else{
-                 		nextNodes.add(neighborsSet.get(i));
-                 	}
-                 }
+                if (!visitedPositions.contains(neighborsSet.get(i).mazeState.pos())){
+                    visitedPositions.add(neighborsSet.get(i).mazeState.pos());
+                    MazeState front, left, right, rear;
+                    front = neighborsSet.get(i).mazeState;
+                    left = new MazeState(front.x(),front.y(),front.dir().left());
+                    right = new MazeState(front.x(), front.y(), front.dir().right());
+                    rear = new MazeState(front.x(), front.y(), front.dir().rear());
+
+                    if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
+                        resultPath = neighborsSet.get(i).pathToState;
+                        System.out.println("Found: "+neighborsSet.get(i).dirToState);
+                        mazeWorld.removeGoal(front);
+                        mazeWorld.removeGoal(rear);
+                        mazeWorld.removeGoal(left);
+                        mazeWorld.removeGoal(right);
+                        resultPath.addAll(searchForPath(front));
+                        return resultPath;
+
+                    } else {
+                        nextNodes.add(neighborsSet.get(i));
+                    }
+                }
         	}
         	neighborsSet.clear();
         }
