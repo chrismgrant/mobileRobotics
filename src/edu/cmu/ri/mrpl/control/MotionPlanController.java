@@ -120,6 +120,12 @@ public class MotionPlanController {
                     if (mazeWorld.atGoal(front) || mazeWorld.atGoal(left) || mazeWorld.atGoal(right) || mazeWorld.atGoal(rear)){
                         resultPath = neighborsSet.get(i).pathToState;
                         System.out.println("Found: "+neighborsSet.get(i).dirToState);
+                        MazeState goalState = null;
+                        if (mazeWorld.atGoal(front)) goalState = front;
+                        if (mazeWorld.atGoal(rear)) goalState = rear;
+                        if (mazeWorld.atGoal(left)) goalState = left;
+                        if (mazeWorld.atGoal(right)) goalState = right;
+                        resultPath.add(Convert.MazeStateToRealPose(goalState));
                         mazeWorld.removeGoal(front);
                         mazeWorld.removeGoal(rear);
                         mazeWorld.removeGoal(left);
