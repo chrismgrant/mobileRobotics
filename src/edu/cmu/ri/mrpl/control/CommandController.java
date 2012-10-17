@@ -117,13 +117,6 @@ public class CommandController {
             } catch (IOException e) {}
         }
 
-        // Warm up the sonar filter
-        double[] sonars = new double[16];
-        for (int i = 0; i < 1000; i++) {
-            robot.updateState();
-            robot.getSonars(sonars);
-            soc.updateSonars(sonars);
-        }
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
 
     }

@@ -166,7 +166,15 @@ public class ExecuteTask implements Runnable{
 		boolean flag0 = false;
 		int i = 1;
         boolean debugFlag = true;
-        if (active.type == Command.Type.FOLLOWPATH && false) {
+        if (active.type == Command.Type.FOLLOWPATH) {
+            for (int init = 0; init < 16; init++) {
+                robot.updateState();
+                robot.getSonars(sonars);
+                parent.soc.updateSonars(sonars);
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {}
+            }
             for (int init = 0; init < INITIAL_SONARS; init++) {
                 robot.updateState();
                 robot.getSonars(sonars);
@@ -215,11 +223,12 @@ public class ExecuteTask implements Runnable{
                 if (isInThreshold(currentError, ArgType.DISTANCE)){
 					if (i == pthArg.size()-1){//If last target achieved
 						taskComplete = true;
+                        double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(i).getTh() - parent.bac.getMazePose().getTh());
                         while (!isInThreshold(currentError, ArgType.ANGLE)) {
                             //TODO fix
-                            parent.bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-                            currentError = Angle.normalize(pthArg.get(i).getTh() - parent.bac.getMazePose().getTh());
+                            currentError = Angle.normalize(pthArg.get(i).getTh() -
+                                    (delta + BearingController.getRDirection(robot)));
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
                             parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                             try {
