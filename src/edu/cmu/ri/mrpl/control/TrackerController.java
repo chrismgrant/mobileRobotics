@@ -41,7 +41,8 @@ public class TrackerController {
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
 	private static final int TRACKER_MIN_COUNT = 1;
-	private static final double EPSILON = .001;
+    private static final int WALL_TRACKER_MIN = 100;
+    private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = .01;
 
@@ -50,18 +51,22 @@ public class TrackerController {
 	private List<Tracker> filteredTrackers;
 	private MazeWorld mazeWorld;
     private RealPose2D last;
+    private RealPoint2D lastCellPoint;
 	private Tracker active;
 	private Tracker follow;
 	private int followLostCounter;
 	private int ringCounter;
     private double lastSonarRecordDistance;
+    private boolean isApproaching;
 
     public TrackerController(RealPose2D initPose, String in){
 		ringCounter = 0;
         lastSonarRecordDistance = 0;
 		trackers = List.list();
 		newTrackers = List.list();
-        last = initPose;
+        isApproaching = false;
+        last = initPose.clone();
+        lastCellPoint = initPose.getPosition();
 		active = null;
 		follow = null;
 		followLostCounter = 0;
@@ -143,6 +148,25 @@ public class TrackerController {
             trackers = trackers.append(newTrackers);
             newTrackers = List.list();
         }
+
+        //Update walls if close to cell center
+        if (atCellCenter(newPose)) {
+            updateMazeWalls(newPose);
+        }
+    }
+
+    private boolean atCellCenter(RealPose2D newPose) {
+        double x = (newPose.getX()+T9inchesToMeters/2)/T9inchesToMeters - T9inchesToMeters/2;
+        double y = (newPose.getY()+T9inchesToMeters/2)/T9inchesToMeters - T9inchesToMeters/2;
+        RealPoint2D cellPoint = new RealPoint2D(x,y);
+        double centerDistance = cellPoint.distance(0,0);
+        double lastCenterDistance = lastCellPoint.distance(0,0);
+        if (isApproaching) {
+            isApproaching = false;
+            return centerDistance > lastCenterDistance;
+        }
+        isApproaching = centerDistance < lastCenterDistance;
+        return false;
     }
 
     class PointCloudKey {
@@ -304,6 +328,13 @@ public class TrackerController {
 	 * updateMazeWalls is called after robot position is set
 	 */
 	public void updateMazeWalls(RealPose2D mazePose){
+        Line2D[] border = getBorder(mazePose);
+        filteredTrackers = List.list();
+        if (trackers.length() < WALL_TRACKER_MIN) {
+            for (Tracker t : trackers) {
+                filteredTrackers = filteredTrackers.cons(t);
+            }
+        }
 		for (int i = 0; i < filteredTrackers.length(); i++){
 			RealPoint2D convertedPoint = Convert.WRTWorld(mazePose, filteredTrackers.index(i).getRPoint());
 			int x = (int) Math.rint(Convert.meterToMazeUnit(convertedPoint.x));
