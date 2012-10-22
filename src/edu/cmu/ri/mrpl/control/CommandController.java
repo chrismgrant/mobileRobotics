@@ -76,7 +76,7 @@ public class CommandController {
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
-        if (true) {
+        if (false) {
             Path executePath = mpc.searchForPath(trc.getMazeInit());
 
             Command.PathArgument pArg = new Command.PathArgument(executePath);
