@@ -45,8 +45,8 @@ public class TrackerController {
     private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = .01;
-    private static final int MIN_HITS = 6;
-    private static final int MAX_HITS = 12;
+    private static final int MIN_HITS = 5;
+    private static final int MAX_HITS = 18;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -158,12 +158,13 @@ public class TrackerController {
     }
 
     private boolean atCellCenter(RealPose2D newPose) {
-        double x = (newPose.getX()+T9inchesToMeters/2)/T9inchesToMeters - T9inchesToMeters/2;
-        double y = (newPose.getY()+T9inchesToMeters/2)/T9inchesToMeters - T9inchesToMeters/2;
+        double x = (newPose.getX()+T9inchesToMeters/2)%T9inchesToMeters - T9inchesToMeters/2;
+        double y = (newPose.getY()+T9inchesToMeters/2)%T9inchesToMeters - T9inchesToMeters/2;
         RealPoint2D cellPoint = new RealPoint2D(x,y);
         double centerDistance = cellPoint.distance(0,0);
         double lastCenterDistance = lastCellPoint.distance(0,0);
-        if (isApproaching) {
+        lastCellPoint = cellPoint;
+        if (isApproaching && centerDistance > lastCenterDistance) {
             isApproaching = false;
             return centerDistance > lastCenterDistance;
         }
@@ -290,7 +291,7 @@ public class TrackerController {
     private Line2D[] getShortBorder(RealPose2D mazePose) {
         Line2D[] border = getBorder(mazePose);
         Line2D[] shortBorder = new Line2D[4];
-        double d = T9inchesToMeters / 4;
+        double d = T9inchesToMeters / 3;
         shortBorder[0] = new Line2D.Double(border[0].getX1(),border[0].getY1()+d,border[0].getX2(),border[0].getY2()-d);
         shortBorder[1] = new Line2D.Double(border[1].getX1()+d,border[1].getY1(),border[1].getX2()-d,border[1].getY2());
         shortBorder[2] = new Line2D.Double(border[2].getX1(),border[2].getY1()+d,border[2].getX2(),border[2].getY2()-d);
@@ -347,7 +348,7 @@ public class TrackerController {
 	 */
 	public void updateMazeWalls(RealPose2D mazePose){
         Line2D[] border = getShortBorder(mazePose);
-        RealPoint2D point2D, temp = null;
+        RealPoint2D point2D, temp = new RealPoint2D();
         double distance, half = T9inchesToMeters / 2;
         int cell_x, cell_y;
         MazeWorld.Direction direction = null;
@@ -360,7 +361,7 @@ public class TrackerController {
                 for (Tracker t : trackers) {
                     point2D = Convert.WRTWorld(mazePose,t.getRPoint());
                     distance = LineSegment.closestPointOnLineSegment(border[i],point2D, temp);
-                    if (distance < .18) {
+                    if (distance < .025) {
                         trackerCount++;
                     }
                 }
@@ -381,7 +382,7 @@ public class TrackerController {
                         direction = MazeWorld.Direction.South;
                 }
                 if (trackerCount < MIN_HITS) {
-                    mazeWorld.removeWall(cell_x,cell_y,direction);
+                    removeWall(cell_x,cell_y,direction);
                 }
                 if (trackerCount > MAX_HITS) {
                     mazeWorld.addWall(cell_x,cell_y,direction);
@@ -389,7 +390,23 @@ public class TrackerController {
             }
         }
 	}
-	
+
+    private void removeWall(int x, int y, MazeWorld.Direction direction) {
+        if (x == 0 && direction == MazeWorld.Direction.West) {
+            return;
+        }
+        if (x == mazeWorld.getWidth() - 1 && direction == MazeWorld.Direction.East) {
+            return;
+        }
+        if (y == 0 && direction == MazeWorld.Direction.South) {
+            return;
+        }
+        if (y == mazeWorld.getHeight() - 1 && direction == MazeWorld.Direction.North){
+            return;
+        }
+        mazeWorld.removeWall(x,y,direction);
+    }
+
 	/**
 	 * Gets all tracker positions relative to robot
 	 * @return fj's List of RealPoint2D, relative to robot
