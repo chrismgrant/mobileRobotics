@@ -139,6 +139,43 @@ public final class Convert {
         }
         return new RealPose2D(mazeUnitToMeter(state.x()),mazeUnitToMeter(state.y()),mazeDirectionToRadian(dir));
     }
+
+    public static MazeState RealPoseToMazeState(RealPose2D pose) {
+        int x = mazeRound(meterToMazeUnit(pose.getX()));
+        int y = mazeRound(meterToMazeUnit(pose.getY()));
+        MazeWorld.Direction dir = mazeRoundDirection(pose.getTh());
+        return new MazeState(x,y,dir);
+    }
+
+    /**
+     * Takes a mazeCoordinate x,y value and rounds to nearest mazeCell
+     * @param val
+     * @return
+     */
+    public static int mazeRound(double val) {
+        return (int) ((val + .5)%1);
+    }
+
+    public static MazeWorld.Direction mazeRoundDirection(double val) {
+        int dir = (int) ((radianToMazeDirection(val) + Math.PI/4) % (Math.PI/2));
+        MazeWorld.Direction mdir = null;
+        switch (dir) {
+            case 0:
+                mdir = MazeWorld.Direction.East;
+                break;
+            case 1:
+                mdir = MazeWorld.Direction.North;
+                break;
+            case 2:
+                mdir = MazeWorld.Direction.West;
+                break;
+            case 3:
+                mdir = MazeWorld.Direction.South;
+                break;
+        }
+        return mdir;
+    }
+
 	
 	/**
 	 * 

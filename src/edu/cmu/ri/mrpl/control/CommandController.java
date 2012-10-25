@@ -40,6 +40,7 @@ public class CommandController {
     PointsConsole pointsConsole;
 
     private static final boolean DEBUGFLAG = true;
+    private static final boolean PATHSEARCHFLAG = true;
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
 	private Command active;
@@ -76,14 +77,11 @@ public class CommandController {
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
-        if (false) {
+        if (PATHSEARCHFLAG) {
             Path executePath = mpc.searchForPath(trc.getMazeInit());
-
             Command.PathArgument pArg = new Command.PathArgument(executePath);
             addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
         }
-
-
 
         robot = r;
 
@@ -185,12 +183,13 @@ public class CommandController {
 	 */
 	public synchronized void updateControllers(double[] sonars){
         double lastDistance = 0;
+        boolean wallChanged;
 		soc.updateSonars(sonars);
 		wc.updateWheels(robot, bc.isBumped(robot));
 
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
-        trc.updateTrackers(bac.getMazePose());
+        wallChanged = trc.updateTrackers(bac.getMazePose());
 
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
@@ -232,6 +231,17 @@ public class CommandController {
                     Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot))), Color.RED));
             mg.setContRobots(robots);
             mv.recreateMazeGraphics(mg);
+
+            if (wallChanged && PATHSEARCHFLAG) {
+                // Stop execution and re-search path.
+                exe.halt();
+                Path executePath = mpc.searchForPath(Convert.RealPoseToMazeState(bac.getMazePose()));
+                Command.PathArgument pArg = new Command.PathArgument(executePath);
+//                if (needsToTurnAround) {
+//                    TurnAround()
+//                }
+                addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+            }
         }
 
         if (DEBUGFLAG) {
@@ -240,7 +250,8 @@ public class CommandController {
             }
             outFollowTracker.println();
             outRobo.println(BearingController.getRPose(robot).toString());
-            outRoboEncode.println(Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot)).toString());
+            outRoboEncode.println(Convert.inverseMultiply(bac.getInitMazePose(),
+                    Convert.getRobotPose(robot)).toString());
             outRoboMaze.println(bac.getMazePose().toString());
             outTrackMaze.print("{");
             for (RealPoint2D p : trc.getAllTrackerWPos(bac.getMazePose())){

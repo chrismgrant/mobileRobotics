@@ -135,8 +135,10 @@ public class TrackerController {
 	 * Update tracker states.
 	 * Call after other TC setter methods to apply updates.
      * @param newPose deltaPose between robot's last pose and current pose.
+     * @return true if wall changed
 	 */
-	public void updateTrackers(RealPose2D newPose){
+	public boolean updateTrackers(RealPose2D newPose){
+        boolean wallChanged = false;
 		//Update robot positions of old trackers
         final RealPose2D forwardDelta = Convert.inverseMultiply(last,newPose);
 		trackers.foreach(new Effect<Tracker>() {
@@ -153,8 +155,9 @@ public class TrackerController {
 
         //Update walls if close to cell center
         if (atCellCenter(newPose)) {
-            updateMazeWalls(newPose);
+            wallChanged = updateMazeWalls(newPose);
         }
+        return wallChanged;
     }
 
     private boolean atCellCenter(RealPose2D newPose) {
@@ -345,12 +348,14 @@ public class TrackerController {
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.
 	 * updateMazeWalls is called after robot position is set
+     * @return true if wall is updated
 	 */
-	public void updateMazeWalls(RealPose2D mazePose){
+	public boolean updateMazeWalls(RealPose2D mazePose){
         Line2D[] border = getShortBorder(mazePose);
         RealPoint2D point2D, temp = new RealPoint2D();
         double distance, half = T9inchesToMeters / 2;
         int cell_x, cell_y;
+        boolean updated = false;
         MazeWorld.Direction direction = null;
         int trackerCount = 0;
         if (trackers.length() < WALL_TRACKER_MIN) {
@@ -383,12 +388,15 @@ public class TrackerController {
                 }
                 if (trackerCount < MIN_HITS) {
                     removeWall(cell_x,cell_y,direction);
+                    updated = true;
                 }
                 if (trackerCount > MAX_HITS) {
                     mazeWorld.addWall(cell_x,cell_y,direction);
+                    updated = true;
                 }
             }
         }
+        return updated;
 	}
 
     private void removeWall(int x, int y, MazeWorld.Direction direction) {
