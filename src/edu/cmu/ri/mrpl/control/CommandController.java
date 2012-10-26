@@ -7,9 +7,7 @@ import java.io.PrintWriter;
 import java.lang.*;
 import java.util.ArrayList;
 
-import edu.cmu.ri.mrpl.Command;
-import edu.cmu.ri.mrpl.CommandSequence;
-import edu.cmu.ri.mrpl.Path;
+import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
@@ -62,7 +60,7 @@ public class CommandController {
     /**
 	 * Initializes a new CommandController
 	 */
-    public CommandController(Robot r, PointsConsole pc) {
+    public CommandController(Robot r, String mazeFile, PointsConsole pc) {
         debugFlag = false;
         executeQueue = new CommandSequence();
         active = new Command();
@@ -72,8 +70,8 @@ public class CommandController {
         soc = new SonarController();
         bc = new BumperController();
 
-        trc = new TrackerController(Convert.getRobotPose(robot) ,"in2.maze");
-        bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(r));
+        trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
+        bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
@@ -83,7 +81,11 @@ public class CommandController {
             addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
         }
 
-        robot = r;
+        if (robot instanceof SimRobot) {
+            ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
+                    bac.getInitMazePose().getRotateTheta());
+            bac.setInitMazePose(trc.getMazeInit(),Convert.getRobotPose(robot));
+        }
 
         useVisualization = (pc == null)?false:true;
         if (useVisualization){
@@ -118,8 +120,8 @@ public class CommandController {
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
 
     }
-	public CommandController(Robot r){
-        this(r,null);
+	public CommandController(Robot r, String mazeFile){
+        this(r, mazeFile,null);
 	}
 
 	/**

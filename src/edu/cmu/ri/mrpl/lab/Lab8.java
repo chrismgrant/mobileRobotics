@@ -502,7 +502,7 @@ public class Lab8 extends JFrame implements ActionListener, TaskController {
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot, pc);
+            cc = new CommandController(robot,"in.maze", pc);
             cc.addCommandFromFile("in.txt");
 
             try{

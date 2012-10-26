@@ -387,12 +387,17 @@ public class TrackerController {
                         direction = MazeWorld.Direction.South;
                 }
                 if (trackerCount < MIN_HITS) {
+                    if (mazeWorld.isWall(cell_x,cell_y,direction)) {
+                        updated = true;
+
+                    }
                     removeWall(cell_x,cell_y,direction);
-                    updated = true;
                 }
                 if (trackerCount > MAX_HITS) {
+                    if (!mazeWorld.isWall(cell_x,cell_y, direction)) {
+                        updated = true;
+                    }
                     mazeWorld.addWall(cell_x,cell_y,direction);
-                    updated = true;
                 }
             }
         }

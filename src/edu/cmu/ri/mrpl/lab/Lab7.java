@@ -499,7 +499,7 @@ public class Lab7 extends JFrame implements ActionListener, TaskController{
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot, pc);
+            cc = new CommandController(robot,"in.maze", pc);
 
             try{
                 FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");

@@ -1,31 +1,30 @@
 package edu.cmu.ri.mrpl.lab;
-/*
-
-* Sample code for the 16x62 class taught at the Robotics Institute
-* of Carnegie Mellon University
-*
-* written from scratch by Martin Stolle in 2006
-*
-* inspired by code started by Illah Nourbakhsh and used
-* for many years.
-*/
-
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
-import edu.cmu.ri.mrpl.control.BearingController;
-import edu.cmu.ri.mrpl.control.BumperController;
-import edu.cmu.ri.mrpl.control.CommandController;
-import edu.cmu.ri.mrpl.control.SonarController;
-import edu.cmu.ri.mrpl.control.TrackerController;
-import edu.cmu.ri.mrpl.control.WheelController;
+import edu.cmu.ri.mrpl.control.*;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 
-public class Lab6 extends JFrame implements ActionListener, TaskController {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: WangHeli
+ * Date: 10/11/12
+ * Time: 2:40 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Lab9 extends JFrame implements ActionListener, TaskController{
+    public static final boolean SIM = true;
+    public static final String mazeFile = "in3.maze";
     public String command;
     public Robot robot;
     private SonarConsole sc;
@@ -52,21 +51,21 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
 
     private RotateTask programTask;
     private ForwardTask sonarTask;
-    private TrackTask bothTask;
+    private SearchTask bothTask;
 
     private Task curTask = null;
 
     static final int DEFAULT_ROOM_SIZE = 4;
 
-    public Lab6() {
-        super("Lab6");
+    public Lab9() {
+        super("Lab9");
 
         connectButton = new JButton("connect");
         disconnectButton = new JButton("disconnect");
 
         rotateButton = new JButton("Run Rotate!");
         forwardButton = new JButton("Run Forward!");
-        bothButton = new JButton("Run Maze!");
+        bothButton = new JButton("Run Search!");
         stopButton = new JButton(">> stop <<");
         quitButton = new JButton(">> quit <<");
 
@@ -193,12 +192,15 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
         // construct tasks
         programTask = new RotateTask(this);
         sonarTask = new ForwardTask(this);
-        bothTask = new TrackTask(this);
+        bothTask = new SearchTask(this);
 
 
-
-        robot=new SimRobot();
-//		robot=new ScoutRobot();
+        if (SIM) {
+            robot=new SimRobot();
+            ((SimRobot) robot).loadMaze(mazeFile);
+        } else {
+		    robot=new ScoutRobot();
+        }
     }
 
     // call from GUI thread
@@ -327,7 +329,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
     public static void main(String[] argv) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new Lab6();
+                new Lab9();
             }
         });
     }
@@ -491,19 +493,18 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
         }
     }
 
-    class TrackTask extends Task {
+    class SearchTask extends Task {
 
         CommandController cc;
 
-        TrackTask(TaskController tc) {
+        SearchTask(TaskController tc) {
             super(tc);
         }
 
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot,"in.maze", pc);
-            cc.addCommandFromFile("in.txt");
+            cc = new CommandController(robot,mazeFile, pc);
 
             try{
                 FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");
@@ -546,4 +547,3 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
 
     private static final long serialVersionUID = 0;
 }
-

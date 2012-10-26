@@ -20,7 +20,7 @@ public class BearingController {
 	/**
 	 * mazePose is a realPose relative to the maze origin, with units in m.
 	 */
-    private final RealPose2D initPose;
+    private RealPose2D initPose;
 	private RealPose2D mazePose, lastPose, deltaPose, initMazePose;
 
 	private Date clock;
@@ -40,41 +40,44 @@ public class BearingController {
 		yError = 0;
 		thError = 0;
         distLastUpdate = UPDATE_DISTANCE - .1;
-        initPose = robotInit.clone();
-        lastPose = initPose.clone();
-		double x,y,th;
-		x = Convert.mazeUnitToMeter(init.x());
-		y = Convert.mazeUnitToMeter(init.y());
-		switch (init.dir()){
-		case East: {
-			th = 0;
-			break;
-		}
-		case North: {
-			th = 1;
-			break;
-		}
-		case West: {
-			th = 2;
-			break;
-		}
-		case South: {
-			th = 3;
-			break;
-		}
-		default:{
-			th = -1;
-			break;
-		}
-		}
-		th = Convert.mazeDirectionToRadian(th);
-		mazePose = new RealPose2D(x,y,th);
-        initMazePose = mazePose.clone();
+        setInitMazePose(init,robotInit);
 
 	}
 
     public RealPose2D getInitMazePose(){
         return initMazePose.clone();
+    }
+    public void setInitMazePose(MazeState init, RealPose2D robotInit) {
+        initPose = robotInit.clone();
+        lastPose = initPose.clone();
+        double x,y,th;
+        x = Convert.mazeUnitToMeter(init.x());
+        y = Convert.mazeUnitToMeter(init.y());
+        switch (init.dir()){
+            case East: {
+                th = 0;
+                break;
+            }
+            case North: {
+                th = 1;
+                break;
+            }
+            case West: {
+                th = 2;
+                break;
+            }
+            case South: {
+                th = 3;
+                break;
+            }
+            default:{
+                th = -1;
+                break;
+            }
+        }
+        th = Convert.mazeDirectionToRadian(th);
+        mazePose = new RealPose2D(x,y,th);
+        initMazePose = mazePose.clone();
     }
 	/**
 	 * Updates robot's pose using linear and angular velocity.

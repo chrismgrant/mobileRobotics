@@ -482,7 +482,7 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 		public void taskRun() {
 //			showSC();
 			robot.turnSonarsOn();
-            cc = new CommandController(robot);
+            cc = new CommandController(robot,"in.maze");
             cc.addCommandFromFile("in.txt");
 
 			try{
