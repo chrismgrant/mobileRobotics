@@ -116,10 +116,10 @@ public class ExecuteTask implements Runnable{
 		}
 		}
         if (!speech.isEmpty()) {
-            st = new SpeechController(this,speech);
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {}
+//            st = new SpeechController(this,speech);
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {}
         }
 		t.start();
 	}
@@ -132,7 +132,7 @@ public class ExecuteTask implements Runnable{
 	/**
 	 * Halts execution of thread
 	 */
-	void halt(){
+	synchronized void halt(){
 		running = false;
 		stop();
 	}
@@ -236,10 +236,10 @@ public class ExecuteTask implements Runnable{
                             } catch (InterruptedException e) {}
                         }
 						stop();
-						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
-						try {
-							Thread.sleep(3000);
-						} catch (InterruptedException e) {}
+//						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//						try {
+//							Thread.sleep(3000);
+//						} catch (InterruptedException e) {}
 						
 						//Calculate error
 						double ex, ey;
@@ -280,10 +280,10 @@ public class ExecuteTask implements Runnable{
 					if (isInThreshold(currentError, ArgType.ANGLE)){
 						taskComplete = true;
 						stop();
-						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
-						try {
-							Thread.sleep(3000);
-						} catch (InterruptedException e) {}
+//						st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//						try {
+//							Thread.sleep(3000);
+//						} catch (InterruptedException e) {}
 						
 						//Calculate error
 						double ex, ey;
@@ -309,10 +309,10 @@ public class ExecuteTask implements Runnable{
 				if (isInThreshold(currentError, ArgType.ANGLE)){
 					taskComplete = true;
 					stop();
-					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad"); 
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {}
+//					st = new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//					try {
+//						Thread.sleep(3000);
+//					} catch (InterruptedException e) {}
 					parent.bac.updateError(0, 0, currentError);
 				}else{
 					//logic
@@ -329,10 +329,10 @@ public class ExecuteTask implements Runnable{
 				if (isInThreshold(currentError, ArgType.DISTANCE)){
 					taskComplete = true;
 					stop();
-					new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m"); 
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {}
+//					new SpeechController(this,"E" + filterSpeech(currentError,SPEECH_PREC) + " m");
+//					try {
+//						Thread.sleep(3000);
+//					} catch (InterruptedException e) {}
 					double dir = BearingController.getRDirection(robot);
 					parent.bac.updateError(currentError*Math.cos(dir), currentError*Math.sin(dir), 0);
 				}else{
