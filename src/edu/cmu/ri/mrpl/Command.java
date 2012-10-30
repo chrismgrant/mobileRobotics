@@ -105,7 +105,7 @@ public class Command
       public Angle angle;
 
       AngleArgument(Angle a) { angle = new Angle(a); }
-      AngleArgument(double a) { angle = new Angle(a); }
+      public AngleArgument(double a) { angle = new Angle(a); }
 
       public String toString() { return angle.toString(); }
     }

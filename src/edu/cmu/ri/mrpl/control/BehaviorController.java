@@ -276,45 +276,53 @@ public class BehaviorController {
 		double distance = 0;
 		double lVel=0;
 		double[] speed = {0,0};
+
 		double newRadius = calculateRadiusOfTurning(p);
-//        System.out.println("newRadius:"+newRadius);
+        System.out.println("newRadius:"+newRadius+", point:"+p.toString());
 
 		curv = 1/newRadius;
-		if (Math.abs(newRadius)> .3){
-			radius = newRadius;
-			theta = Math.atan2(p.getY(), p.getX());
-			distance = p.getX();
-			distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
+        if( p.getX() >=0){
+            if (Math.abs(newRadius) > .3){
+                radius = newRadius;
+                theta = Math.atan2(p.getY(), p.getX());
+                distance = p.getX();
+                distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
 
-			lVel = shadowPID.getOutput(distance);
-			speed[1] = clamp(lVel, MAX_SPEED);
-			speed[0] =  clamp(turnPID.getOutput(theta),6*MAX_SPEED);
-		}
-		else if (Math.abs(newRadius)<.3 && Math.abs(newRadius) > .15){
-			if(Math.atan2(p.getX(),radius-p.getY()) < .1 || Math.atan2(p.getX(),radius-p.getY())>1.9){
-				radius = newRadius;
-			}
-			theta = Math.atan2(p.getX(),radius-p.getY());
-			curv = 1/radius;
-			//Is the point to the left or the right?
-			theta = (radius >= 0)?theta : -theta;
-			distance = radius * theta;	
-			//Is the point on the straight line?
-			distance = (Math.abs(p.getY()) < 0.01)?p.getX():distance;
-			distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
-			lVel = shadowPID.getOutput(distance);
+                lVel = shadowPID.getOutput(distance);
+                speed[1] = clamp(lVel, MAX_SPEED);
+                speed[0] =  clamp(turnPID.getOutput(theta),6*MAX_SPEED);
+            }
+            else if (Math.abs(newRadius)<.3 && Math.abs(newRadius) > .15 ){
+                if(Math.atan2(p.getX(),radius-p.getY()) < .1 || Math.atan2(p.getX(),radius-p.getY())>1.9){
+                    radius = newRadius;
+                }
+                theta = Math.atan2(p.getX(),radius-p.getY());
+                curv = 1/radius;
+                //Is the point to the left or the right?
+                theta = (radius >= 0)?theta : -theta;
+                distance = radius * theta;
+                //Is the point on the straight line?
+                distance = (Math.abs(p.getY()) < 0.01)?p.getX():distance;
+                distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
+                lVel = shadowPID.getOutput(distance);
 
-			speed[1] = clamp(lVel, MAX_SPEED);
-			speed[0] = curv * speed[1];
-		}
-		else if(Math.abs(newRadius)<.15){
-			radius = newRadius;
-			theta = Math.atan2(p.getY(), p.getX());
-			distance = 0;
-			speed[1]= 0;
-			speed[0] = clamp(turnPID.getOutput(theta),2*MAX_SPEED);
-		}
-		
+                speed[1] = clamp(lVel, MAX_SPEED);
+                speed[0] = curv * speed[1];
+            }
+            else if(Math.abs(newRadius)<.15){
+                radius = newRadius;
+                theta = Math.atan2(p.getY(), p.getX());
+                distance = 0;
+                speed[1]= 0;
+                speed[0] = clamp(turnPID.getOutput(theta),2*MAX_SPEED);
+            }
+        } else{
+            radius = newRadius;
+            theta = Math.atan2(p.getY(), p.getX());
+            distance = 0;
+            speed[1]= 0;
+            speed[0] = clamp(turnPID.getOutput(theta),2*MAX_SPEED);
+        }
 		
 //		System.out.println("  R:"+radius +" ,Th:"+theta+" ,D:"+distance);
 //		System.out.println("  Speed A:"+speed[0]+" ,L:"+speed[1]);

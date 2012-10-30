@@ -240,9 +240,9 @@ public class CommandController {
                 exe.stop();
                 Path executePath = mpc.searchForPath(Convert.RealPoseToMazeState(bac.getMazePose()));
                 Command.PathArgument pArg = new Command.PathArgument(executePath);
-//                if (needsToTurnAround) {
-//                    TurnAround()
-//                }
+                Command.AngleArgument aArg = new Command.AngleArgument(
+                        Convert.WRTRobot(bac.getMazePose(),executePath.get(0)).getTh());
+                addCommand(new Command(Command.Type.TURNTO, aArg));
                 addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
             }
             vc.addPoints(pointsConsole, trc.getUpdateTrackerRPos());
