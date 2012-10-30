@@ -479,7 +479,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
                     soc.updateSonars(sonars);
                     sc2.setSonars(soc.getSonarReadings());
                     lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-                    trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
+                    trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
                     trc.updateTrackers(bac.getDeltaPose());
                     if (lastDistance == 0) {
                         bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));

@@ -159,6 +159,9 @@ public class CommandController {
 	Command.Argument getActiveCommandArg(){
 		return active.argument;
 	}
+    public synchronized void clearCommands(){
+        executeQueue.clear();
+    }
 	/**
 	 * Enqueues command to executeQueue
 	 * @param c New command to add
@@ -190,7 +193,7 @@ public class CommandController {
 		wc.updateWheels(robot, bc.isBumped(robot));
 
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-        trc.addTrackersFromSonar(lastDistance, soc.getSonarReadings());
+        trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
 
         if (useVisualization){
@@ -238,14 +241,16 @@ public class CommandController {
                 exe.stop();
                 exe.halt();
                 exe.stop();
+                Toolkit.getDefaultToolkit().beep();
                 Path executePath = mpc.searchForPath(Convert.RealPoseToMazeState(bac.getMazePose()));
                 Command.PathArgument pArg = new Command.PathArgument(executePath);
                 Command.AngleArgument aArg = new Command.AngleArgument(
                         Convert.WRTRobot(bac.getMazePose(),executePath.get(0)).getTh());
-                addCommand(new Command(Command.Type.TURNTO, aArg));
+                clearCommands();
+                addCommand(new Command(Command.Type.TURNTO, aArg, false));
                 addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
             }
-            vc.addPoints(pointsConsole, trc.getUpdateTrackerRPos());
+            vc.addPoints(pointsConsole, trc.getNewTrackerRPos());
 
             vc.updateVisualizer(pointsConsole, robot);
 

@@ -14,7 +14,7 @@ import edu.cmu.ri.mrpl.maze.MazeState;
  */
 public class BearingController {
 
-    private static final double UPDATE_DISTANCE = 1.0;
+    private static final double UPDATE_DISTANCE = 1.2;
 	
 	private RealPose2D pose;
 	/**

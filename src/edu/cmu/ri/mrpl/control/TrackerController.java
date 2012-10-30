@@ -9,6 +9,7 @@ import java.util.Set;
 
 import edu.cmu.ri.mrpl.kinematics2D.*;
 import fj.Effect;
+import fj.data.Array;
 import fj.data.List;
 
 import static fj.data.List.fromString;
@@ -41,12 +42,14 @@ public class TrackerController {
 	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
 	private static final int TRACKER_MIN_COUNT = 1;
-    private static final int WALL_TRACKER_MIN = 100;
+    private static final int WALL_TRACKER_MIN = 10;
     private static final double EPSILON = .001;
 	private static final double T9inchesToMeters = 0.7366;
     private static final double UPDATE_DISTANCE = .01;
-    private static final int MIN_HITS = 5;
-    private static final int MAX_HITS = 18;
+    private static final double WALL_DISTANCE = .01;
+    private static final double WALL_CORNER_CUTOFF = T9inchesToMeters / 4;
+    private static final double MIN_HIT_RATIO = .8;
+    private static final double MAX_HIT_RATIO = 1.1;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -97,9 +100,10 @@ public class TrackerController {
      * @param totalDistance total distance traveled since last update
 	 * @param sonarReadings standard 16-array of sonar readings
 	 */
-	public void addTrackersFromSonar(double totalDistance, double[] sonarReadings){
+	public void addTrackersFromSonar(RealPose2D robotPose, double totalDistance, double[] sonarReadings){
+        newTrackers = list();
         if (totalDistance - lastSonarRecordDistance > UPDATE_DISTANCE) {
-			forceAddTrackersFromSonar(sonarReadings);
+			forceAddTrackersFromSonar(robotPose, sonarReadings);
             lastSonarRecordDistance = totalDistance;
         }
 	}
@@ -108,7 +112,7 @@ public class TrackerController {
      * Adds trackers from 16 sonar readings regardless of last update
      * @param sonarReadings standard 16-array of sonar readings
      */
-    public void forceAddTrackersFromSonar(double[] sonarReadings) {
+    public void forceAddTrackersFromSonar(RealPose2D robotPose, double[] sonarReadings) {
         newTrackers = List.list();
         RealPoint2D position;
         double x,y,th;
@@ -118,7 +122,7 @@ public class TrackerController {
                 x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
                 y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
                 position = new RealPoint2D(x,y);
-                addTracker(position);
+                addTracker(robotPose, position);
 
             }
         }
@@ -128,7 +132,15 @@ public class TrackerController {
 	 * Adds a tracker to the tracking list
 	 * @param position Position of point relative to robot
 	 */
-	void addTracker(RealPoint2D position){
+	void addTracker(RealPose2D robotPose, RealPoint2D position){
+        Line2D[] border = getBorder(robotPose);
+        Line2D trackerVector = new Line2D.Double(robotPose.getPosition(),Convert.WRTWorld(robotPose,position));
+        Point2D temp = new Point2D.Double();
+        for (Line2D l : border) {
+            if (LineSegment.intersectLines(l,trackerVector,temp)) {
+                return;
+            }
+        }
 		Tracker newTracker = new Tracker(position);
 		newTrackers = newTrackers.cons(newTracker);
 	}
@@ -151,14 +163,23 @@ public class TrackerController {
 //		System.out.println(newTrackers.length());
         if (newTrackers.length() > 0) {
             trackers = trackers.append(newTrackers);
-            newTrackers = List.list();
         }
 
         //Update walls if close to cell center
-        if (atCellEdge(newPose)) {
+//        if (atCellEdge(newPose)) {
+        if (atCellCenter(newPose)) {
             wallChanged = updateMazeWalls(newPose);
         }
         return wallChanged;
+    }
+
+    private boolean atCellCenter(RealPose2D newPose) {
+        double half = T9inchesToMeters / 2;
+        double x = (newPose.getX()+half) % T9inchesToMeters - half;
+        double y = (newPose.getY()+half) % T9inchesToMeters - half;
+
+        RealPoint2D point2D = new RealPoint2D(x,y);
+        return (point2D.distance(0,0) < .1);
     }
 
     private boolean atCellEdge(RealPose2D newPose) {
@@ -324,7 +345,7 @@ public class TrackerController {
     private Line2D[] getShortBorder(RealPose2D mazePose) {
         Line2D[] border = getBorder(mazePose);
         Line2D[] shortBorder = new Line2D[4];
-        double d = T9inchesToMeters / 4;
+        double d = WALL_CORNER_CUTOFF;
         shortBorder[0] = new Line2D.Double(border[0].getX1(),border[0].getY1()+d,border[0].getX2(),border[0].getY2()-d);
         shortBorder[1] = new Line2D.Double(border[1].getX1()+d,border[1].getY1(),border[1].getX2()-d,border[1].getY2());
         shortBorder[2] = new Line2D.Double(border[2].getX1(),border[2].getY1()+d,border[2].getX2(),border[2].getY2()-d);
@@ -389,74 +410,84 @@ public class TrackerController {
         int cell_x, cell_y;
         boolean updated = false;
         MazeWorld.Direction direction = null;
-        int trackerCount = 0;
+        Array<Integer> trackerCount = Array.array(0,0,0,0);
         updateTrackers = list();
 
         if (trackers.length() > WALL_TRACKER_MIN) {
             // check each wall for trackers, and count 'em
             for (int i = 0; i < 4; i++) {
                 // count how many trackers are on each wall
-                trackerCount = 0;
+                trackerCount.set(i,0);
                 for (Tracker t : trackers) {
-                    point2D = Convert.WRTWorld(mazePose,t.getRPoint());
+                    point2D = Convert.WRTWorld(mazePose, t.getRPoint());
                     distance = LineSegment.closestPointOnLineSegment(border[i],point2D, temp);
-                    System.out.print(distance+",");
-                    if (distance < .025) {
-                        trackerCount++;
+                    if (distance < WALL_DISTANCE) {
+                        trackerCount.set(i,trackerCount.get(i)+1);
                         updateTrackers = updateTrackers.cons(t);
                     }
                 }
-                System.out.print("\n");
-                // add or remove walls as necessary
-                cell_x = (int) ((mazePose.getX()+half) / T9inchesToMeters);
-                cell_y = (int) ((mazePose.getY()+half) / T9inchesToMeters);
-                switch (i) {
-                    case 0:
-                        direction = MazeWorld.Direction.East;
-                        break;
-                    case 1:
-                        direction = MazeWorld.Direction.North;
-                        break;
-                    case 2:
-                        direction = MazeWorld.Direction.West;
-                        break;
-                    case 3:
-                        direction = MazeWorld.Direction.South;
+            }
+        }
+        Integer trackerCountAvg = trackerCount.foldLeft(new F2<Integer, Integer, Integer>() {
+            @Override
+            public Integer f(Integer integer, Integer integer1) {
+                return integer+integer1;
+            }
+        }, 0)/4;
+        //update walls
+        for (int i = 0; i < 4; i++) {
+            // add or remove walls as necessary
+            cell_x = (int) ((mazePose.getX()+half) / T9inchesToMeters);
+            cell_y = (int) ((mazePose.getY()+half) / T9inchesToMeters);
+            switch (i) {
+                case 0:
+                    direction = MazeWorld.Direction.East;
+                    break;
+                case 1:
+                    direction = MazeWorld.Direction.North;
+                    break;
+                case 2:
+                    direction = MazeWorld.Direction.West;
+                    break;
+                case 3:
+                    direction = MazeWorld.Direction.South;
+            }
+            System.out.println(" Wall"+cell_x+","+cell_y+","+direction+" Trackers:"+trackerCount.get(i));
+            if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg < MIN_HIT_RATIO) {
+                if (mazeWorld.isWall(cell_x,cell_y,direction)) {
+                    System.out.print(" removed.");
+                    updated = removeWall(cell_x,cell_y,direction);
                 }
-                if (trackerCount < MIN_HITS) {
-                    if (mazeWorld.isWall(cell_x,cell_y,direction)) {
-                        updated = true;
-
-                    }
-                    removeWall(cell_x,cell_y,direction);
-                }
-                if (trackerCount > MAX_HITS) {
-                    if (!mazeWorld.isWall(cell_x,cell_y, direction)) {
-                        updated = true;
-                    }
+            }
+            if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg > MAX_HIT_RATIO) {
+                if (!mazeWorld.isWall(cell_x,cell_y, direction)) {
+                    updated = true;
+                    System.out.print(" added.");
                     mazeWorld.addWall(cell_x,cell_y,direction);
                 }
             }
+            System.out.print("\n");
         }
         System.out.printf("Getting %d updates\n",updateTrackers.length());
 
         return updated;
 	}
 
-    private void removeWall(int x, int y, MazeWorld.Direction direction) {
+    private boolean removeWall(int x, int y, MazeWorld.Direction direction) {
         if (x == 0 && direction == MazeWorld.Direction.West) {
-            return;
+            return false;
         }
         if (x == mazeWorld.getWidth() - 1 && direction == MazeWorld.Direction.East) {
-            return;
+            return false;
         }
         if (y == 0 && direction == MazeWorld.Direction.South) {
-            return;
+            return false;
         }
         if (y == mazeWorld.getHeight() - 1 && direction == MazeWorld.Direction.North){
-            return;
+            return false;
         }
         mazeWorld.removeWall(x,y,direction);
+        return true;
     }
 
 	/**
@@ -483,13 +514,15 @@ public class TrackerController {
 		});
 	}
     public List<RealPoint2D> getUpdateTrackerRPos(){
-        return updateTrackers.map(new F<Tracker, RealPoint2D>() {
+        List<RealPoint2D> l = updateTrackers.map(new F<Tracker, RealPoint2D>() {
             @Override
             public RealPoint2D f(Tracker tracker) {
                 RealPoint2D sol = tracker.getRPoint();
                 return new RealPoint2D(sol);
             }
         });
+        updateTrackers = list();
+        return l;
     }
 
     /**

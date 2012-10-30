@@ -171,7 +171,7 @@ public class ExecuteTask implements Runnable{
                 robot.updateState();
                 robot.getSonars(sonars);
                 parent.soc.updateSonars(sonars);
-                parent.trc.forceAddTrackersFromSonar(parent.soc.getSonarReadings());
+                parent.trc.forceAddTrackersFromSonar(parent.bac.getMazePose(),parent.soc.getSonarReadings());
                 parent.trc.updateTrackers(parent.bac.getMazePose());
                 try {
                     Thread.sleep(50);
@@ -372,7 +372,7 @@ public class ExecuteTask implements Runnable{
 			}
 			}
 			try {
-				Thread.sleep(20);
+				Thread.sleep(30);
 			} catch(InterruptedException iex) {
 				System.out.println("\"Both\" sleep interrupted");
 			}
