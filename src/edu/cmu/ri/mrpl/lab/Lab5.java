@@ -490,7 +490,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 
 //                    vc.addPoints(pc, trc.getNewTrackerWPos(Convert.getRobotPose(robot)));
 //                    System.out.println(trc.getFilteredTrackerRPos().length());
-                    vc.addPoints(pc, trc.getAllTrackerRPos(bac.getMazePose()));
+                    vc.addPoints(pc, trc.getAllTrackerRPos());
 
                     vc.updateVisualizer(pc, robot);
 //                    pc.drawWorld();
@@ -515,8 +515,8 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 				 
                  // Data Logging
    				    if(true){
-                    for(int i = 0; i< trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().length(); i++){
-                    	outFollowTracker.print(trc.getAllTrackerRPos(BearingController.getRPose(robot)).toArray().get(i).toString()+";");
+                    for(int i = 0; i< trc.getAllTrackerRPos().toArray().length(); i++){
+                    	outFollowTracker.print(trc.getAllTrackerRPos().toArray().get(i).toString()+";");
                     }
                     outFollowTracker.println();
                     outRobo.println(BearingController.getRPose(robot).toString());

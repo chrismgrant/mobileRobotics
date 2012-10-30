@@ -160,7 +160,7 @@ public class BehaviorController {
      *
  	 * Takes a path(list of poses) and refines it to a list of points with a .3 distance.
      * @param initPose initial pose of path WRT world
- 	 * @param l input path WRT Robot
+ 	 * @param l input path WRT world
  	 * @return path spaced with intermediary points
  	 */
 	

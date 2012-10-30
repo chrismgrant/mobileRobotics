@@ -11,9 +11,7 @@ import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
-import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
-import edu.cmu.ri.mrpl.maze.MazeState;
 
 
 /**
@@ -37,8 +35,8 @@ public class CommandController {
 	Robot robot;
     PointsConsole pointsConsole;
 
-    private static final boolean DEBUGFLAG = true;
-    private static final boolean PATHSEARCHFLAG = true;
+    private static final boolean DEBUG_FLAG = true;
+    private static final boolean PATH_SEARCH_FLAG = true;
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
 	private Command active;
@@ -56,6 +54,7 @@ public class CommandController {
     PrintWriter outTrackRob;
     PrintWriter outTrackFMaze;
     PrintWriter outTrackFRob;
+    PrintWriter outTrackWMaze;
 
     /**
 	 * Initializes a new CommandController
@@ -75,7 +74,7 @@ public class CommandController {
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
-        if (PATHSEARCHFLAG) {
+        if (PATH_SEARCH_FLAG) {
             Path executePath = mpc.searchForPath(trc.getMazeInit());
             Command.PathArgument pArg = new Command.PathArgument(executePath);
             addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
@@ -95,7 +94,7 @@ public class CommandController {
             pointsConsole = pc;
         }
 
-        if (DEBUGFLAG) {
+        if (DEBUG_FLAG) {
             try {
                 FileWriter outFileRobo = new FileWriter("TrackRobo");
                 FileWriter outFileRoboE = new FileWriter("TrackRoboEn");
@@ -105,6 +104,7 @@ public class CommandController {
                 FileWriter outFileTrackRob = new FileWriter("TrackOutRob.txt");
                 FileWriter outFileTrackFMaze = new FileWriter("TrackOutFMaze.txt");
                 FileWriter outFileTrackFRob = new FileWriter("TrackOutFRob.txt");
+                FileWriter outFileTrackWMaze = new FileWriter("TrackOutWMaze.txt");
 
                 outRobo = new PrintWriter(outFileRobo);
                 outRoboEncode = new PrintWriter(outFileRoboE);
@@ -114,11 +114,11 @@ public class CommandController {
                 outTrackRob = new PrintWriter(outFileTrackRob);
                 outTrackFMaze = new PrintWriter(outFileTrackFMaze);
                 outTrackFRob = new PrintWriter(outFileTrackFRob);
+                outTrackWMaze = new PrintWriter(outFileTrackWMaze);
             } catch (IOException e) {}
         }
-
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
-
+        exe.initPose();
     }
 	public CommandController(Robot r, String mazeFile){
         this(r, mazeFile,null);
@@ -199,7 +199,7 @@ public class CommandController {
             robots.add(null);
             vc.updateRobotPos(pointsConsole, bac.getMazePose());
             if (lastDistance == 0) {
-                if (DEBUGFLAG) {
+                if (DEBUG_FLAG) {
                     outTrackMaze.print("Gradient input: {");
                     for (RealPoint2D p : trc.getAllTrackerWPos(bac.getMazePose())){
                         outTrackMaze.print("{"+p.getX()+","+p.getY()+"},");
@@ -212,7 +212,7 @@ public class CommandController {
                     outTrackRob.println("}");
                 }
                 bac.updateMazePoseBySonar(trc.getMazeCorrection(bac.getMazePose()));
-                if (DEBUGFLAG) {
+                if (DEBUG_FLAG) {
                     outTrackFMaze.print("Gradient input: {");
                     for (RealPoint2D p : trc.getFilteredTrackerWPos(bac.getMazePose())){
                         outTrackFMaze.print("{"+p.getX()+","+p.getY()+"},");
@@ -224,9 +224,8 @@ public class CommandController {
                     }
                     outTrackFRob.println("}");
                 }
-                vc.addPoints(pointsConsole, trc.getFilteredTrackerRPos());
             }
-            vc.updateVisualizer(pointsConsole, robot);
+
 
             robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
             robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
@@ -234,9 +233,11 @@ public class CommandController {
             mg.setContRobots(robots);
             mv.recreateMazeGraphics(mg);
 
-            if (wallChanged && PATHSEARCHFLAG) {
+            if (wallChanged && PATH_SEARCH_FLAG) {
                 // Stop execution and re-search path.
+                exe.stop();
                 exe.halt();
+                exe.stop();
                 Path executePath = mpc.searchForPath(Convert.RealPoseToMazeState(bac.getMazePose()));
                 Command.PathArgument pArg = new Command.PathArgument(executePath);
 //                if (needsToTurnAround) {
@@ -244,10 +245,14 @@ public class CommandController {
 //                }
                 addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
             }
+            vc.addPoints(pointsConsole, trc.getUpdateTrackerRPos());
+
+            vc.updateVisualizer(pointsConsole, robot);
+
         }
 
-        if (DEBUGFLAG) {
-            for (RealPoint2D p : trc.getAllTrackerRPos(BearingController.getRPose(robot))) {
+        if (DEBUG_FLAG) {
+            for (RealPoint2D p : trc.getAllTrackerRPos()) {
                 outFollowTracker.print(p.toString()+";");
             }
             outFollowTracker.println();
@@ -280,7 +285,7 @@ public class CommandController {
 	}
 	public synchronized void haltThread() {
 		System.out.println("Halting...");
-        if (DEBUGFLAG) {
+        if (DEBUG_FLAG) {
             outRobo.close();
             outRoboEncode.close();
             outRoboMaze.close();
@@ -289,6 +294,7 @@ public class CommandController {
             outTrackRob.close();
             outTrackFMaze.close();
             outTrackFRob.close();
+            outTrackWMaze.close();
         }
 		exe.halt();
 		System.out.println("Halt sent");

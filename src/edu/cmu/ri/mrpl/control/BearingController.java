@@ -39,7 +39,8 @@ public class BearingController {
 		xError = 0;
 		yError = 0;
 		thError = 0;
-        distLastUpdate = UPDATE_DISTANCE - .1;
+//        distLastUpdate = UPDATE_DISTANCE - .1;
+        distLastUpdate = 0;
         setInitMazePose(init,robotInit);
 
 	}

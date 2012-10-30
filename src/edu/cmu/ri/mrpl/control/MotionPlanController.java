@@ -21,7 +21,7 @@ public class MotionPlanController {
     private MazeWorld mazeWorld;
 
     public MotionPlanController(MazeWorld mazeWorld){
-        this.mazeWorld = new MazeWorld(mazeWorld);
+        this.mazeWorld = mazeWorld;
     }
 
     class MazeStateNode implements Comparable<MazeStateNode>{
@@ -127,7 +127,7 @@ public class MotionPlanController {
      * @return
      */
     public Path searchForPath(MazeState initState) {
-        //TODO overhaul for A*
+        System.out.printf("Start: %s\n", initState.toString());
         int debugCount = 0;
 
         Set<MazeState> visitedPositions = new HashSet<MazeState>();
@@ -162,10 +162,10 @@ public class MotionPlanController {
                         if (mazeWorld.atGoal(left)) goalState = left;
                         if (mazeWorld.atGoal(right)) goalState = right;
                         resultPath.add(Convert.MazeStateToRealPose(goalState));
-                        mazeWorld.removeGoal(front);
-                        mazeWorld.removeGoal(rear);
-                        mazeWorld.removeGoal(left);
-                        mazeWorld.removeGoal(right);
+//                        mazeWorld.removeGoal(front);
+//                        mazeWorld.removeGoal(rear);
+//                        mazeWorld.removeGoal(left);
+//                        mazeWorld.removeGoal(right);
 //                        resultPath.addAll(searchForPath(front));
                         System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
