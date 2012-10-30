@@ -24,7 +24,8 @@ import java.io.PrintWriter;
  */
 public class Lab9 extends JFrame implements ActionListener, TaskController{
     public static final boolean SIM = true;
-    public static final String mazeFile = "in3.maze";
+    public static final String knownMazeFile = "in.maze";
+    public static final String realMazeFile = "in3.maze";
     public String command;
     public Robot robot;
     private SonarConsole sc;
@@ -197,7 +198,7 @@ public class Lab9 extends JFrame implements ActionListener, TaskController{
 
         if (SIM) {
             robot=new SimRobot();
-            ((SimRobot) robot).loadMaze(mazeFile);
+            ((SimRobot) robot).loadMaze(realMazeFile);
         } else {
 		    robot=new ScoutRobot();
         }
@@ -504,7 +505,7 @@ public class Lab9 extends JFrame implements ActionListener, TaskController{
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot,mazeFile, pc);
+            cc = new CommandController(robot,knownMazeFile, pc);
 
             try{
                 FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");

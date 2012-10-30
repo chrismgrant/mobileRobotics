@@ -11,7 +11,7 @@ public class SpeechController implements Runnable{
 	
 	public SpeechController(Object parent,String input){
 		pt = parent;
-		speech = input;
+		speech = input.concat("");
 		t = new Thread(this, "soundDriver");
 		hal = new Speech();
 		t.start();

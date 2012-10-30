@@ -153,11 +153,12 @@ public final class Convert {
      * @return
      */
     public static int mazeRound(double val) {
-        return (int) ((val + .5)%1);
+        return (int) ((val + .5)/1);
     }
 
     public static MazeWorld.Direction mazeRoundDirection(double val) {
-        int dir = (int) ((radianToMazeDirection(val) + Math.PI/4) % (Math.PI/2));
+
+        int dir = (int) Math.floor(radianToMazeDirection(val)+.5);
         MazeWorld.Direction mdir = null;
         switch (dir) {
             case 0:
@@ -167,12 +168,14 @@ public final class Convert {
                 mdir = MazeWorld.Direction.North;
                 break;
             case 2:
+            case -2:
                 mdir = MazeWorld.Direction.West;
                 break;
-            case 3:
+            case -1:
                 mdir = MazeWorld.Direction.South;
                 break;
         }
+
         return mdir;
     }
 

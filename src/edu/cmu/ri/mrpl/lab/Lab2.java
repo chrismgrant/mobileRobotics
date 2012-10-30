@@ -409,7 +409,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 				
 				vc.updateRobotPos(pc, bac.getPose());
 
-				vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
+				vc.addPoints(pc, trc.getNewTrackerRPos());
 
 				vc.updateVisualizer(pc, robot);
 				wc.setALVel(.3, .3);
@@ -468,7 +468,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 					//trc.addTrackersFromSonar(sonars, bac.getPose());
 					trc.updateTrackers(bac.getDeltaPose());
 					vc.updateRobotPos(pc, bac.getPose());
-					vc.addPoints(pc, trc.getNewTrackerRPos(bac.getPose()));
+					vc.addPoints(pc, trc.getNewTrackerRPos());
 					//vc.addPoints(pc, trc.getNewTrackerRPos(BearingController.getRPose(robot)));
 					vc.updateVisualizer(pc, robot);
 					System.out.println(trc.toString());
@@ -476,7 +476,7 @@ public class Lab2 extends JFrame implements ActionListener, TaskController {
 //						System.out.print(trc.getAllTrackerRPos().toArray().get(i));
 //						
 //					}
-					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos(bac.getPose()));
+					bvc.updateBehavior(bac.getPose(), trc.getAllTrackerRPos());
 					//System.out.println("bvc target: "+bvc.getTarget().x+" , "+bvc.getTarget().y+"\n");
 
 					wc.setWheelVel(bvc.getTarget().x,bvc.getTarget().y);

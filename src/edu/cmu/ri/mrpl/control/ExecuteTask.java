@@ -70,12 +70,14 @@ public class ExecuteTask implements Runnable{
         initPose = p;
         parent = parentController;
         isContinuous = c.isContinuous;
-		
+
+        stop();
+
 		switch (active.type){
 		case FOLLOWPATH: {
 			PathArgument arg = (PathArgument)(active.argument);
-            System.out.println(parent.bac.getInitMazePose().toString());
-			pthArg = parent.bhc.refinePath(parent.bac.getInitMazePose(),arg.path);
+//            System.out.println(parent.bac.getInitMazePose().toString());
+			pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
             System.out.println("next:\n"+ pthArg.toString());
 			isContinuous = true;
 			speech = "Following path.";
@@ -116,10 +118,10 @@ public class ExecuteTask implements Runnable{
 		}
 		}
         if (!speech.isEmpty()) {
-            st = new SpeechController(this,speech);
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {}
+//            new SpeechController(this,speech);
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {}
         }
 		t.start();
 	}
@@ -149,23 +151,13 @@ public class ExecuteTask implements Runnable{
 	/**
 	 * Stops the robot
 	 */
-	private void stop(){
+	synchronized void stop(){
 		parent.wc.setALVel(0, 0);
 		parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
 	}
-	/**
-	 * Runs the thread. Used by Thread class
-	 * Should only call accessor functions of parent controllers,
-	 * with exception of Wheel controller.  
-	 * 
-	 * Run is terminated when condition for specified command type is fulfilled 
-	 */
-	public synchronized void run(){
-		//Pre-loop initialization
-		double[] sonars = new double[16];
-		boolean flag0 = false;
-		int i = 1;
-        boolean debugFlag = true;
+    synchronized void initPose() {
+        double[] sonars = new double[16];
+        boolean debugFlag = parent.debugFlag;
         if (active.type == Command.Type.FOLLOWPATH) {
             for (int init = 0; init < 16; init++) {
                 robot.updateState();
@@ -202,6 +194,19 @@ public class ExecuteTask implements Runnable{
             }
             parent.bac.updateMazePoseBySonar(parent.trc.getMazeCorrection(parent.bac.getMazePose()));
         }
+    }
+	/**
+	 * Runs the thread. Used by Thread class
+	 * Should only call accessor functions of parent controllers,
+	 * with exception of Wheel controller.  
+	 * 
+	 * Run is terminated when condition for specified command type is fulfilled 
+	 */
+	public synchronized void run(){
+		//Pre-loop initialization
+		double[] sonars = new double[16];
+		boolean flag0 = false;
+		int i = 1;
 
         while (running && !taskComplete){
 			// Loop header
