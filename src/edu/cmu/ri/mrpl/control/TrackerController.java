@@ -50,6 +50,7 @@ public class TrackerController {
     private static final double WALL_CORNER_CUTOFF = T9inchesToMeters / 4;
     private static final double MIN_HIT_RATIO = .8;
     private static final double MAX_HIT_RATIO = 1.1;
+    private static final double WALL_EXPAND = .1;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -133,7 +134,7 @@ public class TrackerController {
 	 * @param position Position of point relative to robot
 	 */
 	void addTracker(RealPose2D robotPose, RealPoint2D position){
-        Line2D[] border = getBorder(robotPose);
+        Line2D[] border = getExpandBorder(robotPose);
         Line2D trackerVector = new Line2D.Double(robotPose.getPosition(),Convert.WRTWorld(robotPose,position));
         Point2D temp = new Point2D.Double();
         for (Line2D l : border) {
@@ -340,6 +341,17 @@ public class TrackerController {
         border[2] = new Line2D.Double(x1,y1,x1,y2);//w
         border[3] = new Line2D.Double(x1,y1,x2,y1);//s
         return border;
+    }
+
+    private Line2D[] getExpandBorder(RealPose2D mazePose) {
+        Line2D[] border = getBorder(mazePose);
+        Line2D[] expBorder = new Line2D[4];
+        double d = WALL_EXPAND;
+        expBorder[0] = new Line2D.Double(border[0].getX1()+d,border[0].getY1()-d,border[0].getX2()+d,border[0].getY2()+d);
+        expBorder[1] = new Line2D.Double(border[1].getX1()-d,border[1].getY1()+d,border[1].getX2()+d,border[1].getY2()+d);
+        expBorder[2] = new Line2D.Double(border[2].getX1()-d,border[2].getY1()-d,border[2].getX2()-d,border[2].getY2()+d);
+        expBorder[3] = new Line2D.Double(border[3].getX1()-d,border[3].getY1()-d,border[3].getX2()+d,border[3].getY2()-d);
+        return expBorder;
     }
 
     private Line2D[] getShortBorder(RealPose2D mazePose) {
