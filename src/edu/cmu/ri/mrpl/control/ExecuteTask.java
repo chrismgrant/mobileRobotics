@@ -25,7 +25,7 @@ import java.io.PrintWriter;
  */
 public class ExecuteTask implements Runnable{
 
-	private static final double DIST_THRESHOLD = .001;
+	private static final double DIST_THRESHOLD = .003;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
     private static final int INITIAL_SONARS = 50;
@@ -146,7 +146,7 @@ public class ExecuteTask implements Runnable{
 	 */
 	private boolean isInThreshold(double error, ArgType argtype){
 		double threshold = (argtype == ArgType.DISTANCE)?DIST_THRESHOLD:ANG_THRESHOLD;
-		return Math.abs(error) < ((isContinuous) ? 300*threshold:threshold) ;
+		return Math.abs(error) < ((isContinuous) ? 100*threshold:threshold) ;
 	}
 	/**
 	 * Stops the robot
