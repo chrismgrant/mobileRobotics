@@ -22,7 +22,7 @@ import java.io.PrintWriter;
  * Time: 2:40 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Lab9 extends JFrame implements ActionListener, TaskController{
+public class Lab10 extends JFrame implements ActionListener, TaskController{
     public static final boolean SIM = true;
     public static final String knownMazeFile = "in.maze";
     public static final String realMazeFile = "in3.maze";
@@ -58,8 +58,8 @@ public class Lab9 extends JFrame implements ActionListener, TaskController{
 
     static final int DEFAULT_ROOM_SIZE = 4;
 
-    public Lab9() {
-        super("Lab9");
+    public Lab10() {
+        super("Lab10");
 
         connectButton = new JButton("connect");
         disconnectButton = new JButton("disconnect");
@@ -200,7 +200,7 @@ public class Lab9 extends JFrame implements ActionListener, TaskController{
             robot=new SimRobot();
             ((SimRobot) robot).loadMaze(realMazeFile);
         } else {
-		    robot=new ScoutRobot();
+            robot=new ScoutRobot();
         }
     }
 
@@ -330,7 +330,7 @@ public class Lab9 extends JFrame implements ActionListener, TaskController{
     public static void main(String[] argv) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new Lab9();
+                new Lab10();
             }
         });
     }

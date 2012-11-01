@@ -514,7 +514,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
                 PrintWriter outFollowTracker = new PrintWriter(outFileFollowTracker);
                 while(!shouldStop()) {
 
-                    cc.execute();
+                    cc.step();
 
                     try {
                         Thread.sleep(50);

@@ -347,7 +347,7 @@ public class Lab5 extends JFrame implements ActionListener, TaskController {
 //            cc.addCommandFromFile("in.txt");
 
 			while(!shouldStop()) {
-                cc.execute();
+                cc.step();
 				try {
 					Thread.sleep(100);
 				} catch(InterruptedException iex) {

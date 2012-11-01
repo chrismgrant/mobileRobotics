@@ -239,9 +239,8 @@ public class CommandController {
             if (wallChanged && PATH_SEARCH_FLAG) {
                 // Stop execution and re-search path.
                 exe.stop();
-                exe.halt();
-                exe.stop();
                 Toolkit.getDefaultToolkit().beep();
+                exe.speak("Researching...");
                 Path executePath = mpc.searchForPath(Convert.RealPoseToMazeState(bac.getMazePose()));
                 Command.PathArgument pArg = new Command.PathArgument(executePath);
                 Command.AngleArgument aArg = new Command.AngleArgument(
@@ -249,6 +248,8 @@ public class CommandController {
                 clearCommands();
                 addCommand(new Command(Command.Type.TURNTO, aArg, false));
                 addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+                exe.setupTask(getNext(), bac.getMazePose());
+
             }
             vc.addPoints(pointsConsole, trc.getNewTrackerRPos());
 
@@ -281,12 +282,12 @@ public class CommandController {
 	/**
 	 * Creates new execution thread to complete pending command.
 	 */
-	public synchronized void execute(){
+	public synchronized void step(){
 //		System.out.println("Execute method" + active.type);
-		if (!exe.t.isAlive()){
-			getNext();
-			exe = new ExecuteTask(this, robot, active, bac.getMazePose());
-		}
+        boolean status = exe.step();
+        if (status) {
+            exe.setupTask(getNext(), bac.getMazePose());
+        }
 	}
 	public synchronized void haltThread() {
 		System.out.println("Halting...");
@@ -301,8 +302,7 @@ public class CommandController {
             outTrackFRob.close();
             outTrackWMaze.close();
         }
-		exe.halt();
-		System.out.println("Halt sent");
+		System.out.println("Halted");
 	}
 	
 	
