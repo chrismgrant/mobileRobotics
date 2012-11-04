@@ -325,6 +325,8 @@ public class CommandController {
                 holdingGold = cac.hasGold();
                 if (holdingGold) {
                     trc.targetDrop();
+                } else {
+                    trc.targetGold();
                 }
             }
             exe.setupTask(getNext(), bac.getMazePose());
