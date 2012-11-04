@@ -7,7 +7,6 @@ import edu.cmu.ri.mrpl.Command.PathArgument;
 import edu.cmu.ri.mrpl.Command.PoseArgument;
 import edu.cmu.ri.mrpl.Path;
 import edu.cmu.ri.mrpl.Robot;
-import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.Angle;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.kinematics2D.RealPose2D;
@@ -28,7 +27,7 @@ public class ExecuteTask{
 	private static final double DIST_THRESHOLD = .003;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
-    private static final int INITIAL_SONARS = 50;
+    private static final int INITIAL_SONAR_PINGS = 50;
 
     private static enum ArgType {DISTANCE, ANGLE};
 
@@ -76,6 +75,9 @@ public class ExecuteTask{
 
 
         switch (active.type){
+            case DROPGOLD: {
+                speech = "Dropping. Dropping. Dropping.";
+            }
             case PICKGOLD: {
                 speech = "Picking up. Picking up. Picking up.";
                 break;
@@ -172,7 +174,7 @@ public class ExecuteTask{
                 }
             }
         }
-        for (int init = 0; init < INITIAL_SONARS; init++) {
+        for (int init = 0; init < INITIAL_SONAR_PINGS; init++) {
             robot.updateState();
             robot.getSonars(sonars);
             parent.soc.updateSonars(sonars);
@@ -218,6 +220,22 @@ public class ExecuteTask{
         System.out.println("RobotMazePose:"+parent.bac.getMazePose());
         //Loop VM
         switch (active.type){
+            case DROPGOLD: {
+                //TODO implement
+                currentError = 0;
+                if (isInThreshold(currentError, ArgType.DISTANCE)) {
+                    parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                    taskComplete = true;
+                }
+            }
+            case PICKGOLD: {
+                //TODO implement
+                currentError = 0;
+                if (isInThreshold(currentError, ArgType.DISTANCE)) {
+                    parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                    taskComplete = true;
+                }
+            }
             case FOLLOWPATH:{//Targets are relative to world
                 RealPose2D targetWRTRob = null;
                 RealPose2D currentTarget = pthArg.get(pathIndex);
@@ -232,7 +250,6 @@ public class ExecuteTask{
                         double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
                         while (!isInThreshold(currentError, ArgType.ANGLE)) {
-                            //TODO fix
                             currentError = Angle.normalize(pthArg.get(pathIndex).getTh() -
                                     (delta + BearingController.getRDirection(robot)));
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
