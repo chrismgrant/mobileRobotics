@@ -34,12 +34,6 @@ import edu.cmu.ri.mrpl.maze.MazeWorld;
 public class TrackerController {
 
 	private static final double SONAR_ROBOT_RADIUS = .1905;
-	private static final int TRACKER_DECAY = 10;
-	private static final double DISTANCE_MAX = 2.2;
-	private static final double DISTANCE_TOLERANCE = .35;
-	private static final double DISTANCE_CLOSE_RANGE = .5;
-	private static final double FAST_ANGULAR_SPEED = .3;
-	private static final int LOST_COUNTER_THRESHOLD = 3;
     private static final double PRECISION = 3;
 	private static final int TRACKER_MIN_COUNT = 1;
     private static final int WALL_TRACKER_MIN = 10;
@@ -80,7 +74,9 @@ public class TrackerController {
 		filteredTrackers = List.list();
 		try {
 			mazeWorld = new MazeWorld(in);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+            System.out.printf("Error: cannot read mazefile\n");
+        }
 	}
 	/**
 	 * Gets the maze world
@@ -96,6 +92,44 @@ public class TrackerController {
 		}
 		return null;
 	}
+
+    /**
+     * Sets the goals in mazeWorld to free Golds
+     */
+    void targetGold() {
+        mazeWorld.removeAllGoals();
+        for (MazeState state : mazeWorld.getFreeGolds()) {
+            mazeWorld.addGoal(state);
+        }
+    }
+
+    /**
+     * Sets the goals in mazeWorld to free Drops
+     */
+    void targetDrop() {
+        mazeWorld.removeAllGoals();
+        for (MazeState state : mazeWorld.getDropGolds()) {
+            mazeWorld.addGoal(state);
+        }
+    }
+
+    /**
+     * Removes the gold at goldState from mazeWorld
+     * Handles the symmetric case
+     * @param goldState gold to be removed
+     */
+    void removeGold (MazeState goldState) {
+        mazeWorld.removeGold(goldState);
+    }
+
+    /**
+     * Removes the drop at dropState from mazeWorld
+     * Handles the symmetric case
+     * @param dropState drop to be removed
+     */
+    void removeDrop (MazeState dropState) {
+        mazeWorld.removeDrop(dropState);
+    }
 	/**
 	 * Adds trackers from 16 sonar readings
      * @param totalDistance total distance traveled since last update

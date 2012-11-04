@@ -76,6 +76,10 @@ public class ExecuteTask{
 
 
         switch (active.type){
+            case PICKGOLD: {
+                speech = "Picking up. Picking up. Picking up.";
+                break;
+            }
             case FOLLOWPATH: {
                 PathArgument arg = (PathArgument)(active.argument);
                 pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
@@ -155,7 +159,7 @@ public class ExecuteTask{
      */
     synchronized void initPose() {
         double[] sonars = new double[16];
-        boolean debugFlag = parent.debugFlag;
+        boolean debugFlag = parent.DEBUG_FLAG;
         if (active.type == Command.Type.FOLLOWPATH) {
             for (int init = 0; init < 16; init++) {
                 robot.updateState();

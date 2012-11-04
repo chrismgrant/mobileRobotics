@@ -51,33 +51,7 @@ public class BearingController {
     public void setInitMazePose(MazeState init, RealPose2D robotInit) {
         initPose = robotInit.clone();
         lastPose = initPose.clone();
-        double x,y,th;
-        x = Convert.mazeUnitToMeter(init.x());
-        y = Convert.mazeUnitToMeter(init.y());
-        switch (init.dir()){
-            case East: {
-                th = 0;
-                break;
-            }
-            case North: {
-                th = 1;
-                break;
-            }
-            case West: {
-                th = 2;
-                break;
-            }
-            case South: {
-                th = 3;
-                break;
-            }
-            default:{
-                th = -1;
-                break;
-            }
-        }
-        th = Convert.mazeDirectionToRadian(th);
-        mazePose = new RealPose2D(x,y,th);
+        mazePose = Convert.MazeStateToRealPose(init);
         initMazePose = mazePose.clone();
     }
 	/**

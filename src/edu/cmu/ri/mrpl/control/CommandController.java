@@ -23,6 +23,7 @@ public class CommandController {
 	WheelController wc;
 	SonarController soc;
 	BumperController bc;
+    CameraController cac;
 	
 	TrackerController trc;
 	BearingController bac;
@@ -35,15 +36,19 @@ public class CommandController {
 	Robot robot;
     PointsConsole pointsConsole;
 
-    private static final boolean DEBUG_FLAG = true;
+    //Debug Flag prints out all debug detail
+    static final boolean DEBUG_FLAG = true;
+    //Path Searching enables continuous searching between robot pose and goal states
     private static final boolean PATH_SEARCH_FLAG = true;
+    //Game Flag enables updating of goal states with respect to game
+    private static final boolean GAME_FLAG = true;
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
 	private Command active;
 	private CommandSequence executeQueue;
     private boolean useVisualization;
+    private boolean holdingGold;
 
-    boolean debugFlag;
     private MazeGraphics mg;
 
     PrintWriter outRobo;
@@ -60,24 +65,31 @@ public class CommandController {
 	 * Initializes a new CommandController
 	 */
     public CommandController(Robot r, String mazeFile, PointsConsole pc) {
-        debugFlag = false;
         executeQueue = new CommandSequence();
         active = new Command();
         robot = r;
+        holdingGold = false;
 
         wc = new WheelController();
         soc = new SonarController();
         bc = new BumperController();
+        cac = new CameraController();
 
         trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
+        if (GAME_FLAG) {
+
+        }
+
         if (PATH_SEARCH_FLAG) {
+            //Search
             Path executePath = mpc.searchForPath(trc.getMazeInit());
             Command.PathArgument pArg = new Command.PathArgument(executePath);
             addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+
         }
 
         if (robot instanceof SimRobot) {
