@@ -119,7 +119,7 @@ public class ExecuteTask{
             }
         }
         speak(speech);
-
+        System.out.printf("Executing %s command",active.argument);
     }
 
     void speak(String in) {
