@@ -327,7 +327,7 @@ public class CommandController {
         if (statusComplete) {
             trc.removeGoal(Convert.RealPoseToMazeState(bac.getMazePose()));
             if (GAME_FLAG) {
-                holdingGold = cac.hasGold();
+                holdingGold = cac.holdingGold();
                 if (holdingGold) {
                     trc.targetDrop();
                 } else {

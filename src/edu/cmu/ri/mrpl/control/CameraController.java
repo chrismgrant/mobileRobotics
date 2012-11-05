@@ -14,8 +14,21 @@ public class CameraController {
 
     }
 
-    boolean hasGold() {
+    /**
+     * Checks the camera to see if robot is holding gold
+     * @return whether robot is holding gold
+     */
+    boolean holdingGold() {
         //TODO see if robot is holding gold.
+        return false;
+    }
+
+    /**
+     * Checks the camera to see if gold is at target in front of robot
+     * @return whether gold is in front of robot
+     */
+    boolean isGoldVisible() {
+        //TODO see if robot sees gold in front.
         return false;
     }
 }

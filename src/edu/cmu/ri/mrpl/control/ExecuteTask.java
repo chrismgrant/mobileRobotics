@@ -34,6 +34,7 @@ public class ExecuteTask{
 	private Robot robot;
 	private Command active;
 	private boolean taskComplete;
+    private boolean goldVisible;
 	private RealPose2D initPose;
 	private CommandController parent;
 	private double currentError;
@@ -80,6 +81,10 @@ public class ExecuteTask{
             }
             case PICKGOLD: {
                 speech = "Picking up. Picking up. Picking up.";
+                goldVisible = parent.cac.isGoldVisible();
+                if (!goldVisible) {
+                    taskComplete = true;
+                }
                 break;
             }
             case FOLLOWPATH: {
@@ -229,7 +234,7 @@ public class ExecuteTask{
                 }
             }
             case PICKGOLD: {
-                //TODO implement
+                //TODO determine position in cell, and lunge towards wall center.
                 currentError = 0;
                 if (isInThreshold(currentError, ArgType.DISTANCE)) {
                     parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
