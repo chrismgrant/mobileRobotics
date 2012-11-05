@@ -28,6 +28,7 @@ public class ExecuteTask{
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
     private static final int INITIAL_SONAR_PINGS = 50;
+    private static final double PICKUP_DISTANCE = .05;
 
     private static enum ArgType {DISTANCE, ANGLE};
 
@@ -82,7 +83,11 @@ public class ExecuteTask{
             case PICKGOLD: {
                 speech = "Picking up. Picking up. Picking up.";
                 goldVisible = parent.cac.isGoldVisible();
-                if (!goldVisible) {
+                if (goldVisible) {
+                    double x = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
+                    double y = 0;
+                    pntArg = new RealPoint2D(x,y);
+                } else {
                     taskComplete = true;
                 }
                 break;
@@ -227,19 +232,26 @@ public class ExecuteTask{
         switch (active.type){
             case DROPGOLD: {
                 //TODO implement
-                currentError = 0;
-                if (isInThreshold(currentError, ArgType.DISTANCE)) {
+                // Wait until gold is out of view
+                if (!parent.cac.holdingGold()) {
                     parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                     taskComplete = true;
                 }
             }
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
-                currentError = 0;
+                RealPoint2D targetWRTRob = pntArg;
+                currentError = targetWRTRob.distance(0,0);
                 if (isInThreshold(currentError, ArgType.DISTANCE)) {
-                    parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                    if (parent.cac.holdingGold()) {
+                        parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                    }
                     taskComplete = true;
+                } else {
+                    double[] speed = parent.bhc.shadowPoint(targetWRTRob, false, Double.POSITIVE_INFINITY, 0);
+                    parent.wc.setCLVel(speed[0], speed[1]);
                 }
+                parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
             }
             case FOLLOWPATH:{//Targets are relative to world
                 RealPose2D targetWRTRob = null;
