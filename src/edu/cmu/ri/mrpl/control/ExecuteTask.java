@@ -81,13 +81,24 @@ public class ExecuteTask{
                 speech = "Dropping. Dropping. Dropping.";
             }
             case PICKGOLD: {
-                speech = "Picking up. Picking up. Picking up.";
+                speak("Searching. Searching. Searching.");
                 goldVisible = parent.cac.isGoldVisible();
                 if (goldVisible) {
+                    speak("Found. Found. Found. Picking up. Picking up. Picking up.");
+                    // Get x relative to robot as forward motion
                     double x = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
+                    // Get y relative to robot as lateral motion to recenter robot
                     double y = 0;
+                    switch (Convert.RealPoseToMazeState(parent.bac.getMazePose()).dir()) {
+                        case East: {
+                            //TODO complete
+                        }
+                    }
                     pntArg = new RealPoint2D(x,y);
+                    speech = "Picking up. Picking up. Picking up.";
                 } else {
+                    speak("Not found. Not found. Not found. Skipping. Skipping. Skipping.");
+                    parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                     taskComplete = true;
                 }
                 break;
@@ -240,18 +251,23 @@ public class ExecuteTask{
             }
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
-                RealPoint2D targetWRTRob = pntArg;
-                currentError = targetWRTRob.distance(0,0);
-                if (isInThreshold(currentError, ArgType.DISTANCE)) {
-                    if (parent.cac.holdingGold()) {
-                        parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                if (!taskComplete) {
+                    RealPoint2D targetWRTRob = (RealPoint2D) pntArg.clone();
+                    currentError = targetWRTRob.distance(0,0);
+                    if (isInThreshold(currentError, ArgType.DISTANCE)) {
+                        if (parent.cac.holdingGold()) {
+                            speak("Success. Success. Success. Moving. Moving. Moving.");
+                            parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+                        } else {
+                            speak("Failure. Failure. Failure.");
+                        }
+                        taskComplete = true;
+                    } else {
+                        double[] speed = parent.bhc.shadowPoint(targetWRTRob, false, Double.POSITIVE_INFINITY, 0);
+                        parent.wc.setCLVel(speed[0], speed[1]);
                     }
-                    taskComplete = true;
-                } else {
-                    double[] speed = parent.bhc.shadowPoint(targetWRTRob, false, Double.POSITIVE_INFINITY, 0);
-                    parent.wc.setCLVel(speed[0], speed[1]);
+                    parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                 }
-                parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
             }
             case FOLLOWPATH:{//Targets are relative to world
                 RealPose2D targetWRTRob = null;

@@ -529,7 +529,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
             } catch (IOException e){
                 e.printStackTrace();
             }
-            cc.haltThread();
+            cc.closeDebug();
 
             robot.turnSonarsOff();
             robot.setVel(0.0f, 0.0f);

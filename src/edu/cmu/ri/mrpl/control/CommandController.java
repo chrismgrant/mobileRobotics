@@ -42,7 +42,7 @@ public class CommandController {
     //Path Searching enables continuous searching between robot pose and goal states
     private static final boolean PATH_SEARCH_FLAG = true;
     //Game Flag enables updating of goal states with respect to game
-    private static final boolean GAME_FLAG = false;
+    private static final boolean GAME_FLAG = true;
 
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
@@ -149,29 +149,33 @@ public class CommandController {
 
     /**
      * Searches the mazeWorld for closest goal, and adds commands to executeQueue.
-     * @return first Command added to executeQueue
+     * @return first Command added to executeQueue, nullCommand if no path found
      */
     Command searchNextPath(MazeState searchInitState) {
         if (DEBUG_FLAG) {
             System.out.print("Recalculating path to goal.\n");
         }
         Path executePath = mpc.searchForPath(searchInitState);
-        Command.PathArgument pArg = new Command.PathArgument(executePath);
-        Command.AngleArgument aArg = new Command.AngleArgument(
-                Convert.WRTRobot(bac.getMazePose(),executePath.get(0)).getTh());
+        if (executePath.size() > 1) {
+            Command.PathArgument pArg = new Command.PathArgument(executePath);
+            Command.AngleArgument aArg = new Command.AngleArgument(
+                    Convert.WRTRobot(bac.getMazePose(),executePath.get(0)).getTh());
 
-        Command first = new Command(Command.Type.TURNTO, aArg, false);
-        clearCommands();
-        active = first;
-        addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
-        if (GAME_FLAG) {
-            if (holdingGold) {
-                addCommand(new Command(Command.Type.DROPGOLD));
-            } else {
-                addCommand(new Command(Command.Type.PICKGOLD));
+            Command first = new Command(Command.Type.TURNTO, aArg, false);
+            clearCommands();
+            active = first;
+            addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
+            if (GAME_FLAG) {
+                if (holdingGold) {
+                    addCommand(new Command(Command.Type.DROPGOLD));
+                } else {
+                    addCommand(new Command(Command.Type.PICKGOLD));
+                }
             }
+            return first;
+        } else {
+            return nullCommand;
         }
-        return first;
     }
 	/**
 	 * Gets next command in execution stack, or returns null command if empty
@@ -337,7 +341,7 @@ public class CommandController {
             exe.setupTask(getNext(), bac.getMazePose());
         }
 	}
-	public synchronized void haltThread() {
+	public synchronized void closeDebug() {
 		System.out.println("Halting...");
         if (DEBUG_FLAG) {
             outRobo.close();

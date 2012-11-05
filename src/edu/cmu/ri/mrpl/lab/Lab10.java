@@ -24,8 +24,8 @@ import java.io.PrintWriter;
  */
 public class Lab10 extends JFrame implements ActionListener, TaskController{
     public static final boolean SIM = true;
-    public static final String knownMazeFile = "in.maze";
-    public static final String realMazeFile = "in3.maze";
+    public static final String knownMazeFile = "game.maze";
+    public static final String realMazeFile = "game.maze";
     public String command;
     public Robot robot;
     private SonarConsole sc;
@@ -531,7 +531,7 @@ public class Lab10 extends JFrame implements ActionListener, TaskController{
             } catch (IOException e){
                 e.printStackTrace();
             }
-            cc.haltThread();
+            cc.closeDebug();
 
             robot.turnSonarsOff();
             robot.setVel(0.0f, 0.0f);
