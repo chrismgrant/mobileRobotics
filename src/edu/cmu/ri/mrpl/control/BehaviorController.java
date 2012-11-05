@@ -278,7 +278,7 @@ public class BehaviorController {
 		double[] speed = {0,0};
 
 		double newRadius = calculateRadiusOfTurning(p);
-        System.out.println("newRadius:"+newRadius+", point:"+p.toString());
+//        System.out.println("newRadius:"+newRadius+", point:"+p.toString());
 
 		curv = 1/newRadius;
         if( p.getX() >=0){

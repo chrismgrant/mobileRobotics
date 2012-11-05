@@ -42,7 +42,7 @@ public class CommandController {
     //Path Searching enables continuous searching between robot pose and goal states
     private static final boolean PATH_SEARCH_FLAG = true;
     //Game Flag enables updating of goal states with respect to game
-    private static final boolean GAME_FLAG = true;
+    private static final boolean GAME_FLAG = false;
 
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
@@ -131,6 +131,7 @@ public class CommandController {
                 outTrackWMaze = new PrintWriter(outFileTrackWMaze);
             } catch (IOException e) {}
         }
+
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
         exe.initPose();
     }
@@ -151,6 +152,9 @@ public class CommandController {
      * @return first Command added to executeQueue
      */
     Command searchNextPath(MazeState searchInitState) {
+        if (DEBUG_FLAG) {
+            System.out.print("Recalculating path to goal.\n");
+        }
         Path executePath = mpc.searchForPath(searchInitState);
         Command.PathArgument pArg = new Command.PathArgument(executePath);
         Command.AngleArgument aArg = new Command.AngleArgument(
@@ -158,7 +162,7 @@ public class CommandController {
 
         Command first = new Command(Command.Type.TURNTO, aArg, false);
         clearCommands();
-        addCommand(first);
+        active = first;
         addCommand(new Command(Command.Type.FOLLOWPATH, pArg));
         if (GAME_FLAG) {
             if (holdingGold) {
@@ -177,13 +181,13 @@ public class CommandController {
 		bhc.clearIntegrals();
 		if (executeQueue.isEmpty()){
             if (gameActive) {
-                return searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose()));
+                active = searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose()));
             } else {
                 active = nullCommand;
-                return active;
             }
+            return active;
 
-		} else {
+        } else {
 			active = executeQueue.remove(0);
 			return active;
 		}
@@ -284,7 +288,7 @@ public class CommandController {
                 Toolkit.getDefaultToolkit().beep();
                 exe.speak("Researching...");
                 exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
-
+                System.out.printf("%s\n",executeQueue.toString());
             }
             vc.addPoints(pointsConsole, trc.getNewTrackerRPos());
 
@@ -321,6 +325,7 @@ public class CommandController {
 //		System.out.println("Execute method" + active.type);
         boolean statusComplete = exe.step();
         if (statusComplete) {
+            trc.removeGoal(Convert.RealPoseToMazeState(bac.getMazePose()));
             if (GAME_FLAG) {
                 holdingGold = cac.hasGold();
                 if (holdingGold) {

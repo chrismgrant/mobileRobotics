@@ -130,6 +130,17 @@ public class TrackerController {
     void removeDrop (MazeState dropState) {
         mazeWorld.removeDrop(dropState);
     }
+
+    /**
+     * Removes the goal at goalState from mazeWorld
+     * @param goalState goal to be removed
+     */
+    void removeGoal (MazeState goalState) {
+        if (mazeWorld.atGoal(goalState)) {
+            mazeWorld.removeGoal(goalState);
+        }
+    }
+
 	/**
 	 * Adds trackers from 16 sonar readings
      * @param totalDistance total distance traveled since last update
@@ -498,7 +509,7 @@ public class TrackerController {
                 case 3:
                     direction = MazeWorld.Direction.South;
             }
-            System.out.println(" Wall"+cell_x+","+cell_y+","+direction+" Trackers:"+trackerCount.get(i));
+//            System.out.println(" Wall"+cell_x+","+cell_y+","+direction+" Trackers:"+trackerCount.get(i));
             if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg < MIN_HIT_RATIO) {
                 if (mazeWorld.isWall(cell_x,cell_y,direction)) {
                     System.out.print(" removed.");
