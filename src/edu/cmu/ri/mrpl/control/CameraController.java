@@ -71,26 +71,26 @@ public class CameraController {
     					System.out.println(e+" at " + i + "," + j);
     				}
     				int pixel[] = cam.getPixel(i, j);
-    				System.out.print(" r:"+pixel[UsbCamera.RED]+
-    						"g:"+pixel[UsbCamera.GREEN]+
-    						"b:"+pixel[UsbCamera.BLUE]+" ; ");
+//    				System.out.print(" r:"+pixel[UsbCamera.RED]+
+//    						"g:"+pixel[UsbCamera.GREEN]+
+//    						"b:"+pixel[UsbCamera.BLUE]+" ; ");
     				if(j==y && i==x){
     					r = pixel[UsbCamera.RED];
     					g = pixel[UsbCamera.GREEN];
     					b = pixel[UsbCamera.BLUE];
     				}
     				else{
-    					if(Math.abs(r-pixel[UsbCamera.RED])< 10){
+    					if(Math.abs(r-pixel[UsbCamera.RED])< 30){
     						r = (r+pixel[UsbCamera.RED])/2;
     					} else{
     						hits++;
     					}
-    					if(Math.abs(g-pixel[UsbCamera.GREEN])< 10){
+    					if(Math.abs(g-pixel[UsbCamera.GREEN])< 30){
     						g = (g+pixel[UsbCamera.GREEN])/2;
     					} else{
     						hits++;
     					}
-    					if(Math.abs(b-pixel[UsbCamera.BLUE])< 10){
+    					if(Math.abs(b-pixel[UsbCamera.BLUE])< 30){
     						b = (b+pixel[UsbCamera.BLUE])/2;
     					} else{
     						hits++;
@@ -121,7 +121,7 @@ public class CameraController {
         //TODO see if robot is holding gold.
     	//camera 320x240
     	
-    	racerX.printColors(90, 80, 5, 5);
+//    	racerX.printColors(90, 80, 5, 5);
         return racerX.oneColor(80,60,160,120);
     }
 
@@ -131,7 +131,7 @@ public class CameraController {
      */
     boolean isGoldVisible() {
         //TODO see if robot sees gold in front.
-    	racerX.printColors(90, 80, 5, 5);
+//    	racerX.printColors(90, 80, 5, 5);
         return racerX.oneColor(80,60,160,120);
     }
     
