@@ -100,6 +100,7 @@ public class TrackerController {
      */
     void targetGold() {
         mazeWorld.removeAllGoals();
+        //TODO for competition, first target all golds that other team can reach, then go for our gold.
         for (MazeState state : mazeWorld.getFreeGolds()) {
             mazeWorld.addGoal(state);
         }
@@ -472,7 +473,7 @@ public class TrackerController {
         Line2D[] border = getShortBorder(mazePose);
         RealPoint2D point2D, temp = new RealPoint2D();
         double distance, half = T9inchesToMeters / 2;
-        int cell_x, cell_y;
+        int cell_x = -1, cell_y = -1;
         boolean updated = false;
         MazeWorld.Direction direction = null;
         Array<Integer> trackerCount = Array.array(0,0,0,0);
@@ -517,23 +518,24 @@ public class TrackerController {
                 case 3:
                     direction = MazeWorld.Direction.South;
             }
+
 //            System.out.println(" Wall"+cell_x+","+cell_y+","+direction+" Trackers:"+trackerCount.get(i));
             if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg < MIN_HIT_RATIO) {
                 if (mazeWorld.isWall(cell_x,cell_y,direction)) {
-                    System.out.print(" removed.");
+//                    System.out.print(" removed.");
                     updated = removeWall(cell_x,cell_y,direction);
                 }
             }
             if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg > MAX_HIT_RATIO) {
                 if (!mazeWorld.isWall(cell_x,cell_y, direction)) {
                     updated = true;
-                    System.out.print(" added.");
+//                    System.out.print(" added.");
                     mazeWorld.addWall(cell_x,cell_y,direction);
                 }
             }
-            System.out.print("\n");
+//            System.out.print("\n");
         }
-        System.out.printf("Getting %d updates\n",updateTrackers.length());
+        System.out.printf("At cell %d, %d; Getting %d updates\n",cell_x, cell_y, updateTrackers.length());
 
         return updated;
 	}
