@@ -24,7 +24,7 @@ import java.io.PrintWriter;
  */
 public class ExecuteTask{
 
-	private static final double DIST_THRESHOLD = .003;
+	private static final double DIST_THRESHOLD = .005;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
     private static final int INITIAL_SONAR_PINGS = 50;
@@ -82,6 +82,7 @@ public class ExecuteTask{
         switch (active.type){
             case DROPGOLD: {
                 speech = "Dropping. Dropping. Dropping.";
+                break;
             }
             case PICKGOLD: {
                 speak("Searching. Searching. Searching.");
@@ -100,7 +101,7 @@ public class ExecuteTask{
                         }
                     }
                     pntArg = new RealPoint2D(x,y);
-                    speech = "Picking up. Picking up. Picking up.";
+                    speak("Picking up. Picking up. Picking up.");
                 } else {
                     speak("Not found. Not found. Not found. Skipping. Skipping. Skipping.");
                     parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
@@ -265,7 +266,7 @@ public class ExecuteTask{
                 //TODO determine position in cell, and lunge towards wall center.
                 if (!taskComplete) {
                     Point2D result = null;
-                    result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
+                    result = initPose.inverse().transform(parent.bac.getMazePose().getPosition(), result);
                     currentError = dblArg - result.getX();
                     System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.DISTANCE)){
@@ -298,6 +299,7 @@ public class ExecuteTask{
 //                    }
                     parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                 }
+                break;
             }
             case FOLLOWPATH:{//Targets are relative to world
                 RealPose2D targetWRTRob = null;
