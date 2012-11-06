@@ -60,7 +60,11 @@ public class CameraController {
         }
         
     }
-
+    CameraDriver racerX; 
+    public CameraController(){
+    	racerX = new CameraDriver();
+    	
+    }
     
     /**
      * Checks the camera to see if robot is holding gold
@@ -68,6 +72,7 @@ public class CameraController {
      */
     boolean holdingGold() {
         //TODO see if robot is holding gold.
+    	racerX.printColors(90, 80, 5, 5);
         return false;
     }
 
@@ -77,6 +82,7 @@ public class CameraController {
      */
     boolean isGoldVisible() {
         //TODO see if robot sees gold in front.
+    	racerX.printColors(90, 80, 5, 5);
         return false;
     }
     
