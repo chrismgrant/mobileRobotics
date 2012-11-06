@@ -205,7 +205,7 @@ public class ExecuteTask{
             robot.updateState();
             robot.getSonars(sonars);
             parent.soc.updateSonars(sonars);
-            parent.trc.forceAddTrackersFromSonar(parent.bac.getMazePose(),parent.soc.getSonarReadings());
+            parent.trc.forceAddTrackersFromSonar(parent.bac.getMazePose(), parent.soc.getSonarReadings());
             parent.trc.updateTrackers(parent.bac.getMazePose());
             try {
                 Thread.sleep(50);
@@ -262,8 +262,10 @@ public class ExecuteTask{
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
                 if (!taskComplete) {
-                    RealPoint2D targetWRTRob = (RealPoint2D) pntArg.clone();
+                    RealPose2D robotDelta = Convert.inverseMultiply(parent.bac.getRPoseWithError(robot), initPose);
+                    RealPoint2D targetWRTRob = Convert.multiply(robotDelta, new RealPose2D(pntArg,0)).getPosition();
                     currentError = targetWRTRob.distance(0,0);
+                    System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.DISTANCE)) {
                         if (parent.cac.holdingGold()) {
                             speak("Success. Success. Success. Moving. Moving. Moving.");
