@@ -246,10 +246,14 @@ public class ExecuteTask{
             case DROPGOLD: {
                 //TODO implement
                 // Wait until gold is out of view
-                if (!parent.cac.holdingGold()) {
-                    parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
-                    taskComplete = true;
-                }
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {}
+                taskComplete = true;
+//                if (!parent.cac.holdingGold()) {
+//                    parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+//                    taskComplete = true;
+//                }
             }
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
