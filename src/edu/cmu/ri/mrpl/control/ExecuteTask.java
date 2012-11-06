@@ -111,35 +111,35 @@ public class ExecuteTask{
                 pthArg = parent.bhc.refinePath(parent.bac.getMazePose(),arg.path);
                 System.out.println("next:\n"+ pthArg.toString());
                 isContinuous = true;
-                speech = "Following path.";
+//                speech = "Following path.";
                 break;
             }
             case POSETO: {
                 PoseArgument arg = (PoseArgument)(active.argument);
                 pseArg = new RealPose2D(arg.pose);
-                speech = "Poseing";
+//                speech = "Poseing";
                 break;
             }
             case TURNTO: {
                 AngleArgument arg = (AngleArgument)(active.argument);
                 angArg = new Angle(arg.angle);
-                speech = "Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad";
+//                speech = "Turn " + filterSpeech(angArg.angleValue(),SPEECH_PREC) + " rad";
                 break;
             }
             case GOTO: {
                 LengthArgument arg = (LengthArgument)(active.argument);
                 dblArg = arg.d;
-                speech = "Move " + filterSpeech(dblArg,SPEECH_PREC) + " m";
+//                speech = "Move " + filterSpeech(dblArg,SPEECH_PREC) + " m";
                 break;
             }
             case WAIT: {
                 LengthArgument arg = (LengthArgument)(active.argument);
                 dblArg = arg.d;
-                speech = "Wait " + filterSpeech(dblArg,SPEECH_PREC) + " s";
+//                speech = "Wait " + filterSpeech(dblArg,SPEECH_PREC) + " s";
                 break;
             }
             case PAUSE:{
-                speech = "Pausing until keyboard press";
+//                speech = "Pausing until keyboard press";
                 break;
             }
             case NULL:
@@ -291,7 +291,7 @@ public class ExecuteTask{
                         if (isInThreshold(currentError, ArgType.ANGLE)) {
                             taskComplete = true;
                             stop();
-                            speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//                            speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
 
                             //Calculate error
                             double ex, ey;
@@ -344,7 +344,7 @@ public class ExecuteTask{
                     if (isInThreshold(currentError, ArgType.ANGLE)){
                         taskComplete = true;
                         stop();
-                        speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//                        speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
 
                         //Calculate error
                         double ex, ey;
@@ -370,7 +370,7 @@ public class ExecuteTask{
                 if (isInThreshold(currentError, ArgType.ANGLE)){
                     taskComplete = true;
                     stop();
-                    speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+//                    speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
 
                     parent.bac.updateError(0, 0, currentError);
                 }else{
@@ -388,7 +388,7 @@ public class ExecuteTask{
                 if (isInThreshold(currentError, ArgType.DISTANCE)){
                     taskComplete = true;
                     stop();
-                    speak("E" + filterSpeech(currentError,SPEECH_PREC) + " m");
+//                    speak("E" + filterSpeech(currentError,SPEECH_PREC) + " m");
 
                     double dir = BearingController.getRDirection(robot);
                     parent.bac.updateError(currentError*Math.cos(dir), currentError*Math.sin(dir), 0);
