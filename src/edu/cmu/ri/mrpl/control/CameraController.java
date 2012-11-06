@@ -120,7 +120,7 @@ public class CameraController {
     boolean holdingGold() {
         //TODO see if robot is holding gold.
     	//camera 320x240
-    	
+    	racerX.update();
 //    	racerX.printColors(90, 80, 5, 5);
         return racerX.oneColor(80,60,160,120);
     }
@@ -131,6 +131,7 @@ public class CameraController {
      */
     boolean isGoldVisible() {
         //TODO see if robot sees gold in front.
+        racerX.update();
 //    	racerX.printColors(90, 80, 5, 5);
         return racerX.oneColor(80,60,160,120);
     }

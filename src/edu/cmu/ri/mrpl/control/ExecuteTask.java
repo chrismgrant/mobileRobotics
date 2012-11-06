@@ -90,6 +90,8 @@ public class ExecuteTask{
                     speak("Found. Found. Found. Picking up. Picking up. Picking up.");
                     // Get x relative to robot as forward motion
                     double x = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
+                    dblArg = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
+                    System.out.printf("Lurching forward %f m.\n", dblArg);
                     // Get y relative to robot as lateral motion to recenter robot
                     double y = 0;
                     switch (Convert.RealPoseToMazeState(parent.bac.getMazePose()).dir()) {
@@ -262,11 +264,11 @@ public class ExecuteTask{
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
                 if (!taskComplete) {
-                    RealPose2D robotDelta = Convert.inverseMultiply(parent.bac.getRPoseWithError(robot), initPose);
-                    RealPoint2D targetWRTRob = Convert.multiply(robotDelta, new RealPose2D(pntArg,0)).getPosition();
-                    currentError = targetWRTRob.distance(0,0);
+                    Point2D result = null;
+                    result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
+                    currentError = dblArg - result.getX();
                     System.out.println(currentError);
-                    if (isInThreshold(currentError, ArgType.DISTANCE)) {
+                    if (isInThreshold(currentError, ArgType.DISTANCE)){
                         if (parent.cac.holdingGold()) {
                             speak("Success. Success. Success. Moving. Moving. Moving.");
                             parent.holdingGold = true;
@@ -277,9 +279,23 @@ public class ExecuteTask{
                         }
                         taskComplete = true;
                     } else {
-                        double[] speed = parent.bhc.shadowPoint(targetWRTRob, false, Double.POSITIVE_INFINITY, 0);
-                        parent.wc.setCLVel(speed[0], speed[1]);
+                        //logic
+                        parent.wc.setALVel(0,parent.bhc.moveForward(currentError));
                     }
+//                   if (isInThreshold(currentError, ArgType.DISTANCE)) {
+//                        if (parent.cac.holdingGold()) {
+//                            speak("Success. Success. Success. Moving. Moving. Moving.");
+//                            parent.holdingGold = true;
+//                            parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+//                        } else {
+//                            parent.holdingGold = false;
+//                            speak("Failure. Failure. Failure.");
+//                        }
+//                        taskComplete = true;
+//                    } else {
+//                        double[] speed = parent.bhc.shadowPoint(targetWRTRob, false, Double.POSITIVE_INFINITY, 0);
+//                        parent.wc.setCLVel(speed[0], speed[1]);
+//                    }
                     parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                 }
             }
