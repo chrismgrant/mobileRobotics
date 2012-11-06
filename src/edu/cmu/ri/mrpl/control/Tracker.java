@@ -30,7 +30,7 @@ public class Tracker {
 	 * @param robotPos Position of tracker relative to robot
 	 */
 	public void updatePos(RealPoint2D robotPos){
-		robotCoord = new RealPoint2D(robotPos.getX(),robotPos.getY());
+		robotCoord = (RealPoint2D) robotPos.clone();
 		if (lost) {lost = false;}
 	}
 	public void lost(){

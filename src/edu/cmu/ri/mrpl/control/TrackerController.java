@@ -159,6 +159,7 @@ public class TrackerController {
 
     /**
      * Adds trackers from 16 sonar readings regardless of last update
+     * @param robotPose robot's pose in maze
      * @param sonarReadings standard 16-array of sonar readings
      */
     public void forceAddTrackersFromSonar(RealPose2D robotPose, double[] sonarReadings) {
@@ -167,7 +168,7 @@ public class TrackerController {
         double x,y,th;
         for (int i = 0; i < sonarReadings.length; i++){
             if (SonarController.isWithinRange(sonarReadings[i])){
-                th = i * 22.5*Units.degToRad;
+                th = i * 22.5 * Units.degToRad;
                 x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
                 y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
                 position = new RealPoint2D(x,y);
@@ -179,11 +180,13 @@ public class TrackerController {
 
 	/**
 	 * Adds a tracker to the tracking list
+     * @param robotPose robot's pose in maze
 	 * @param position Position of point relative to robot
 	 */
 	void addTracker(RealPose2D robotPose, RealPoint2D position){
+        // Check if point is possible outlier
         Line2D[] border = getExpandBorder(robotPose);
-        Line2D trackerVector = new Line2D.Double(robotPose.getPosition(),Convert.WRTWorld(robotPose,position));
+        Line2D trackerVector = new Line2D.Double(robotPose.getPosition(), Convert.WRTWorld(robotPose,position));
         Point2D temp = new Point2D.Double();
         for (Line2D l : border) {
             if (LineSegment.intersectLines(l,trackerVector,temp)) {
@@ -305,7 +308,7 @@ public class TrackerController {
 	 * @param oldMazePose pose relative to maze, in meters
 	 * @return new pose relative to maze
 	 */
-	public RealPose2D getMazeCorrection(RealPose2D oldMazePose){
+	public RealPose2D getMazeCorrection(final RealPose2D oldMazePose){
 
         //Begin point cloud filter
         int x,y;
@@ -327,11 +330,13 @@ public class TrackerController {
         }
         System.out.print(pointCloud.size()+" trackers total, ");
         //Filter pointCloud
+
         for (Map.Entry<PointCloudKey, Integer> e : pointCloud.entrySet()){
             if (e.getValue() >= TRACKER_MIN_COUNT){
                 filteredTrackers = filteredTrackers.cons(e.getKey().t);
             }
         }
+
         System.out.println("Filtered "+filteredTrackers.length()+" trackers.");
         System.out.println("Current pose: "+oldMazePose.toString());
         System.out.println("PointError: "+getPointError(oldMazePose));
@@ -340,6 +345,7 @@ public class TrackerController {
         double lastError = Double.POSITIVE_INFINITY;
         RealPose2D nextPose = oldMazePose.clone();
         double nextError = getPointError(nextPose);
+        System.out.println();
         double dx = 0, dy = 0, dth = 0;
         double[] gradient;
         while (lastError - nextError > 0.0005) {
@@ -353,8 +359,8 @@ public class TrackerController {
             dth = -EPSILON * gradient[2];
             nextPose.add(dx,dy,dth);
             nextError = getPointError(nextPose);
-
-            System.out.println("nextError: "+getPointError(nextPose));
+            System.out.println();
+//            System.out.println("nextError: "+getPointError(nextPose));
 
         }
         nextPose.add(-dx,-dy,-dth);
@@ -419,50 +425,55 @@ public class TrackerController {
         return shortBorder;
     }
 
-    private double[] getGradient(RealPose2D pose) {
+    private double[] getGradient(RealPose2D mazePose) {
         double[] gradient = new double[3];
         double dx, dy, dth;
-        dx = pose.getX()+EPSILON;
-        dy = pose.getY()+EPSILON;
-        dth = Angle.normalize(pose.getRotateTheta()+EPSILON);
-        gradient[0] = (getPointError(new RealPose2D(dx, pose.getY(),pose.getRotateTheta())) -
-                getPointError(pose))/EPSILON;
-        gradient[1] = (getPointError(new RealPose2D(pose.getX(),dy,pose.getRotateTheta())) -
-                getPointError(pose))/EPSILON;
+        dx = mazePose.getX()+EPSILON;
+        dy = mazePose.getY()+EPSILON;
+        dth = Angle.normalize(mazePose.getRotateTheta()+EPSILON);
+        double stepError = getPointError(mazePose);
+        gradient[0] = (getPointError(new RealPose2D(dx, mazePose.getY(),mazePose.getRotateTheta())) -
+                stepError)/EPSILON;
+        gradient[1] = (getPointError(new RealPose2D(mazePose.getX(),dy,mazePose.getRotateTheta())) -
+                stepError)/EPSILON;
 
-        gradient[2] = (getPointError(new RealPose2D(pose.getX(), pose.getY(),dth)) -
-                getPointError(pose))/(EPSILON);
+        gradient[2] = (getPointError(new RealPose2D(mazePose.getX(), mazePose.getY(),dth)) -
+                stepError)/(EPSILON);
         return gradient;
     }
 	private double getPointError(final RealPose2D inputPose){
-		List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
+        final double half = T9inchesToMeters/2;
+        List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
 			public Double f(Tracker t){
                 RealPoint2D worldPoint = Convert.WRTWorld(inputPose, t.getRPoint());
-                double xerr = Math.abs(worldPoint.getX()%T9inchesToMeters-T9inchesToMeters/2);
-                double yerr = Math.abs(worldPoint.getY()%T9inchesToMeters-T9inchesToMeters/2);
-                if (xerr - yerr < .05) return 0.0;
-                double err = Math.pow(Math.min(xerr,yerr),2);
-                if (Double.isNaN(err)) return 0.0;
-                return err;
+                double xerr = half - Math.abs((worldPoint.getX()+half)%T9inchesToMeters-half);
+                double yerr = half - Math.abs((worldPoint.getY()+half)%T9inchesToMeters-half);
 
+                if (xerr - yerr < .05) return -1.0;
+                double err = Math.min(xerr,yerr);
+                if (Double.isNaN(err)) return -1.0;
+                return err;
 			}
 		});
-//        for (Double d : offsets){
-//            System.out.print(d+",");
-//        }
-//        System.out.println(offsets.length());
+
+
         offsets = offsets.filter(new F<Double, Boolean>() {
             @Override
             public Boolean f(Double aDouble) {
-                return (aDouble != 0.0);
+                return (aDouble >= 0.0);
             }
         });
+//        System.out.printf("{");
+//        for (Double d : offsets){
+//            System.out.print(d+",");
+//        }
+//        System.out.println("} "+offsets.length());
 		Double error = offsets.foldRight(new F2<Double,Double,Double>(){
 			public Double f(Double a, Double b){
 				return a+b;
 			}
 		}, 0.0);
-		return (offsets.length() == 0) ? 0 : Math.sqrt(error/offsets.length());
+		return (offsets.length() == 0) ? 0 : error/offsets.length();
 	}
 	/**
 	 * Adds walls where sonar readings suggest a wall will be.
@@ -634,130 +645,4 @@ public class TrackerController {
             }
         });
     }
-//	private int adjacentDirection(int lastDirection, int delta){
-//		if (delta >= 0){
-//			int d = (lastDirection >= 16-delta) ? lastDirection - 16 + delta: lastDirection + delta;
-//			//System.out.print(d+",");
-//			return d;
-//		} else {
-//			int d = (lastDirection < -delta) ? 16 + delta + lastDirection : lastDirection + delta;
-//			//System.out.print(d+",");
-//			return d;
-//		}
-//	}
-//	/**
-//	 * Updates the tracker which robot is following.
-//	 * @param sonarReadings array of sonar readings to determine tracker position.
-//	 * @return Updated tracker. Null if tracker not initially found.
-//	 */
-//	public Tracker updateTracker(double[] sonarReadings, double angularVelocity){
-//		if (follow == null){//If tracker isn't set, find tracker
-//
-//			ArrayList<Integer> hasObject = new ArrayList<Integer>();//Get all non-infinite sonar readings
-//			for (int i = 0; i < sonarReadings.length; i++){
-//				if (sonarReadings[i] < DISTANCE_MAX){
-//					hasObject.add(i);
-//				}
-//			}
-//			double minDist = Double.POSITIVE_INFINITY; //Find smallest sonar reading
-//			int minDir = -1;
-//			for (int a : hasObject){
-//				if (sonarReadings[a] < minDist){
-//					minDist = sonarReadings[a];
-//					minDir = a;
-//				}
-//			}
-//			if (minDir != -1){//Make a tracker
-//				ArrayList<Integer> directions = new ArrayList<Integer>();
-//				directions.add(minDir);
-//				follow = new Tracker(sonarReadings[minDir],directions);
-//			}
-//			return follow;
-//		} else {//If tracker is set, update position
-//			int isLost = 0;
-//			int lastDirection = follow.getAngleIndex(true);
-//			double lastDistance = follow.getDistance(true);
-//			ArrayList<Integer> adjacentDirections = new ArrayList<Integer>();
-//			adjacentDirections.add(adjacentDirection(lastDirection,0));
-//			adjacentDirections.add(adjacentDirection(lastDirection,1));
-//			adjacentDirections.add(adjacentDirection(lastDirection,-1));
-//			adjacentDirections.add(adjacentDirection(lastDirection,2));
-//			adjacentDirections.add(adjacentDirection(lastDirection,-2));
-//
-//			if (lastDistance < DISTANCE_CLOSE_RANGE){
-//				adjacentDirections.add(adjacentDirection(lastDirection,3));
-//				adjacentDirections.add(adjacentDirection(lastDirection,-3));
-//			}
-//			if (angularVelocity > FAST_ANGULAR_SPEED){
-//				adjacentDirections.add(adjacentDirection(lastDirection,3));
-//				adjacentDirections.add(adjacentDirection(lastDirection,4));
-//			} else if (angularVelocity < -FAST_ANGULAR_SPEED){
-//				adjacentDirections.add(adjacentDirection(lastDirection,-3));
-//				adjacentDirections.add(adjacentDirection(lastDirection,-4));
-//			}
-//			
-//			double sumDistance = 0;
-//			ArrayList<Integer> newDirection = new ArrayList<Integer>();
-//			for (int dir : adjacentDirections){
-//				//System.out.print(dir);
-//				if (follow.getDeltaDistance(sonarReadings[dir]) < 4*DISTANCE_TOLERANCE/3 && follow.getDeltaDistance(sonarReadings[dir]) > -2*DISTANCE_TOLERANCE/3){
-//					sumDistance += sonarReadings[dir];
-//					newDirection.add(dir);
-//				} else if (follow.getDeltaDistance(sonarReadings[dir]) > 4*DISTANCE_TOLERANCE/3){
-//					isLost++;
-//				}
-//			}
-//			if (newDirection.size()>0){
-//				follow.updatePos(sumDistance / newDirection.size(), newDirection);
-//			}
-//			if (isLost == ((lastDistance < DISTANCE_CLOSE_RANGE) ? 7 : 5)){
-//				if (followLostCounter < LOST_COUNTER_THRESHOLD){
-//					followLostCounter++;
-//				} else {
-//					ArrayList<Integer> dirTemp = new ArrayList<Integer>();
-//					dirTemp.add(0);
-//					if (follow.getDistance(true) > DISTANCE_MAX){
-//						follow.updatePos(.5, dirTemp);
-//					}
-//					follow.lost();
-//				}
-//			} else {
-//				followLostCounter = 0;
-//			}
-//			return follow;
-//		}
-//	}
-//	/**
-//	 * Gets distance between robot and follow tracker
-//	 * @param ignoreLost ignore whether tracker is lost
-//	 * @return distance, in meter
-//	 */
-//	public double getFollowDistance(boolean ignoreLost){
-//		if (follow == null) {return -1;}
-//		else {return follow.getDistance(ignoreLost);}
-//	}
-//	/**
-//	 * Gets position of follow tracker
-//	 * @return RealPoint2D of tracker's position
-//	 */
-//	public RealPoint2D getFollowPoint(){
-//		if (follow == null) {return null;}
-//		else return new RealPoint2D(follow.getX(),follow.getY());
-//	}
-//	/**
-//	 * Gets direction of follow tracker
-//	 * @param ignoreLost ignore whether tracker is lost
-//	 * @return index of sonar tracker is closest to
-//	 */
-//	public int getFollowDirection(boolean ignoreLost){
-//		if (follow == null) {return -1;}
-//		else {return follow.getAngleIndex(ignoreLost);}
-//	}
-//	/**
-//	 * Gets if follow tracker is lost
-//	 * @return whether tracker is lost
-//	 */
-//	public boolean isFollowLost(){
-//		return (follow == null)?true:follow.isLost();
-//	}
 }
