@@ -24,10 +24,10 @@ import java.io.PrintWriter;
  */
 public class ExecuteTask{
 
-	private static final double DIST_THRESHOLD = .005;
+	private static final double DIST_THRESHOLD = .007;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
-    private static final int INITIAL_SONAR_PINGS = 50;
+    private static final int INITIAL_SONAR_PINGS = 20;
     private static final double PICKUP_DISTANCE = .05;
 
     private static enum ArgType {DISTANCE, ANGLE};
@@ -75,7 +75,7 @@ public class ExecuteTask{
         isContinuous = command.isContinuous;
         taskComplete = false;
         stepFlag = false;
-
+        speech = "";
         pathIndex = 1;
 
 
@@ -273,11 +273,12 @@ public class ExecuteTask{
                         if (parent.cac.holdingGold()) {
                             speak("Success. Success. Success. Moving. Moving. Moving.");
                             parent.holdingGold = true;
-                            parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                         } else {
                             parent.holdingGold = false;
                             speak("Failure. Failure. Failure.");
                         }
+                        parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
+
                         taskComplete = true;
                     } else {
                         //logic
