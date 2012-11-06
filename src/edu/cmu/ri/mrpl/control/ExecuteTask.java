@@ -151,7 +151,7 @@ public class ExecuteTask{
             }
         }
         speak(speech);
-        System.out.printf("Executing %s command\n",active.argument);
+        System.out.printf("Executing %s command\n",active.type);
     }
 
     void speak(String in) {
@@ -254,6 +254,7 @@ public class ExecuteTask{
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {}
+                parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                 parent.holdingGold = false;
                 taskComplete = true;
 //                if (!parent.cac.holdingGold()) {
