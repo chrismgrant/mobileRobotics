@@ -292,14 +292,14 @@ public class CommandController {
             mg.setContRobots(robots);
             mv.recreateMazeGraphics(mg);
 
-            if (wallChanged && PATH_SEARCH_FLAG) {
-                // Stop execution and re-search path.
-                exe.stop();
-                Toolkit.getDefaultToolkit().beep();
-                exe.speak("Researching...");
-                exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
-                System.out.printf("%s\n",executeQueue.toString());
-            }
+//            if (wallChanged && PATH_SEARCH_FLAG) {
+//                // Stop execution and re-search path.
+//                exe.stop();
+//                Toolkit.getDefaultToolkit().beep();
+//                exe.speak("Researching...");
+//                exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
+//                System.out.printf("%s\n",executeQueue.toString());
+//            }
             vc.addPoints(pointsConsole, trc.getNewTrackerRPos());
 
             vc.updateVisualizer(pointsConsole, robot);
@@ -307,15 +307,15 @@ public class CommandController {
         }
         // If gold drops in transit, go to next gold
         //TODO add counter to stagger gold check
-        if (holdingGold && !cac.holdingGold()) {
-            holdingGold = false;
-            exe.stop();
-            Toolkit.getDefaultToolkit().beep();
-            exe.speak("Researching...");
-            trc.targetGold();
-            exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
-            System.out.printf("%s\n",executeQueue.toString());
-        }
+//        if (holdingGold && !cac.holdingGold()) {
+//            holdingGold = false;
+//            exe.stop();
+//            Toolkit.getDefaultToolkit().beep();
+//            exe.speak("Dropped gold...");
+//            trc.targetGold();
+//            exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
+//            System.out.printf("%s\n",executeQueue.toString());
+//        }
 
         if (DEBUG_FLAG) {
             for (RealPoint2D p : trc.getAllTrackerRPos()) {

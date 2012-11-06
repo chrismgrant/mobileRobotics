@@ -81,7 +81,7 @@ public class ExecuteTask{
 
         switch (active.type){
             case DROPGOLD: {
-                speech = "Dropping. Dropping. Dropping.";
+                speak("Dropping. Dropping. Dropping.");
                 break;
             }
             case PICKGOLD: {
@@ -261,6 +261,7 @@ public class ExecuteTask{
 //                    parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
 //                    taskComplete = true;
 //                }
+                break;
             }
             case PICKGOLD: {
                 //TODO determine position in cell, and lunge towards wall center.
