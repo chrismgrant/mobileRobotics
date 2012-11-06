@@ -101,7 +101,6 @@ public class ExecuteTask{
                         }
                     }
                     pntArg = new RealPoint2D(x,y);
-                    speak("Picking up. Picking up. Picking up.");
                 } else {
                     speak("Not found. Not found. Not found. Skipping. Skipping. Skipping.");
                     parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
