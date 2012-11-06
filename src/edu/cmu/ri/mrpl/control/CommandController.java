@@ -179,6 +179,7 @@ public class CommandController {
             }
             return first;
         } else {
+            gameActive = false;
             return nullCommand;
         }
     }

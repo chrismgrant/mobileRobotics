@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.cmu.ri.mrpl.kinematics2D.*;
+import edu.cmu.ri.mrpl.maze.MazePos;
 import fj.Effect;
 import fj.data.Array;
 import fj.data.List;
@@ -67,7 +68,6 @@ public class TrackerController {
 		newTrackers = List.list();
         isApproaching = false;
         last = initPose.clone();
-        lastCell = new Cell(initPose);
 		active = null;
 		follow = null;
 		followLostCounter = 0;
@@ -77,7 +77,9 @@ public class TrackerController {
 		} catch (IOException e) {
             System.out.printf("Error: cannot read mazefile\n");
         }
-	}
+        lastCell = new Cell(getMazeInit());
+
+    }
 	/**
 	 * Gets the maze world
 	 * @return
@@ -98,6 +100,7 @@ public class TrackerController {
      */
     void targetGold() {
         mazeWorld.removeAllGoals();
+        //TODO for competition, first target all golds that other team can reach, then go for our gold.
         for (MazeState state : mazeWorld.getFreeGolds()) {
             mazeWorld.addGoal(state);
         }
@@ -244,6 +247,12 @@ public class TrackerController {
         }
         Cell(int x, int y) {
             setCell(x,y);
+        }
+        Cell(MazeState state) {
+            this(state.pos());
+        }
+        Cell(MazePos position) {
+            this(position.x(),position.y());
         }
         Cell() {
             this(0,0);
@@ -464,7 +473,7 @@ public class TrackerController {
         Line2D[] border = getShortBorder(mazePose);
         RealPoint2D point2D, temp = new RealPoint2D();
         double distance, half = T9inchesToMeters / 2;
-        int cell_x, cell_y;
+        int cell_x = -1, cell_y = -1;
         boolean updated = false;
         MazeWorld.Direction direction = null;
         Array<Integer> trackerCount = Array.array(0,0,0,0);
@@ -509,23 +518,24 @@ public class TrackerController {
                 case 3:
                     direction = MazeWorld.Direction.South;
             }
+
 //            System.out.println(" Wall"+cell_x+","+cell_y+","+direction+" Trackers:"+trackerCount.get(i));
             if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg < MIN_HIT_RATIO) {
                 if (mazeWorld.isWall(cell_x,cell_y,direction)) {
-                    System.out.print(" removed.");
+//                    System.out.print(" removed.");
                     updated = removeWall(cell_x,cell_y,direction);
                 }
             }
             if (trackerCountAvg > 0 && trackerCount.get(i)/(double) trackerCountAvg > MAX_HIT_RATIO) {
                 if (!mazeWorld.isWall(cell_x,cell_y, direction)) {
                     updated = true;
-                    System.out.print(" added.");
+//                    System.out.print(" added.");
                     mazeWorld.addWall(cell_x,cell_y,direction);
                 }
             }
-            System.out.print("\n");
+//            System.out.print("\n");
         }
-        System.out.printf("Getting %d updates\n",updateTrackers.length());
+        System.out.printf("At cell %d, %d; Getting %d updates\n",cell_x, cell_y, updateTrackers.length());
 
         return updated;
 	}

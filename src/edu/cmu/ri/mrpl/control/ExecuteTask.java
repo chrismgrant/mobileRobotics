@@ -35,6 +35,7 @@ public class ExecuteTask{
 	private Robot robot;
 	private Command active;
 	private boolean taskComplete;
+    private boolean stepFlag;
     private boolean goldVisible;
 	private RealPose2D initPose;
 	private CommandController parent;
@@ -73,6 +74,8 @@ public class ExecuteTask{
         active = command;
         isContinuous = command.isContinuous;
         taskComplete = false;
+        stepFlag = false;
+
         pathIndex = 1;
 
 
@@ -232,7 +235,6 @@ public class ExecuteTask{
 	public synchronized boolean step(){
 		//Pre-loop initialization
 		double[] sonars = new double[16];
-		boolean flag0 = false;
 
         robot.updateState();
         robot.getSonars(sonars);
@@ -277,12 +279,22 @@ public class ExecuteTask{
                 RealPoint2D closePoint = parent.bhc.getClosestPoint(pthArg, currentPose.getPosition(), pathIndex);
                 currentError = currentTarget.getPosition().distance(currentPose.getPosition());
     //                System.out.println("Error: "+currentError);
-                if (isInThreshold(currentError, ArgType.DISTANCE)){
-                    if (pathIndex == pthArg.size()-1){//If last target achieved
-                        taskComplete = true;
+                if (stepFlag || isInThreshold(currentError, ArgType.DISTANCE)){
+                    if (stepFlag || pathIndex == pthArg.size()-1){//If last target achieved
+                        stepFlag = true;
                         double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
-                        while (!isInThreshold(currentError, ArgType.ANGLE)) {
+                        if (isInThreshold(currentError, ArgType.ANGLE)) {
+                            taskComplete = true;
+                            stop();
+                            speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
+
+                            //Calculate error
+                            double ex, ey;
+                            ex = currentPose.getX() - currentTarget.getX();
+                            ey = currentPose.getY() - currentTarget.getY();
+                            parent.bac.updateError(ex,ey,currentError);
+                        } else {
                             currentError = Angle.normalize(pthArg.get(pathIndex).getTh() -
                                     (delta + BearingController.getRDirection(robot)));
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
@@ -293,14 +305,7 @@ public class ExecuteTask{
                                 System.out.println("\"FollowPath turning\" interrupted");
                             }
                         }
-                        stop();
-                        speak("E" + filterSpeech(currentError,SPEECH_PREC) + " rad");
 
-                        //Calculate error
-                        double ex, ey;
-                        ex = currentPose.getX() - currentTarget.getX();
-                        ey = currentPose.getY() - currentTarget.getY();
-                        parent.bac.updateError(ex,ey,currentError);
                     } else {
                         pathIndex++;
                         currentTarget = pthArg.get(pathIndex);
@@ -327,9 +332,9 @@ public class ExecuteTask{
                 targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
                 currentError = targetWRTRob.getPosition().distance(0,0);
                 System.out.println(currentError);
-                if (flag0 || isInThreshold(currentError, ArgType.DISTANCE)){
+                if (stepFlag || isInThreshold(currentError, ArgType.DISTANCE)){
                     // Begin rotate subtask
-                    flag0 = true;
+                    stepFlag = true;
                     currentError = Angle.normalize(pseArg.getRotateTheta() + initPose.getTh() - BearingController.getRDirection(robot));
                     System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.ANGLE)){
