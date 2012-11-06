@@ -305,6 +305,17 @@ public class CommandController {
             vc.updateVisualizer(pointsConsole, robot);
 
         }
+        // If gold drops in transit, go to next gold
+        //TODO add counter to stagger gold check
+        if (holdingGold && !cac.holdingGold()) {
+            holdingGold = false;
+            exe.stop();
+            Toolkit.getDefaultToolkit().beep();
+            exe.speak("Researching...");
+            trc.targetGold();
+            exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
+            System.out.printf("%s\n",executeQueue.toString());
+        }
 
         if (DEBUG_FLAG) {
             for (RealPoint2D p : trc.getAllTrackerRPos()) {

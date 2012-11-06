@@ -49,7 +49,6 @@ public class SonarController {
 			} 
 			
 			avgSonars[i] = getAvgReading(i);
-
 		}
 	}
 	private void debounce(double sonarVal, int index){
