@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.cmu.ri.mrpl.kinematics2D.*;
+import edu.cmu.ri.mrpl.maze.MazePos;
 import fj.Effect;
 import fj.data.Array;
 import fj.data.List;
@@ -67,7 +68,6 @@ public class TrackerController {
 		newTrackers = List.list();
         isApproaching = false;
         last = initPose.clone();
-        lastCell = new Cell(initPose);
 		active = null;
 		follow = null;
 		followLostCounter = 0;
@@ -77,7 +77,9 @@ public class TrackerController {
 		} catch (IOException e) {
             System.out.printf("Error: cannot read mazefile\n");
         }
-	}
+        lastCell = new Cell(getMazeInit());
+
+    }
 	/**
 	 * Gets the maze world
 	 * @return
@@ -244,6 +246,12 @@ public class TrackerController {
         }
         Cell(int x, int y) {
             setCell(x,y);
+        }
+        Cell(MazeState state) {
+            this(state.pos());
+        }
+        Cell(MazePos position) {
+            this(position.x(),position.y());
         }
         Cell() {
             this(0,0);
