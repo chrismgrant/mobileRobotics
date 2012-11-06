@@ -287,8 +287,8 @@ public class CommandController {
 
 
             robots.set(0, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(bac.getMazePose()), Color.GREEN));
-            robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(
-                    Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot))), Color.RED));
+            robots.set(1, new MazeGraphics.ContRobot(Convert.meterToMazeUnit(Convert.multiply(bac.getInitPose(),
+                    Convert.inverseMultiply(bac.getInitMazePose(), Convert.getRobotPose(robot)))), Color.RED));
             mg.setContRobots(robots);
             mv.recreateMazeGraphics(mg);
 
