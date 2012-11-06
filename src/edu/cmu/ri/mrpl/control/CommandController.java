@@ -50,7 +50,7 @@ public class CommandController {
 	private CommandSequence executeQueue;
     private boolean useVisualization;
     private boolean gameActive;
-    private boolean holdingGold;
+    boolean holdingGold;
 
     private MazeGraphics mg;
 
@@ -348,7 +348,7 @@ public class CommandController {
         if (statusComplete) {
             trc.removeGoal(Convert.RealPoseToMazeState(bac.getMazePose()));
             if (GAME_FLAG) {
-                holdingGold = cac.holdingGold();
+//                holdingGold = cac.holdingGold();
                 if (holdingGold) {
                     trc.targetDrop();
                 } else {

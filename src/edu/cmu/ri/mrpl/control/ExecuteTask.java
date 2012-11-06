@@ -94,7 +94,7 @@ public class ExecuteTask{
                     double y = 0;
                     switch (Convert.RealPoseToMazeState(parent.bac.getMazePose()).dir()) {
                         case East: {
-                            //TODO complete
+                            y = 0;
                         }
                     }
                     pntArg = new RealPoint2D(x,y);
@@ -155,6 +155,9 @@ public class ExecuteTask{
     void speak(String in) {
         if (!in.isEmpty()) {
             new SpeechController(this,in);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {}
         }
     }
 	private double filterSpeech(double in, int decimals){
@@ -249,6 +252,7 @@ public class ExecuteTask{
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {}
+                parent.holdingGold = false;
                 taskComplete = true;
 //                if (!parent.cac.holdingGold()) {
 //                    parent.trc.removeDrop(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
@@ -263,8 +267,10 @@ public class ExecuteTask{
                     if (isInThreshold(currentError, ArgType.DISTANCE)) {
                         if (parent.cac.holdingGold()) {
                             speak("Success. Success. Success. Moving. Moving. Moving.");
+                            parent.holdingGold = true;
                             parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                         } else {
+                            parent.holdingGold = false;
                             speak("Failure. Failure. Failure.");
                         }
                         taskComplete = true;
