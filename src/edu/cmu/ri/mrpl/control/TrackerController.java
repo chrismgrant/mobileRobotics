@@ -111,7 +111,7 @@ public class TrackerController {
      */
     void targetDrop() {
         mazeWorld.removeAllGoals();
-        for (MazeState state : mazeWorld.getDropGolds()) {
+        for (MazeState state : mazeWorld.getDrops()) {
             mazeWorld.addGoal(state);
         }
     }

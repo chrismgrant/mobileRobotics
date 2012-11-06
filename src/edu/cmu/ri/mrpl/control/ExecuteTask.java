@@ -314,6 +314,7 @@ public class ExecuteTask{
                         stepFlag = true;
                         double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
+                        System.out.println("Current error: "+currentError);
                         if (isInThreshold(currentError, ArgType.ANGLE)) {
                             taskComplete = true;
                             stop();
