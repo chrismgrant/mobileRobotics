@@ -84,6 +84,11 @@ public class CommandController {
         bhc = new BehaviorController();
         mpc = new MotionPlanController(trc.getMaze());
 
+        if (DEBUG_FLAG) {
+            System.out.printf("Robot position: %s\nRobot maze position: %s\n",
+                    Convert.getRobotPose(robot).toString(),bac.getMazePose());
+        }
+
         if (GAME_FLAG) {
             trc.targetGold();
         }
