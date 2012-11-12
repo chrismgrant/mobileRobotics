@@ -216,7 +216,7 @@ public class CommandController {
 	Command.Argument getActiveCommandArg(){
 		return active.argument;
 	}
-    public synchronized void clearCommands(){
+    synchronized void clearCommands(){
         executeQueue.clear();
     }
 	/**
@@ -226,7 +226,7 @@ public class CommandController {
 	public synchronized void addCommand(Command c){
 		executeQueue.add(c);
 	}
-	public synchronized void pushCommand(Command c){
+	synchronized void pushCommand(Command c){
 		executeQueue.add(0, c);
 	}
 	public synchronized void addCommandFromFile(java.lang.String inputFile){
@@ -242,7 +242,7 @@ public class CommandController {
 	 * To be called before accessing controller information
 	 * @param sonars array of raw sonar values
 	 */
-	public synchronized void updateControllers(double[] sonars){
+	synchronized void updateControllers(double[] sonars){
         double lastDistance = 0;
         boolean wallChanged;
 		soc.updateSonars(sonars);

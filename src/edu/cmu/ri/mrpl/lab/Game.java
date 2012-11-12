@@ -29,6 +29,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
 //    public static final String robotID = "WD-40";
     public static final String knownMazeFile = "game.maze";
     public static final String realMazeFile = "game.maze";
+    public boolean[] preChecks;
     public String command;
     public Robot robot;
     private SonarConsole sc;
@@ -44,6 +45,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
     private JButton initSonarButton;
     private JButton initCommButton;
+    private JButton initMazeButton;
 
     private JButton testButton;
     private JButton playButton;
@@ -62,8 +64,13 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
     static final int DEFAULT_ROOM_SIZE = 4;
 
+    CommandController cc;
+
+
     public Game() {
         super("Game");
+
+        preChecks = new boolean[7];
 
         initSoundButton = new JButton("Test Sound");
         initCamButton = new JButton("Test Camera");
@@ -71,7 +78,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
         disconnectButton = new JButton("disconnect");
         initSonarButton = new JButton("Start sonar");
         initCommButton = new JButton("Start comms");
-
+        initMazeButton = new JButton("Load maze");
         testButton = new JButton("Final check the styrofoam");
         playButton = new JButton("Fight with Styrofoam!");
         stopButton = new JButton(">> stop <<");
@@ -291,16 +298,30 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if (source==connectButton) {
+        if (source==initSoundButton) {
+
+        } else if (source==initCamButton) {
+
+        } else if ( source==connectButton) {
             connect();
         } else if ( source==disconnectButton ) {
             disconnect();
+        } else if (source==initSonarButton) {
+
+        } else if (source==initCommButton) {
+
+        } else if (source== initMazeButton) {
+
+        } else if (source==testButton) {
+
         } else if ( source==stopButton ) {
             stop();
         } else if ( source==quitButton ) {
             quit();
         } else if ( source==playButton ) {
-            (new Thread(playTask)).start();
+            if (ready()) {
+                (new Thread(playTask)).start();
+            }
         } else if ( source==commandButton) {
             command = commandText.getText();
             FileWriter commandFile;
@@ -313,9 +334,13 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
                 e1.printStackTrace();
             }
-
+            preChecks[7]=true;
 
         }
+    }
+
+    private boolean ready() {
+        for (int i = 0;;){}
     }
 
     public synchronized boolean canStart(Task t) {
@@ -504,7 +529,6 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
     class PlayTask extends Task {
 
-        CommandController cc;
 
         PlayTask(TaskController tc) {
             super(tc);
