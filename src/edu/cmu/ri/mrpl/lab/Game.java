@@ -299,6 +299,8 @@ public class Game extends JFrame implements ActionListener, TaskController {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source==initSoundButton) {
+        	cc.playSound(robotID);
+        	preChecks[1] = true;
 
         } else if (source==initCamButton) {
 

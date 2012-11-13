@@ -373,5 +373,7 @@ public class CommandController {
         }
 		System.out.println("Halted");
 	}
-	
+	public void playSound(String id){
+		exe.speak(id);
+	}
 }
