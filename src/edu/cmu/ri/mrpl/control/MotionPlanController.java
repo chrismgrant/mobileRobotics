@@ -84,7 +84,7 @@ public class MotionPlanController {
             Path nextPath = (Path)pathToState.clone();
             ArrayList<MazePos> cellPathClone = new ArrayList<MazePos>(cellPathToState.size());
             for (int i = 0; i < cellPathToState.size();i++){
-                cellPathClone.set(i,cellPathToState.get(i));
+                cellPathClone.add(cellPathToState.get(i));
             }
             String nextAction = "";
             if (mazeState.dir().left() == next) {
@@ -96,7 +96,7 @@ public class MotionPlanController {
             if (mazeState.dir() == next) {
                 nextAction = "G";
                 nextPath.add(Convert.MazeStateToRealPose(mazeState));
-                if (cellPathClone.get(cellPathToState.size()-1) != mazeState.pos()) {
+                if (cellPathClone.size() == 0 || cellPathClone.get(cellPathToState.size()-1) != mazeState.pos()) {
                     cellPathClone.add(mazeState.pos());
                 }
                 switch (next) {
