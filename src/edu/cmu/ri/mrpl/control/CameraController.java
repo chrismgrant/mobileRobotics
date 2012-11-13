@@ -109,7 +109,7 @@ public class CameraController {
     CameraDriver racerX; 
     public CameraController(){
         //TODO reinitialize
-//    	racerX = new CameraDriver();
+    	racerX = new CameraDriver();
     	
     }
     
@@ -120,13 +120,13 @@ public class CameraController {
     boolean holdingGold() {
         //TODO see if robot is holding gold.
     	//camera 320x240
-//    	racerX.update();
-//        boolean ret = racerX.oneColor(120,45,80,20);
-//        ret &= racerX.oneColor(120,110,80,20);
-//        ret &= racerX.oneColor(120,175,80,20);
-////    	racerX.printColors(90, 80, 5, 5);
-//        return ret;
-        return false;
+    	racerX.update();
+        boolean ret = racerX.oneColor(120,45,80,20);
+        ret &= racerX.oneColor(120,110,80,20);
+        ret &= racerX.oneColor(120,175,80,20);
+//    	racerX.printColors(90, 80, 5, 5);
+        return ret;
+//        return false;
     }
 
     /**
