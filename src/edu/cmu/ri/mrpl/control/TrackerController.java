@@ -187,7 +187,6 @@ public class TrackerController {
 	                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
 	                position = new RealPoint2D(x,y);
 	                addTracker(robotPose, position);
-	
 	            }
 	        }
         }

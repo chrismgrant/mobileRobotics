@@ -394,6 +394,16 @@ public class CommandController {
         }
 		System.out.println("Halted");
 	}
-
-
+	public synchronized void bumpRight(){
+		wc.setALVel(1, 0);
+		wc.updateWheels(robot, false);
+		wc.setALVel(0, 0);
+		wc.updateWheels(robot, false);
+	}
+	public synchronized void bumpLeft(){
+		wc.setALVel(-1, 0);
+		wc.updateWheels(robot, false);
+		wc.setALVel(0, 0);
+		wc.updateWheels(robot, false);
+	}
 }

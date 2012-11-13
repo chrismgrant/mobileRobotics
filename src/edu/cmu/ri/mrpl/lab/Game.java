@@ -321,6 +321,8 @@ public class Game extends JFrame implements ActionListener, TaskController {
             cc.initMaze(knownMazeFile);
             preChecks[6] = true;
         } else if (source==testButton) {
+        	 cc.bumpRight();
+             cc.bumpLeft();
 
         } else if ( source==stopButton ) {
             stop();
@@ -436,4 +438,6 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
 
     private static final long serialVersionUID = 0;
+    
+    
 }
