@@ -189,6 +189,9 @@ public class MotionPlanController {
                         if (mazeWorld.atGoal(right)) goalState = right;
                         resultPath.add(Convert.MazeStateToRealPose(goalState));
                         pathList = neighborsSet.get(i).cellPathToState;
+                        if (!pathList.contains(neighborsSet.get(i).mazeState.pos())){
+                            pathList.add(neighborsSet.get(i).mazeState.pos());
+                        }
 
                         System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;

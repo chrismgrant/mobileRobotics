@@ -452,8 +452,12 @@ public class CommandController {
             if (GAME_FLAG) {
 //                holdingGold = cac.holdingGold();
                 if (holdingGold) {
+                    trc.removeGold(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
                     trc.targetDrop();
                 } else {
+                    trc.removeDrop(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
                     trc.targetGold();
                 }
             }
