@@ -309,6 +309,11 @@ public class Game extends JFrame implements ActionListener, TaskController {
         } else if ( source==disconnectButton ) {
             disconnect();
         } else if (source==initSonarButton) {
+        	if (preChecks[3]){
+        		robot.turnSonarsOn();
+        		cc.init();
+        		preChecks[4] = true;
+        	}
 
         } else if (source==initCommButton) {
 

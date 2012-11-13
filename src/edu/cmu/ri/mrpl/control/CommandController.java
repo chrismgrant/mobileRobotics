@@ -380,4 +380,8 @@ public class CommandController {
 	public void playSound(String id){
 		exe.speak(id);
 	}
+	public void init(){
+		exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
+        exe.initPose();
+	}
 }
