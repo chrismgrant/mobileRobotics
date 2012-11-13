@@ -104,7 +104,7 @@ public class CommClientController {
 	public void sendMazePath(ArrayList<MazePos> path){
 		String message = "Path:";
 		for(int i = 0; i < path.toArray().length; i++){
-			message.concat();
+			message.concat("");
 		}
 	}
 	public ArrayList<MazePos> getMazePath(){
