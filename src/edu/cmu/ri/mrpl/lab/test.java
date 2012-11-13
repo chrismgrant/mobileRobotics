@@ -23,10 +23,11 @@ import java.util.StringTokenizer;
 public class test {
     private static final double EPSILON = .001;
 
-    private static double getPointError(final RealPose2D inputPose){
-        Tracker a = new Tracker(new RealPoint2D(0,.4683));
-        Tracker b = new Tracker(new RealPoint2D(.1,.2683));
-        List<Tracker> filteredTrackers = List.list(a,b);
+    private static double getPointError(final RealPose2D inputPose, List<Tracker> filteredTrackers){
+
+//        Tracker a = new Tracker(new RealPoint2D(0,.4683));
+//        Tracker b = new Tracker(new RealPoint2D(.1,.2683));
+//        List<Tracker> filteredTrackers = List.list(a,b);
         List<Double> offsets = filteredTrackers.map(new F<Tracker, Double>() {
             public Double f(Tracker t){
                 double distance, minDistance;
@@ -62,9 +63,11 @@ public class test {
 
 
     public static void main(String[] argv){
-        File trackerFile = new File("");
-        File robFile = new File("");
-        List<Tracker> trackerList = List.list();
+        File trackerFile = new File("TrackFollowData.txt");
+        File robFile = new File("TrackRoboMa.txt");
+//        List<Tracker> trackerList = List.list();
+        RealPose2D oldMazePose;
+        oldMazePose = new RealPose2D(.7366,.7366,1.57);
         double x,y,th;
         try {
             BufferedReader trackerBuf = new BufferedReader(new FileReader(trackerFile));
@@ -73,6 +76,9 @@ public class test {
             String robLine = null;
 
             while (((trackerLine = trackerBuf.readLine()) != null) && ((robLine = robotBuf.readLine()) != null)) {
+//             if (((trackerLine = trackerBuf.readLine()) != null) && ((robLine = robotBuf.readLine()) != null)) {
+                List<Tracker> trackerList = List.list();
+
                 StringTokenizer stPt = new StringTokenizer(trackerLine, ";");
                 StringTokenizer robPse = new StringTokenizer(robLine, ",");
                 while (stPt.hasMoreTokens()) {
@@ -84,48 +90,54 @@ public class test {
                 x = Double.valueOf(robPse.nextToken());
                 y = Double.valueOf(robPse.nextToken());
                 th = Double.valueOf(robPse.nextToken());
+                oldMazePose = new RealPose2D(x,y,th);
+                
+                double dx, dy, dth;
+                final double dp = 0.0001;
+                dx = oldMazePose.getX()+dp;
+                dy = oldMazePose.getY()+dp;
+                dth = Angle.normalize(oldMazePose.getRotateTheta() + dp / Math.PI);
+                double[] gradient = new double[3];
+                gradient[0] = (getPointError(new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta()),trackerList) -
+                        getPointError(oldMazePose,trackerList))/dp;
+                gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta()),trackerList) -
+                        getPointError(oldMazePose,trackerList))/dp;
+                gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth),trackerList) -
+                        getPointError(oldMazePose,trackerList))/dp;
+//                System.out.println(getPointError(border,oldMazePose));
+//                System.out.println(gradient[0]+","+gradient[1]+","+gradient[2]);
+
+                //Traverse down gradient
+                double last = Double.POSITIVE_INFINITY;
+                RealPose2D nextPose = oldMazePose.clone();
+                double nextError = getPointError(nextPose,trackerList);
+                while (last > nextError) {
+                    last = nextError;
+                    dx = -EPSILON * gradient[0]*nextPose.getX();
+                    dy = -EPSILON * gradient[1]*nextPose.getY();
+                    dth = -EPSILON * gradient[2]*nextPose.getTh();
+                    nextPose.add(dx, dy, dth);
+                    nextError = getPointError(nextPose,trackerList);
+                }
+                nextPose.add(-dx, -dy, -dth);
+
+                if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
+//                    return nextPose;
+                    System.out.println(nextPose.toString());
+                } else {
+                    System.out.println(oldMazePose.toString());
+                }
             }
         } catch (FileNotFoundException e) {
 
         } catch (IOException e) {
 
         }
-
-        RealPose2D oldMazePose = new RealPose2D(.7366,.7366,1.57);
-        double dx, dy, dth;
-        final double dp = 0.0001;
-        dx = oldMazePose.getX()+dp;
-        dy = oldMazePose.getY()+dp;
-        dth = Angle.normalize(oldMazePose.getRotateTheta() + dp / Math.PI);
-        double[] gradient = new double[3];
-        gradient[0] = (getPointError(new RealPose2D(dx, oldMazePose.getY(),oldMazePose.getRotateTheta())) -
-                getPointError(oldMazePose))/dp;
-        gradient[1] = (getPointError(new RealPose2D(oldMazePose.getX(),dy,oldMazePose.getRotateTheta())) -
-                getPointError(oldMazePose))/dp;
-        gradient[2] = (getPointError(new RealPose2D(oldMazePose.getX(), oldMazePose.getY(),dth)) -
-                getPointError(oldMazePose))/dp;
-//        System.out.println(getPointError(border,oldMazePose));
-        System.out.println(gradient[0]+","+gradient[1]+","+gradient[2]);
-
-        //Traverse down gradient
-        double last = Double.POSITIVE_INFINITY;
-        RealPose2D nextPose = oldMazePose.clone();
-        double nextError = getPointError(nextPose);
-        while (last > nextError) {
-            last = nextError;
-            dx = -EPSILON * gradient[0]*nextPose.getX();
-            dy = -EPSILON * gradient[1]*nextPose.getY();
-            dth = -EPSILON * gradient[2]*nextPose.getTh();
-            nextPose.add(dx, dy, dth);
-            nextError = getPointError(nextPose);
-        }
-        nextPose.add(-dx, -dy, -dth);
-
-        if (oldMazePose.getPosition().distance(nextPose.getPosition())< .7){
-//            return nextPose;
-            System.out.print(nextPose);
-        } else {
-            System.out.print(oldMazePose);
-        }
+//        for(int i = 0 ; i< trackerList.toArray().length(); i++){
+//        	System.out.println(trackerList.toArray().get(i).getRPoint().toString());
+//        }
+//        RealPose2D oldMazePose = new RealPose2D(.7366,.7366,1.57);
+//        RealPose2D oldMazePose = robPse;
+        
     }
 }

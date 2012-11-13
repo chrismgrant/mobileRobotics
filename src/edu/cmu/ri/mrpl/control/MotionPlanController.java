@@ -17,11 +17,11 @@ import java.util.concurrent.Callable;
  * To change this template use File | Settings | File Templates.
  */
 public class MotionPlanController {
-    private Path outputPlan;
     private MazeWorld mazeWorld;
-
+    private ArrayList<MazePos> blockedList;
     public MotionPlanController(MazeWorld mazeWorld){
         this.mazeWorld = mazeWorld;
+        blockedList = new ArrayList<MazePos>();
     }
 
     class MazeStateNode implements Comparable<MazeStateNode>{
@@ -121,30 +121,31 @@ public class MotionPlanController {
         if (state.dir() == other.dir().rear()) return 2;
         return 1;
     }
-    /**
-     *
-     * @param initState
-     * @return
-     */
-    public Path searchForPath(MazeState initState) {
+    public Path searchForPath(MazeState initState, ArrayList<MazePos> blockedList) {
         System.out.printf("Start: %s\n", initState.toString());
         int debugCount = 0;
 
         Set<MazeState> visitedPositions = new HashSet<MazeState>();
+        for (MazePos pos : blockedList) {
+            visitedPositions.add(new MazeState(pos.x(),pos.y(), MazeWorld.Direction.East));
+            visitedPositions.add(new MazeState(pos.x(),pos.y(), MazeWorld.Direction.North));
+            visitedPositions.add(new MazeState(pos.x(),pos.y(), MazeWorld.Direction.West));
+            visitedPositions.add(new MazeState(pos.x(),pos.y(), MazeWorld.Direction.South));
+        }
         Queue<MazeStateNode> nextNodes = new LinkedList<MazeStateNode>();
         nextNodes.offer(new MazeStateNode(initState,new Path(),""));
         ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
         Path resultPath = new Path();
         while (!nextNodes.isEmpty()) {
-        	MazeStateNode currentNode = nextNodes.remove();
+            MazeStateNode currentNode = nextNodes.remove();
             debugCount++;
-        	if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
-        		neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
-        	}
+            if (!(mazeWorld.act(currentNode.mazeState, MazeWorld.Action.GTNN)).equals((currentNode.mazeState))){
+                neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir()));
+            }
             neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().left()));
             neighborsSet.add(currentNode.getNext(currentNode.mazeState.dir().right()));
 
-        	for (int i = 0; i < neighborsSet.size(); i++){
+            for (int i = 0; i < neighborsSet.size(); i++){
                 if (!visitedPositions.contains(neighborsSet.get(i).mazeState)){
                     visitedPositions.add(neighborsSet.get(i).mazeState);
                     MazeState front, left, right, rear;
@@ -162,11 +163,7 @@ public class MotionPlanController {
                         if (mazeWorld.atGoal(left)) goalState = left;
                         if (mazeWorld.atGoal(right)) goalState = right;
                         resultPath.add(Convert.MazeStateToRealPose(goalState));
-//                        mazeWorld.removeGoal(front);
-//                        mazeWorld.removeGoal(rear);
-//                        mazeWorld.removeGoal(left);
-//                        mazeWorld.removeGoal(right);
-//                        resultPath.addAll(searchForPath(front));
+
                         System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
 
@@ -174,11 +171,25 @@ public class MotionPlanController {
                         nextNodes.add(neighborsSet.get(i));
                     }
                 }
-        	}
-        	neighborsSet.clear();
+            }
+            neighborsSet.clear();
         }
         System.out.println("NoPathFound");
         return resultPath;
+    }
+    public Path searchForPathWithBlock(MazeState initState) {
+        return searchForPath(initState, blockedList);
+    }
+    public void updateBlockedList(ArrayList<MazePos> newBlockedList) {
+        blockedList = newBlockedList;
+    }
+    /**
+     *
+     * @param initState
+     * @return
+     */
+    public Path searchForPath(MazeState initState) {
+        return searchForPath(initState, new ArrayList<MazePos>());
     }
 
     public Path searchForAStarPath(MazeState initState) {

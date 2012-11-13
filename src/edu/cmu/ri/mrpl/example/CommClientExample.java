@@ -48,7 +48,7 @@ public class CommClientExample {
 					if(e1.getMessage().startsWith("friends-ready"))
 						friendsReady = true;
 					else{
-						//Again, anything except freinds-ready is not handled.
+						//Again, anything except friends-ready is not handled.
 						System.err.println("Giving up");
 						return;
 					}

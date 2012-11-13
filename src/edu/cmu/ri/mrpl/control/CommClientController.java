@@ -18,6 +18,7 @@ public class CommClientController {
 	public CommClientController(){
 		comm = new CommClient("gs5038.sp.cs.cmu.edu");
 		myName = "Me";
+        Partner = new String[1];
 		Partner[0] = "You";
 		
 	}
@@ -60,6 +61,7 @@ public class CommClientController {
 		}
 		return false;
 	}
+	
 	
 	public RealPoint2D swapLoc(RealPoint2D myLoc){
 		String message = "Loc:"+myLoc.x+","+myLoc.y;

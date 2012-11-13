@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,9 @@ public class TrackerController {
     private static final double MIN_HIT_RATIO = .8;
     private static final double MAX_HIT_RATIO = 1.1;
     private static final double WALL_EXPAND = .1;
+    private static final double MIN_ROBOT_CLEARANCE = 2.5;
+
+    private RealPose2D otherRobot;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -78,7 +82,7 @@ public class TrackerController {
             System.out.printf("Error: cannot read mazefile\n");
         }
         lastCell = new Cell(getMazeInit());
-
+        otherRobot = new RealPose2D(-100, -100,0);
     }
 	/**
 	 * Gets the maze world
@@ -94,6 +98,14 @@ public class TrackerController {
 		}
 		return null;
 	}
+
+    void parseRobotPose(RealPose2D otherRobotMazePose) {
+        //TODO implement
+    	otherRobot = otherRobotMazePose;
+    }
+    void parseTeamPath(ArrayList<MazePos> otherRobotPathList) {
+
+    }
 
     /**
      * Sets the goals in mazeWorld to free Golds
@@ -166,15 +178,17 @@ public class TrackerController {
         newTrackers = List.list();
         RealPoint2D position;
         double x,y,th;
-        for (int i = 0; i < sonarReadings.length; i++){
-            if (SonarController.isWithinRange(sonarReadings[i])){
-                th = i * 22.5 * Units.degToRad;
-                x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-                position = new RealPoint2D(x,y);
-                addTracker(robotPose, position);
-
-            }
+        //if robot too close to other robot don't do anything
+        if (robotPose.getPosition().distance(otherRobot.getPosition()) > MIN_ROBOT_CLEARANCE){
+	        for (int i = 0; i < sonarReadings.length; i++){
+	            if (SonarController.isWithinRange(sonarReadings[i])){
+	                th = i * 22.5 * Units.degToRad;
+	                x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+	                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+	                position = new RealPoint2D(x,y);
+	                addTracker(robotPose, position);
+	            }
+	        }
         }
     }
 
@@ -645,4 +659,5 @@ public class TrackerController {
             }
         });
     }
+   
 }
