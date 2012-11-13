@@ -47,6 +47,8 @@ public class TrackerController {
     private static final double MAX_HIT_RATIO = 1.1;
     private static final double WALL_EXPAND = .1;
 
+    private RealPose2D otherRobot;
+
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
 	private List<Tracker> filteredTrackers;
@@ -94,6 +96,10 @@ public class TrackerController {
 		}
 		return null;
 	}
+
+    void parseRobotPose(RealPose2D otherRobotMazePose) {
+        //TODO implement
+    }
 
     /**
      * Sets the goals in mazeWorld to free Golds
