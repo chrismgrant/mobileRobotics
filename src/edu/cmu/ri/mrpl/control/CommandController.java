@@ -76,37 +76,9 @@ public class CommandController {
         wc = new WheelController();
         soc = new SonarController();
         bc = new BumperController();
-        cac = new CameraController();
         bhc = new BehaviorController();
-
-        if (DEBUG_FLAG) {
-            System.out.printf("Robot position: %s\nRobot maze position: %s\n",
-                    Convert.getRobotPose(robot).toString(),bac.getMazePose());
-        }
-
-        if (GAME_FLAG) {
-            trc.targetGold();
-        }
-
-        if (PATH_SEARCH_FLAG) {
-            //Search
-            searchNextPath(trc.getMazeInit());
-
-        }
-
-        if (robot instanceof SimRobot) {
-            ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
-                    bac.getInitMazePose().getRotateTheta());
-            bac.setInitMazePose(trc.getMazeInit(),Convert.getRobotPose(robot));
-        }
-
         useVisualization = (pc == null)?false:true;
-        if (useVisualization){
-            vc = new VisualizeController();
-            mg = new MazeGraphics(trc.getMaze());
-            mv = vc.new MazeViewer(mg);
-            pointsConsole = pc;
-        }
+        pointsConsole = pc;
 
         if (DEBUG_FLAG) {
             try {
@@ -129,23 +101,56 @@ public class CommandController {
                 outTrackFMaze = new PrintWriter(outFileTrackFMaze);
                 outTrackFRob = new PrintWriter(outFileTrackFRob);
                 outTrackWMaze = new PrintWriter(outFileTrackWMaze);
-            } catch (IOException e) {}
+            } catch (IOException e) {
+
+            }
         }
 
-        exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
-        exe.initPose();
     }
+
 	public CommandController(){
         this(null);
 	}
+
+    public void initCam() {
+        cac = new CameraController();
+    }
     public void initRobot(Robot r) {
         robot = r;
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
+        exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
+
+        if (robot instanceof SimRobot) {
+            ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
+                    bac.getInitMazePose().getRotateTheta());
+            bac.setInitMazePose(trc.getMazeInit(),Convert.getRobotPose(robot));
+        }
+
+        if (DEBUG_FLAG) {
+            System.out.printf("Robot position: %s\nRobot maze position: %s\n",
+                    Convert.getRobotPose(robot).toString(),bac.getMazePose());
+        }
     }
 
     public void initMaze(String mazeFile) {
         trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
         mpc = new MotionPlanController(trc.getMaze());
+        if (useVisualization){
+            vc = new VisualizeController();
+            mg = new MazeGraphics(trc.getMaze());
+            mv = vc.new MazeViewer(mg);
+        }
+        if (GAME_FLAG) {
+            trc.targetGold();
+        }
+        if (PATH_SEARCH_FLAG) {
+            //Search
+            searchNextPath(trc.getMazeInit());
+
+        }
+    }
+    public void initSonars(){
+        exe.initPose();
     }
 
 	/**
@@ -380,8 +385,5 @@ public class CommandController {
 	public void playSound(String id){
 		exe.speak(id);
 	}
-	public void init(){
-		exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
-        exe.initPose();
-	}
+
 }
