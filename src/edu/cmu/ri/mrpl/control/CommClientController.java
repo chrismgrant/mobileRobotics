@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.CommClient;
 import edu.cmu.ri.mrpl.CommClient.CommException;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
+import edu.cmu.ri.mrpl.maze.MazePos;
 
 import java.util.*;
 
@@ -95,5 +96,26 @@ public class CommClientController {
 		comm.send(Partner[0], message);
 		}
 		return partnerLoc;
+	}
+	
+	public ArrayList<MazePos> getMazePath(){
+		String received;
+		String cord[];
+		ArrayList<MazePos> list = new ArrayList<MazePos>();
+		try {
+			comm.getIncomingMessage();
+		} catch (CommException e1) {
+			System.err.println("Comm Exception: " + e1);
+			if(e1.getMessage().startsWith("Path:")){
+				received = e1.getMessage().substring(5);
+				String poses[] = received.split(";");
+				for(int i = 0; i < poses.length; i++){
+					cord = received.split(",");
+					MazePos pos = new MazePos(Integer.parseInt(cord[0]),Integer.parseInt(cord[1]));
+					list.add(pos);
+				}
+			}
+		}
+		return list;
 	}
 }
