@@ -18,7 +18,6 @@ public class CameraController {
 
 	
     public class CameraDriver extends JFrame {
-        //TODO initialize webcam here
     	private static final long serialVersionUID = 100L;
 
     	public UsbCamera cam;
@@ -109,7 +108,8 @@ public class CameraController {
     }
     CameraDriver racerX; 
     public CameraController(){
-    	racerX = new CameraDriver();
+        //TODO reinitialize
+//    	racerX = new CameraDriver();
     	
     }
     
@@ -120,12 +120,13 @@ public class CameraController {
     boolean holdingGold() {
         //TODO see if robot is holding gold.
     	//camera 320x240
-    	racerX.update();
-        boolean ret = racerX.oneColor(120,45,80,20);
-        ret &= racerX.oneColor(120,110,80,20);
-        ret &= racerX.oneColor(120,175,80,20);
-//    	racerX.printColors(90, 80, 5, 5);
-        return ret;
+//    	racerX.update();
+//        boolean ret = racerX.oneColor(120,45,80,20);
+//        ret &= racerX.oneColor(120,110,80,20);
+//        ret &= racerX.oneColor(120,175,80,20);
+////    	racerX.printColors(90, 80, 5, 5);
+//        return ret;
+        return false;
     }
 
     /**
