@@ -57,15 +57,19 @@ public class ExecuteTask{
 	
 	/**
 	 * Initializes execution thread
-     * @param r robot
+     * @param parentController CommandController object
      */
-	public ExecuteTask(CommandController parentController, Robot r){
-        robot = r;
+	public ExecuteTask(CommandController parentController){
         parent = parentController;
 	}
 
+    void setRobot(Robot r) {
+        robot = r;
+    }
+
+
     void setupTask(Command command, RealPose2D robotPose) {
-        stop();
+//        stop();
         initPose = robotPose;
         active = command;
         isContinuous = command.isContinuous;

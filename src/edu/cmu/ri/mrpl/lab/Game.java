@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 
 public class Game extends JFrame implements ActionListener, TaskController {
     public static final boolean SIM = true;
-    public static final String robotID = "Duct Tape";
+    public static final String robotID = "Robot 1";
 //    public static final String robotID = "WD-40";
     public static final String knownMazeFile = "game.maze";
     public static final String realMazeFile = "game.maze";
@@ -92,7 +92,8 @@ public class Game extends JFrame implements ActionListener, TaskController {
         connectButton.addActionListener(this);
         disconnectButton.addActionListener(this);
         initSonarButton.addActionListener(this);
-        initCamButton.addActionListener(this);
+        initCommButton.addActionListener(this);
+        initMazeButton.addActionListener(this);
 
         testButton.addActionListener(this);
         playButton.addActionListener(this);
@@ -139,6 +140,8 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
         box = Box.createHorizontalBox();
         main.add(box);
+        box.add(initMazeButton);
+        box.add(Box.createHorizontalStrut(15));
         box.add(testButton);
 
         main.add(Box.createVerticalStrut(30));
@@ -297,14 +300,19 @@ public class Game extends JFrame implements ActionListener, TaskController {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source==initSoundButton) {
-        	cc.playSound(robotID);
+        	cc.playSound(robotID + " is not self-aware.");
+            System.out.print("1");
         	preChecks[1] = true;
 
         } else if (source==initCamButton) {
-
+            cc.initCam();
+            //TODO take picture
+            System.out.print(2);
+            preChecks[2] = true;
         } else if ( source==connectButton) {
             connect();
             cc.initRobot(robot);
+            System.out.print(3);
             preChecks[3] = true;
         } else if ( source==disconnectButton ) {
             disconnect();
@@ -312,18 +320,22 @@ public class Game extends JFrame implements ActionListener, TaskController {
         	if (preChecks[3]){
         		robot.turnSonarsOn();
         		cc.initSonars();
+                System.out.print(4);
         		preChecks[4] = true;
         	}
-
         } else if (source==initCommButton) {
-
+            cc.initComm();
+            System.out.print(5);
+            preChecks[5] = true;
         } else if (source== initMazeButton) {
             cc.initMaze(knownMazeFile);
+            System.out.print(6);
             preChecks[6] = true;
         } else if (source==testButton) {
-        	 cc.bumpRight();
-             cc.bumpLeft();
-
+            cc.bumpRight();
+            cc.bumpLeft();
+            System.out.print(7);
+            preChecks[7] = true;
         } else if ( source==stopButton ) {
             stop();
         } else if ( source==quitButton ) {
@@ -344,8 +356,6 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
                 e1.printStackTrace();
             }
-            preChecks[7]=true;
-
         }
     }
 

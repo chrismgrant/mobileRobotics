@@ -82,7 +82,7 @@ public class CommandController {
         useVisualization = (pc == null)?false:true;
         pointsConsole = pc;
 
-        exe = new ExecuteTask(this, robot);
+        exe = new ExecuteTask(this);
 
 
         if (DEBUG_FLAG) {
@@ -125,8 +125,20 @@ public class CommandController {
     }
     public void initRobot(Robot r) {
         robot = r;
+        exe.setRobot(r);
+    }
+    public void initSonars(){
+    }
+
+    public void initComm() {
+        cmc = new CommClientController();
+    }
+    public void initMaze(String mazeFile) {
+        trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
+        mpc = new MotionPlanController(trc.getMaze());
         exe.setupTask(nullCommand, bac.getMazePose());
+        exe.initPose();
 
         if (robot instanceof SimRobot) {
             ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
@@ -138,17 +150,6 @@ public class CommandController {
             System.out.printf("Robot position: %s\nRobot maze position: %s\n",
                     Convert.getRobotPose(robot).toString(),bac.getMazePose());
         }
-    }
-    public void initSonars(){
-        exe.initPose();
-    }
-
-    public void initComm() {
-        cmc = new CommClientController();
-    }
-    public void initMaze(String mazeFile) {
-        trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
-        mpc = new MotionPlanController(trc.getMaze());
         if (useVisualization){
             vc = new VisualizeController();
             mg = new MazeGraphics(trc.getMaze());

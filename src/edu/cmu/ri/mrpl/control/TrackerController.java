@@ -82,7 +82,7 @@ public class TrackerController {
             System.out.printf("Error: cannot read mazefile\n");
         }
         lastCell = new Cell(getMazeInit());
-
+        otherRobot = new RealPose2D(-100, -100,0);
     }
 	/**
 	 * Gets the maze world
