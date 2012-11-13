@@ -2,6 +2,7 @@ package edu.cmu.ri.mrpl.control;
 
 import edu.cmu.ri.mrpl.CommClient;
 import edu.cmu.ri.mrpl.CommClient.CommException;
+import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 
 import java.util.*;
 
@@ -60,4 +61,34 @@ public class CommClientController {
 		return false;
 	}
 	
+	public RealPoint2D swapLoc(RealPoint2D myLoc){
+		String message = "Loc:"+myLoc.x+","+myLoc.y;
+		String recived;
+		String cord[];
+		RealPoint2D partnerLoc = new RealPoint2D(-1,-1);
+		boolean swap = false;
+		while(!swap){
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			try {
+				comm.getIncomingMessage();
+			} catch (CommException e1) {
+				System.err.println("Comm Exception: " + e1);
+				if(e1.getMessage().startsWith("Loc:")){
+					swap = true;
+					recived = e1.getMessage().substring(4);
+					cord = recived.split(",");
+					partnerLoc = new RealPoint2D(Double.parseDouble(cord[0]),Double.parseDouble(cord[1]));
+				}else{
+					System.err.println("Giving up");
+					return new RealPoint2D(-1,-1);
+				}
+			}
+		comm.send(Partner[0], message);
+		}
+		return partnerLoc;
+	}
 }
