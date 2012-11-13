@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -99,6 +100,9 @@ public class TrackerController {
 
     void parseRobotPose(RealPose2D otherRobotMazePose) {
         //TODO implement
+    }
+    void parseTeamPath(ArrayList<MazePos> otherRobotPathList) {
+
     }
 
     /**

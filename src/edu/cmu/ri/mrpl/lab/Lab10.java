@@ -505,7 +505,7 @@ public class Lab10 extends JFrame implements ActionListener, TaskController{
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot,knownMazeFile, pc);
+            cc = new CommandController();
 
             try{
                 FileWriter outFileRawSonar = new FileWriter("TrackRawSonarData");

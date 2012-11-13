@@ -502,7 +502,7 @@ public class Lab6 extends JFrame implements ActionListener, TaskController {
         public void taskRun() {
 //			showSC();
             robot.turnSonarsOn();
-            cc = new CommandController(robot,"in.maze", pc);
+            cc = new CommandController();
             cc.addCommandFromFile("in.txt");
 
             try{

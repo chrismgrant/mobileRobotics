@@ -30,8 +30,10 @@ public class CommandController {
 	BearingController bac;
 	BehaviorController bhc;
     MotionPlanController mpc;
-	
-	VisualizeController vc;
+    CommClientController cmc;
+
+
+    VisualizeController vc;
     VisualizeController.MazeViewer mv;
 	
 	Robot robot;
@@ -80,6 +82,9 @@ public class CommandController {
         useVisualization = (pc == null)?false:true;
         pointsConsole = pc;
 
+        exe = new ExecuteTask(this, robot);
+
+
         if (DEBUG_FLAG) {
             try {
                 FileWriter outFileRobo = new FileWriter("TrackRobo");
@@ -112,13 +117,16 @@ public class CommandController {
         this(null);
 	}
 
+    public void playSound(String id){
+        exe.speak(id);
+    }
     public void initCam() {
         cac = new CameraController();
     }
     public void initRobot(Robot r) {
         robot = r;
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
-        exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
+        exe.setupTask(nullCommand, bac.getMazePose());
 
         if (robot instanceof SimRobot) {
             ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
@@ -131,7 +139,13 @@ public class CommandController {
                     Convert.getRobotPose(robot).toString(),bac.getMazePose());
         }
     }
+    public void initSonars(){
+        exe.initPose();
+    }
 
+    public void initComm() {
+        cmc = new CommClientController();
+    }
     public void initMaze(String mazeFile) {
         trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
         mpc = new MotionPlanController(trc.getMaze());
@@ -149,9 +163,7 @@ public class CommandController {
 
         }
     }
-    public void initSonars(){
-        exe.initPose();
-    }
+
 
 	/**
 	 * Gets filtered sonar readings for sonar console
@@ -382,8 +394,6 @@ public class CommandController {
         }
 		System.out.println("Halted");
 	}
-	public void playSound(String id){
-		exe.speak(id);
-	}
+
 
 }

@@ -58,14 +58,10 @@ public class ExecuteTask{
 	/**
 	 * Initializes execution thread
      * @param r robot
-     * @param c command
-     * @param p initial Pose at execution time
      */
-	public ExecuteTask(CommandController parentController, Robot r, Command c, RealPose2D p){
+	public ExecuteTask(CommandController parentController, Robot r){
         robot = r;
         parent = parentController;
-        setupTask(c,p);
-
 	}
 
     void setupTask(Command command, RealPose2D robotPose) {
