@@ -3,10 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import edu.cmu.ri.mrpl.kinematics2D.*;
 import edu.cmu.ri.mrpl.maze.MazePos;
@@ -51,11 +48,13 @@ public class TrackerController {
 
     private RealPose2D otherRobot;
 
+    private MazeWorld mazeWorld;
+    private Set<MazePos> reachableCells;
+
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
 	private List<Tracker> filteredTrackers;
     private List<Tracker> updateTrackers;
-	private MazeWorld mazeWorld;
     private RealPose2D last;
     private Cell lastCell;
 	private Tracker active;
@@ -78,13 +77,49 @@ public class TrackerController {
 		filteredTrackers = List.list();
 		try {
 			mazeWorld = new MazeWorld(in);
-		} catch (IOException e) {
+            reachableCells = getReachableCells();
+        } catch (IOException e) {
             System.out.printf("Error: cannot read mazefile\n");
         }
         lastCell = new Cell(getMazeInit());
         otherRobot = new RealPose2D(-100, -100,0);
     }
-	/**
+    private Set<MazePos> getNeighborCells(MazePos currentCell) {
+        Set<MazePos> neighborSet = new HashSet<MazePos>();
+        if (!mazeWorld.isWall(currentCell.x(),currentCell.y(), MazeWorld.Direction.East)) {
+            neighborSet.add(new MazePos(currentCell.x()+1,currentCell.y()));
+        }
+        if (!mazeWorld.isWall(currentCell.x(),currentCell.y(), MazeWorld.Direction.North)) {
+            neighborSet.add(new MazePos(currentCell.x(),currentCell.y()+1));
+        }
+        if (!mazeWorld.isWall(currentCell.x(),currentCell.y(), MazeWorld.Direction.West)) {
+            neighborSet.add(new MazePos(currentCell.x()-1,currentCell.y()));
+        }
+        if (!mazeWorld.isWall(currentCell.x(),currentCell.y(), MazeWorld.Direction.South)) {
+            neighborSet.add(new MazePos(currentCell.x(),currentCell.y()-1));
+        }
+        return neighborSet;
+    }
+    private Set<MazePos> getReachableCells() {
+        Set<MazePos> reachable = new HashSet<MazePos>();
+        MazePos init = getMazeInit().pos();
+        ArrayList<MazePos> horizon = new ArrayList<MazePos>();
+        horizon.add(init);
+
+        MazePos active;
+        while (!horizon.isEmpty()) {
+            active = horizon.remove(0);
+            reachable.add(active);
+            for (MazePos pos : getNeighborCells(active)) {
+                if (!reachable.contains(pos)) {
+                    horizon.add(pos);
+                }
+            }
+        }
+        return reachable;
+    }
+
+    /**
 	 * Gets the maze world
 	 * @return
 	 */
@@ -114,7 +149,9 @@ public class TrackerController {
         mazeWorld.removeAllGoals();
         //TODO for competition, first target all golds that other team can reach, then go for our gold.
         for (MazeState state : mazeWorld.getFreeGolds()) {
-            mazeWorld.addGoal(state);
+            if (reachableCells.contains(state.pos())) {
+                mazeWorld.addGoal(state);
+            }
         }
     }
 
@@ -124,7 +161,9 @@ public class TrackerController {
     void targetDrop() {
         mazeWorld.removeAllGoals();
         for (MazeState state : mazeWorld.getDrops()) {
-            mazeWorld.addGoal(state);
+            if (reachableCells.contains(state.pos())) {
+                mazeWorld.addGoal(state);
+            }
         }
     }
 

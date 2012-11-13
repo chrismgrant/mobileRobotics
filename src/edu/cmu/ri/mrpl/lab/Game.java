@@ -303,7 +303,6 @@ public class Game extends JFrame implements ActionListener, TaskController {
         	cc.playSound(robotID + " is not self-aware.");
             System.out.print("1");
         	preChecks[1] = true;
-
         } else if (source==initCamButton) {
             cc.initCam();
             //TODO take picture
@@ -324,7 +323,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
         		preChecks[4] = true;
         	}
         } else if (source==initCommButton) {
-            cc.initComm();
+            cc.initComm(robotID);
             System.out.print(5);
             preChecks[5] = true;
         } else if (source== initMazeButton) {

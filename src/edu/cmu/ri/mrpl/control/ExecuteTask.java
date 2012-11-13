@@ -81,14 +81,14 @@ public class ExecuteTask{
 
         switch (active.type){
             case DROPGOLD: {
-                speak("Dropping. Dropping. Dropping.");
+                speak("Dropping. Dropping.");
                 break;
             }
             case PICKGOLD: {
-                speak("Searching. Searching. Searching.");
+                speak("Searching. Searching.");
                 goldVisible = parent.cac.isGoldVisible();
                 if (goldVisible) {
-                    speak("Found. Found. Found. Picking up. Picking up. Picking up.");
+                    speak("Found. Found. Picking up. Picking up.");
                     // Get x relative to robot as forward motion
                     double x = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
                     dblArg = parent.soc.getForwardSonarReading() - PICKUP_DISTANCE;
@@ -102,7 +102,7 @@ public class ExecuteTask{
                     }
                     pntArg = new RealPoint2D(x,y);
                 } else {
-                    speak("Not found. Not found. Not found. Skipping. Skipping. Skipping.");
+                    speak("Not found. Not found. Skipping. Skipping.");
                     parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                     taskComplete = true;
                 }
@@ -272,11 +272,11 @@ public class ExecuteTask{
                     System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.DISTANCE)){
                         if (parent.cac.holdingGold()) {
-                            speak("Success. Success. Success. Moving. Moving. Moving.");
+                            speak("Success. Success. Moving. Moving.");
                             parent.holdingGold = true;
                         } else {
                             parent.holdingGold = false;
-                            speak("Failure. Failure. Failure.");
+                            speak("Failure. Failure.");
                         }
                         parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
 

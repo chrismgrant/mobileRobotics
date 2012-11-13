@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
+import edu.cmu.ri.mrpl.game.GameClient;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
@@ -31,6 +32,7 @@ public class CommandController {
 	BehaviorController bhc;
     MotionPlanController mpc;
     CommClientController cmc;
+    GameClient gc;
 
 
     VisualizeController vc;
@@ -81,6 +83,9 @@ public class CommandController {
         bhc = new BehaviorController();
         useVisualization = (pc == null)?false:true;
         pointsConsole = pc;
+        cmc = new CommClientController();
+        gc = new GameClient();
+
 
         exe = new ExecuteTask(this);
 
@@ -130,8 +135,9 @@ public class CommandController {
     public void initSonars(){
     }
 
-    public void initComm() {
-        cmc = new CommClientController();
+    public void initComm(String robotID) {
+        cmc.connect();
+//        gc.connectToServer("Combat Styrofoam", robotID, robotID + "other");
     }
     public void initMaze(String mazeFile) {
         trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
@@ -359,9 +365,27 @@ public class CommandController {
             }
             outTrackRob.println("}");
         }
-
+        parseMessages();
 	}
-	/**
+
+    private void parseMessages() {
+        String message, command;
+        try {
+            message = cmc.comm.getIncomingMessage();
+            if (message != null) {
+                command = message.substring(0,message.indexOf(" "));
+                if (command.equals("Loc:")) {
+
+                }
+
+            }
+        } catch (CommClient.CommException e) {
+            System.err.println("Comm Exception: " + e.getMessage());
+
+        }
+    }
+
+    /**
 	 * Creates new execution thread to complete pending command.
 	 */
 	public synchronized void step(){

@@ -5,15 +5,15 @@ import edu.cmu.ri.mrpl.CommClient.CommException;
 
 import java.util.*;
 
-/* This is a simple example of how to use the CommClient for 16x62.  
+/* This is a simple example of how to use the CommClient for 16x62.
  * See the webpage for a full description.
  */
 
 public class CommClientExample {
 	public static void main(String[] args) {
 		CommClient cc = new CommClient("gs5038.sp.cs.cmu.edu");
-		
-		// Get friends 
+
+		// Get friends
 		if(args.length != 2){
 			System.out.println("Usage - java CommClientExample name1 name2");
 			System.exit(-1);
@@ -59,13 +59,13 @@ public class CommClientExample {
 		for(int i=0; i<10; i++){
 			String message = "Hello " + myFriends[0] + ", it is " + new Date(System.currentTimeMillis()) + ".  Message " + (i+1) + "/10";
 			cc.send(myFriends[0], message);
-			
+
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			
+
 			do{
 				try {
 					message = cc.getIncomingMessage();
@@ -75,6 +75,6 @@ public class CommClientExample {
 				}
 			}while(message == null);
 			System.out.println(message);
-		}		
+		}
 	}
 }

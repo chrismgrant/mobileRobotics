@@ -16,10 +16,13 @@ public class CommClientController {
 	String Partner[];
 	
 	public CommClientController(){
-		comm = new CommClient("gs5038.sp.cs.cmu.edu");
-		myName = "Me";
+		comm = new CommClient("128.237.203.134");
         Partner = new String[1];
-		Partner[0] = "You";
+        myName = "WD-40";
+        Partner[0] = "DuctTape";
+
+//        myName = "DuctTape";
+//        Partner[0] = "WD-40";
 		
 	}
 	
@@ -29,13 +32,13 @@ public class CommClientController {
 			comm.connectToFriends(myName, Partner);
 		}
 		catch(CommException e) {
-			System.err.println("Comm Exception: " + e);
+			System.err.println("Comm Exception: " + e.getMessage());
 			//All errors except missing-friends are not handled here.
 			if(!e.getMessage().startsWith("missing-friends")){
 				System.err.println("Giving up");
 				return false;
 			}
-
+            System.out.print("waiting...\n");
 			//Wait until all friends connect.
 			boolean friendsReady = false;
 			while(!friendsReady){
@@ -65,7 +68,7 @@ public class CommClientController {
 	
 	public RealPoint2D swapLoc(RealPoint2D myLoc){
 		String message = "Loc:"+myLoc.x+","+myLoc.y;
-		String recived;
+		String received;
 		String cord[];
 		RealPoint2D partnerLoc = new RealPoint2D(-1,-1);
 		boolean swap = false;
@@ -81,8 +84,8 @@ public class CommClientController {
 				System.err.println("Comm Exception: " + e1);
 				if(e1.getMessage().startsWith("Loc:")){
 					swap = true;
-					recived = e1.getMessage().substring(4);
-					cord = recived.split(",");
+					received = e1.getMessage().substring(4);
+					cord = received.split(",");
 					partnerLoc = new RealPoint2D(Double.parseDouble(cord[0]),Double.parseDouble(cord[1]));
 				}else{
 					System.err.println("Giving up");
