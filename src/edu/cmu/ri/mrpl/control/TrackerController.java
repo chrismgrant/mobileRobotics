@@ -47,6 +47,7 @@ public class TrackerController {
     private static final double MIN_HIT_RATIO = .8;
     private static final double MAX_HIT_RATIO = 1.1;
     private static final double WALL_EXPAND = .1;
+    private static final double MIN_ROBOT_CLEARANCE = 2.5;
 
     private RealPose2D otherRobot;
 
@@ -100,6 +101,7 @@ public class TrackerController {
 
     void parseRobotPose(RealPose2D otherRobotMazePose) {
         //TODO implement
+    	otherRobot = otherRobotMazePose;
     }
     void parseTeamPath(ArrayList<MazePos> otherRobotPathList) {
 
@@ -176,15 +178,18 @@ public class TrackerController {
         newTrackers = List.list();
         RealPoint2D position;
         double x,y,th;
-        for (int i = 0; i < sonarReadings.length; i++){
-            if (SonarController.isWithinRange(sonarReadings[i])){
-                th = i * 22.5 * Units.degToRad;
-                x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
-                position = new RealPoint2D(x,y);
-                addTracker(robotPose, position);
-
-            }
+        //if robot too close to other robot don't do anything
+        if (robotPose.getPosition().distance(otherRobot.getPosition()) > MIN_ROBOT_CLEARANCE){
+	        for (int i = 0; i < sonarReadings.length; i++){
+	            if (SonarController.isWithinRange(sonarReadings[i])){
+	                th = i * 22.5 * Units.degToRad;
+	                x = Math.cos(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+	                y = Math.sin(th)*(sonarReadings[i]+SONAR_ROBOT_RADIUS);
+	                position = new RealPoint2D(x,y);
+	                addTracker(robotPose, position);
+	
+	            }
+	        }
         }
     }
 
@@ -655,4 +660,5 @@ public class TrackerController {
             }
         });
     }
+   
 }
