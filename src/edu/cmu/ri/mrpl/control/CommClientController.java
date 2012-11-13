@@ -66,9 +66,12 @@ public class CommClientController {
 		return false;
 	}
 	
-	
+	public void sendMsg(RealPoint2D myLoc) {
+        String message = "Loc:"+myLoc.x+","+myLoc.y;
+        comm.send(Partner[0], message);
+    }
 	public RealPoint2D swapLoc(RealPoint2D myLoc){
-		String message = "Loc:"+myLoc.x+","+myLoc.y;
+        String message = "Loc:"+myLoc.x+","+myLoc.y;
 		String received;
 		String cord[];
 		RealPoint2D partnerLoc = new RealPoint2D(-1,-1);

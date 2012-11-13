@@ -279,7 +279,7 @@ public class CommandController {
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
-
+        cmc.sendMsg(bac.getMazePose().getPosition());
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
@@ -369,15 +369,18 @@ public class CommandController {
 	}
 
     private void parseMessages() {
-        String message, command;
+        String message;
+        String[] commands, args;
         try {
             message = cmc.comm.getIncomingMessage();
             if (message != null) {
-                command = message.substring(0,message.indexOf(" "));
-                if (command.equals("Loc:")) {
+                commands = message.split("0");
+                for (String command : commands) {
+                    args = command.split(" ");
+                    if (args[0] == "Loc:") {
 
+                    }
                 }
-
             }
         } catch (CommClient.CommException e) {
             System.err.println("Comm Exception: " + e.getMessage());
