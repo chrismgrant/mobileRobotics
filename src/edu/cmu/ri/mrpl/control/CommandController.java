@@ -13,7 +13,9 @@ import edu.cmu.ri.mrpl.game.GameClient;
 import edu.cmu.ri.mrpl.gui.PointsConsole;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.maze.MazeGraphics;
+import edu.cmu.ri.mrpl.maze.MazePos;
 import edu.cmu.ri.mrpl.maze.MazeState;
+import edu.cmu.ri.mrpl.maze.MazeWorld;
 
 
 /**
@@ -207,7 +209,9 @@ public class CommandController {
             }
             return first;
         } else {
-            gameActive = false;
+            if (!trc.isGoldRemaining()) {
+                gameActive = false;
+            }
             return nullCommand;
         }
     }
@@ -279,7 +283,7 @@ public class CommandController {
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
-        cmc.sendMsg(bac.getMazePose().getPosition());
+        cmc.sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);
@@ -372,16 +376,65 @@ public class CommandController {
         String message;
         String[] commands, args;
         try {
-            message = cmc.comm.getIncomingMessage();
-            if (message != null) {
-                commands = message.split("0");
-                for (String command : commands) {
-                    args = command.split(" ");
-                    if (args[0] == "Loc:") {
+            do{
+                message = cmc.comm.getIncomingMessage();
+                if (message != null) {
+                    commands = message.split("0");
+                    for (String command : commands) {
+                        args = command.split(" ");
+                        if (args[0] == "Loc:") {
+                            RealPoint2D partnerLoc = new RealPoint2D(Double.parseDouble(args[1]),
+                                    Double.parseDouble(args[2]));
+                            trc.parseRobotPose(partnerLoc);
+                        }
+                        if (args[0] == "Path:") {
+                            ArrayList<MazePos> otherPath = new ArrayList<MazePos>();
+                            for (int i = 1; i < args.length; i++){
+                                String[] loc = args[i].split(",");
+                                otherPath.add(new MazePos(Integer.valueOf(loc[0]),
+                                        Integer.valueOf(loc[1])));
+                            }
+                            mpc.setBlockedList(otherPath);
+                            if (mpc.pathCollide()) {
+                                exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
+//                System.out.printf("%s\n",executeQueue.toString());
+                            }
+                            if (active.type == Command.Type.NULL) {
+
+                            }
+                        }
+                        if (args[0] == "Rsc:") {
+                            switch (Integer.valueOf(args[3])) {
+                                case 0: {
+                                    trc.removeRsc(new MazeState(Integer.valueOf(args[1]),
+                                            Integer.valueOf(args[2]),
+                                            MazeWorld.Direction.East));
+                                    break;
+                                }
+                                case 1: {
+                                    trc.removeRsc(new MazeState(Integer.valueOf(args[1]),
+                                            Integer.valueOf(args[2]),
+                                            MazeWorld.Direction.North));
+                                    break;
+                                }
+                                case 2: {
+                                    trc.removeRsc(new MazeState(Integer.valueOf(args[1]),
+                                            Integer.valueOf(args[2]),
+                                            MazeWorld.Direction.West));
+                                    break;
+                                }
+                                case 3: {
+                                    trc.removeRsc(new MazeState(Integer.valueOf(args[1]),
+                                            Integer.valueOf(args[2]),
+                                            MazeWorld.Direction.South));
+                                    break;
+                                }
+                            }
+                        }
 
                     }
                 }
-            }
+            } while (message != null);
         } catch (CommClient.CommException e) {
             System.err.println("Comm Exception: " + e.getMessage());
 

@@ -19,19 +19,38 @@ import java.util.concurrent.Callable;
 public class MotionPlanController {
     private MazeWorld mazeWorld;
     private ArrayList<MazePos> blockedList;
+    ArrayList<MazePos> pathList;
     public MotionPlanController(MazeWorld mazeWorld){
         this.mazeWorld = mazeWorld;
         blockedList = new ArrayList<MazePos>();
+        pathList = new ArrayList<MazePos>();
     }
-
+    public void setBlockedList(ArrayList<MazePos> blockedList) {
+        this.blockedList = blockedList;
+    }
+    public boolean pathCollide() {
+        for (MazePos ours : pathList) {
+            for (MazePos theirs: blockedList) {
+                if (ours.equals(theirs)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public ArrayList<MazePos> getPathList() {
+        return pathList;
+    }
     class MazeStateNode implements Comparable<MazeStateNode>{
         MazeState mazeState;
         Path pathToState;
+        ArrayList<MazePos> cellPathToState;
         String dirToState;
         int totalCost;
-        MazeStateNode(MazeState mazeState, Path path, String directionsToState) {
+        MazeStateNode(MazeState mazeState, Path path, ArrayList<MazePos> cellPath, String directionsToState) {
             this.mazeState = mazeState;
             this.pathToState = path;
+            cellPathToState = cellPath;
             dirToState = directionsToState;
             totalCost = getDistance() + getHeuristic(mazeState);
         }
@@ -63,7 +82,10 @@ public class MotionPlanController {
                     nextMazeState = null;
             }
             Path nextPath = (Path)pathToState.clone();
-
+            ArrayList<MazePos> cellPathClone = new ArrayList<MazePos>(cellPathToState.size());
+            for (int i = 0; i < cellPathToState.size();i++){
+                cellPathClone.set(i,cellPathToState.get(i));
+            }
             String nextAction = "";
             if (mazeState.dir().left() == next) {
                 nextAction = "L";
@@ -74,6 +96,9 @@ public class MotionPlanController {
             if (mazeState.dir() == next) {
                 nextAction = "G";
                 nextPath.add(Convert.MazeStateToRealPose(mazeState));
+                if (cellPathClone.get(cellPathToState.size()-1) != mazeState.pos()) {
+                    cellPathClone.add(mazeState.pos());
+                }
                 switch (next) {
                     case North:
                         nextMazeState = new MazeState(mazeWorld, nextMazeState.x(),nextMazeState.y()+1, MazeWorld.Direction.North);
@@ -93,7 +118,7 @@ public class MotionPlanController {
             }
             String nextDirToState = dirToState.concat(nextAction);
 
-            return new MazeStateNode(nextMazeState,nextPath,nextDirToState);
+            return new MazeStateNode(nextMazeState,nextPath,cellPathClone,nextDirToState);
         }
     }
 
@@ -133,7 +158,7 @@ public class MotionPlanController {
             visitedPositions.add(new MazeState(pos.x(),pos.y(), MazeWorld.Direction.South));
         }
         Queue<MazeStateNode> nextNodes = new LinkedList<MazeStateNode>();
-        nextNodes.offer(new MazeStateNode(initState,new Path(),""));
+        nextNodes.offer(new MazeStateNode(initState,new Path(),new ArrayList<MazePos>(),""));
         ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
         Path resultPath = new Path();
         while (!nextNodes.isEmpty()) {
@@ -163,6 +188,7 @@ public class MotionPlanController {
                         if (mazeWorld.atGoal(left)) goalState = left;
                         if (mazeWorld.atGoal(right)) goalState = right;
                         resultPath.add(Convert.MazeStateToRealPose(goalState));
+                        pathList = neighborsSet.get(i).cellPathToState;
 
                         System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
@@ -174,7 +200,7 @@ public class MotionPlanController {
             }
             neighborsSet.clear();
         }
-        System.out.println("NoPathFound");
+        System.out.println("No Path Found");
         return resultPath;
     }
     public Path searchForPathWithBlock(MazeState initState) {
@@ -197,7 +223,7 @@ public class MotionPlanController {
 
         Set<MazeState> visitedPositions = new HashSet<MazeState>();
         PriorityQueue<MazeStateNode> nextNodes = new PriorityQueue<MazeStateNode>();
-        nextNodes.offer(new MazeStateNode(initState,new Path(),""));
+        nextNodes.offer(new MazeStateNode(initState,new Path(),new ArrayList<MazePos>(),""));
         ArrayList <MazeStateNode> neighborsSet = new ArrayList<MazeStateNode>();
         Path resultPath = new Path();
         while (!nextNodes.isEmpty()) {
@@ -242,7 +268,7 @@ public class MotionPlanController {
             }
             neighborsSet.clear();
         }
-        System.out.println("NoPathFound");
+        System.out.println("No Path Found");
         return resultPath;
     }
 

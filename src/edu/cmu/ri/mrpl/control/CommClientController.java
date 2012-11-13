@@ -4,6 +4,7 @@ import edu.cmu.ri.mrpl.CommClient;
 import edu.cmu.ri.mrpl.CommClient.CommException;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
 import edu.cmu.ri.mrpl.maze.MazePos;
+import edu.cmu.ri.mrpl.maze.MazeState;
 
 import java.util.*;
 
@@ -66,12 +67,40 @@ public class CommClientController {
 		return false;
 	}
 	
-	public void sendMsg(RealPoint2D myLoc) {
-        String message = "Loc:"+myLoc.x+","+myLoc.y;
+	public void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path) {
+        String message = "Loc: "+myLoc.x+" "+myLoc.y;
+        message.concat(";Path:");
+        for(int i = 0; i < path.size(); i++){
+            message.concat(path.get(i).x()+","+path.get(i).y()+" ");
+        }
+        message.concat(";");
         comm.send(Partner[0], message);
     }
+    public void sendMsg(MazeState resource) {
+        String message = "Rsc: "+resource.x()+" "+resource.y()+" ";
+        switch (resource.dir()) {
+            case East: {
+                message.concat("0;");
+                break;
+            }
+            case North: {
+                message.concat("1;");
+                break;
+            }
+            case West: {
+                message.concat("2;");
+                break;
+            }
+            case South: {
+                message.concat("3;");
+                break;
+            }
+        }
+        comm.send(Partner[0],message);
+    }
+
 	public RealPoint2D swapLoc(RealPoint2D myLoc){
-        String message = "Loc:"+myLoc.x+","+myLoc.y;
+        String message = "Loc:"+myLoc.x+" "+myLoc.y;
 		String received;
 		String cord[];
 		RealPoint2D partnerLoc = new RealPoint2D(-1,-1);
@@ -102,10 +131,7 @@ public class CommClientController {
 	}
 	
 	public void sendMazePath(ArrayList<MazePos> path){
-		String message = "Path:";
-		for(int i = 0; i < path.toArray().length; i++){
-			message.concat("");
-		}
+
 	}
 	public ArrayList<MazePos> getMazePath(){
 		String received;

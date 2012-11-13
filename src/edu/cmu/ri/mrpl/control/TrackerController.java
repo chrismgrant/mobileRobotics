@@ -46,7 +46,7 @@ public class TrackerController {
     private static final double WALL_EXPAND = .1;
     private static final double MIN_ROBOT_CLEARANCE = 2.5;
 
-    private RealPose2D otherRobot;
+    private RealPoint2D otherRobot;
 
     private MazeWorld mazeWorld;
     private Set<MazePos> reachableCells;
@@ -82,7 +82,7 @@ public class TrackerController {
             System.out.printf("Error: cannot read mazefile\n");
         }
         lastCell = new Cell(getMazeInit());
-        otherRobot = new RealPose2D(-100, -100,0);
+        otherRobot = new RealPoint2D(-100, -100);
     }
     private Set<MazePos> getNeighborCells(MazePos currentCell) {
         Set<MazePos> neighborSet = new HashSet<MazePos>();
@@ -134,9 +134,9 @@ public class TrackerController {
 		return null;
 	}
 
-    void parseRobotPose(RealPose2D otherRobotMazePose) {
+    void parseRobotPose(RealPoint2D otherRobotMazePoint) {
         //TODO implement
-    	otherRobot = otherRobotMazePose;
+    	otherRobot = otherRobotMazePoint;
     }
     void parseTeamPath(ArrayList<MazePos> otherRobotPathList) {
 
@@ -195,6 +195,26 @@ public class TrackerController {
         }
     }
 
+    void removeRsc (MazeState rscState) {
+        Set<MazeState> golds = mazeWorld.getFreeGolds();
+        if (golds.contains(rscState)) {
+            removeGold(rscState);
+        }
+        Set<MazeState> drops = mazeWorld.getDrops();
+        if (drops.contains(rscState)){
+            removeDrop(rscState);
+        }
+    }
+
+    boolean isGoldRemaining() {
+        Set<MazeState> golds = mazeWorld.getFreeGolds();
+        golds.retainAll(reachableCells);
+        if (golds.isEmpty()){
+            return false;
+        }
+        return true;
+    }
+
 	/**
 	 * Adds trackers from 16 sonar readings
      * @param totalDistance total distance traveled since last update
@@ -218,7 +238,7 @@ public class TrackerController {
         RealPoint2D position;
         double x,y,th;
         //if robot too close to other robot don't do anything
-        if (robotPose.getPosition().distance(otherRobot.getPosition()) > MIN_ROBOT_CLEARANCE){
+        if (robotPose.getPosition().distance(otherRobot) > MIN_ROBOT_CLEARANCE){
 	        for (int i = 0; i < sonarReadings.length; i++){
 	            if (SonarController.isWithinRange(sonarReadings[i])){
 	                th = i * 22.5 * Units.degToRad;
