@@ -67,10 +67,9 @@ public class CommandController {
     /**
 	 * Initializes a new CommandController
 	 */
-    public CommandController(Robot r, String mazeFile, PointsConsole pc) {
+    public CommandController(PointsConsole pc) {
         executeQueue = new CommandSequence();
         active = new Command();
-        robot = r;
         gameActive = true;
         holdingGold = false;
 
@@ -78,11 +77,7 @@ public class CommandController {
         soc = new SonarController();
         bc = new BumperController();
         cac = new CameraController();
-
-        trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
-        bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
         bhc = new BehaviorController();
-        mpc = new MotionPlanController(trc.getMaze());
 
         if (DEBUG_FLAG) {
             System.out.printf("Robot position: %s\nRobot maze position: %s\n",
@@ -140,9 +135,18 @@ public class CommandController {
         exe = new ExecuteTask(this, robot, nullCommand, bac.getPose());
         exe.initPose();
     }
-	public CommandController(Robot r, String mazeFile){
-        this(r, mazeFile,null);
+	public CommandController(){
+        this(null);
 	}
+    public void initRobot(Robot r) {
+        robot = r;
+        bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
+    }
+
+    public void initMaze(String mazeFile) {
+        trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
+        mpc = new MotionPlanController(trc.getMaze());
+    }
 
 	/**
 	 * Gets filtered sonar readings for sonar console

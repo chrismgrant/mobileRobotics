@@ -68,7 +68,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
     public Game() {
         super("Game");
 
-        cc = new CommandController(robot,knownMazeFile, pc);
+        cc = new CommandController(pc);
 
         preChecks = new boolean[8];
 
@@ -304,6 +304,7 @@ public class Game extends JFrame implements ActionListener, TaskController {
 
         } else if ( source==connectButton) {
             connect();
+            cc.initRobot(robot);
             preChecks[3] = true;
         } else if ( source==disconnectButton ) {
             disconnect();
