@@ -192,7 +192,9 @@ public class CommandController {
         }
         parseMessages();
         Path executePath = mpc.searchForPath(searchInitState);
-        cmc.sendMsg(mpc.getClaimedTarget());
+        if (mpc.getClaimedTarget()!= null) {
+            cmc.sendMsg(mpc.getClaimedTarget());
+        }
         if (executePath.size() > 1) {
             Command.PathArgument pArg = new Command.PathArgument(executePath);
             Command.AngleArgument aArg = new Command.AngleArgument(
