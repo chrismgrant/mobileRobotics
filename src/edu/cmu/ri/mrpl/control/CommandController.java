@@ -379,7 +379,7 @@ public class CommandController {
             do{
                 message = cmc.comm.getIncomingMessage();
                 if (message != null) {
-                    commands = message.split("0");
+                    commands = message.split(";");
                     for (String command : commands) {
                         args = command.split(" ");
                         if (args[0] == "Loc:") {

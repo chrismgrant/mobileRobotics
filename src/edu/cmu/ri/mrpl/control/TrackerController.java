@@ -207,7 +207,8 @@ public class TrackerController {
     }
 
     boolean isGoldRemaining() {
-        Set<MazeState> golds = mazeWorld.getFreeGolds();
+        Set<MazeState> golds = new HashSet<MazeState>();
+        golds.addAll(mazeWorld.getFreeGolds());
         golds.retainAll(reachableCells);
         if (golds.isEmpty()){
             return false;

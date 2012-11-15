@@ -19,7 +19,7 @@ public class CommClientController {
 	String Partner[];
 	
 	public CommClientController(){
-		comm = new CommClient("128.237.203.134");
+		comm = new CommClient("128.237.244.165");
         Partner = new String[1];
         if (Game.robot1) {
             myName = "WD-40";
@@ -71,7 +71,7 @@ public class CommClientController {
 	
 	public void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path) {
         String message = "Loc: "+myLoc.x+" "+myLoc.y;
-        message.concat(";Path:");
+        message.concat(";Path: ");
         for(int i = 0; i < path.size(); i++){
             message.concat(path.get(i).x()+","+path.get(i).y()+" ");
         }
