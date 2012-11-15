@@ -71,11 +71,11 @@ public class CommClientController {
 	
 	public void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path) {
         String message = "Loc: "+myLoc.x+" "+myLoc.y;
-        message.concat(";Path: ");
+        message = message.concat(";Path: ");
         for(int i = 0; i < path.size(); i++){
-            message.concat(path.get(i).x()+","+path.get(i).y()+" ");
+            message = message.concat(path.get(i).x()+","+path.get(i).y()+" ");
         }
-        message.concat(";");
+        message = message.concat(";");
         comm.send(Partner[0], message);
     }
     public void sendMsg(MazeState resource) {
