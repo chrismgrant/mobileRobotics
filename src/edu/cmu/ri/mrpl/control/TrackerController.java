@@ -49,7 +49,7 @@ public class TrackerController {
     private RealPoint2D otherRobot;
 
     private MazeWorld mazeWorld;
-    private Set<MazePos> reachableCells;
+    private Set<MazeState> reachableCells;
 
     private List<Tracker> trackers;
 	private List<Tracker> newTrackers;
@@ -100,8 +100,8 @@ public class TrackerController {
         }
         return neighborSet;
     }
-    private Set<MazePos> getReachableCells() {
-        Set<MazePos> reachable = new HashSet<MazePos>();
+    private Set<MazeState> getReachableCells() {
+        Set<MazeState> reachable = new HashSet<MazeState>();
         MazePos init = getMazeInit().pos();
         ArrayList<MazePos> horizon = new ArrayList<MazePos>();
         horizon.add(init);
@@ -109,7 +109,10 @@ public class TrackerController {
         MazePos active;
         while (!horizon.isEmpty()) {
             active = horizon.remove(0);
-            reachable.add(active);
+            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.East));
+            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.North));
+            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.West));
+            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.South));
             for (MazePos pos : getNeighborCells(active)) {
                 if (!reachable.contains(pos)) {
                     horizon.add(pos);
@@ -212,6 +215,7 @@ public class TrackerController {
 
     boolean isGoldRemaining() {
         Set<MazeState> golds = new HashSet<MazeState>(mazeWorld.getFreeGolds());
+        System.out.printf("IGR: goldlist: %s\n",golds);
         golds.retainAll(reachableCells);
         if (golds.isEmpty()){
             return false;
