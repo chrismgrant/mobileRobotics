@@ -101,7 +101,7 @@ public class TrackerController {
         return neighborSet;
     }
     private Set<MazeState> getReachableCells() {
-        Set<MazeState> reachable = new HashSet<MazeState>();
+        ArrayList<MazePos> reachable = new ArrayList<MazePos>();
         MazePos init = getMazeInit().pos();
         ArrayList<MazePos> horizon = new ArrayList<MazePos>();
         horizon.add(init);
@@ -109,18 +109,22 @@ public class TrackerController {
         MazePos active;
         while (!horizon.isEmpty()) {
             active = horizon.remove(0);
-            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.East));
-            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.North));
-            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.West));
-            reachable.add(new MazeState(active.x(), active.y(), MazeWorld.Direction.South));
+            reachable.add(active);
             for (MazePos pos : getNeighborCells(active)) {
                 if (!reachable.contains(pos)) {
                     horizon.add(pos);
                 }
             }
         }
-        System.out.printf("Reachable Cells: %s\n", reachable);
-        return reachable;
+        Set<MazeState> reached = new HashSet<MazeState>();
+        for (MazePos m : reachable) {
+            reached.add(new MazeState(m.x(), m.y(), MazeWorld.Direction.East));
+            reached.add(new MazeState(m.x(), m.y(), MazeWorld.Direction.North));
+            reached.add(new MazeState(m.x(), m.y(), MazeWorld.Direction.West));
+            reached.add(new MazeState(m.x(), m.y(), MazeWorld.Direction.South));
+        }
+        System.out.printf("Reachable Cells: %s\n", reached);
+        return reached;
     }
 
     /**
