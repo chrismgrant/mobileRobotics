@@ -25,7 +25,7 @@ public class MotionPlanController {
         this.mazeWorld = mazeWorld;
         blockedList = new ArrayList<MazePos>();
         pathList = new ArrayList<MazePos>();
-        claimedTarget = new MazeState(9000,9000, MazeWorld.Direction.North);
+        claimedTarget = null;
     }
     public void setBlockedList(ArrayList<MazePos> blockedList) {
         this.blockedList = blockedList;
@@ -153,6 +153,10 @@ public class MotionPlanController {
     }
     public Path searchForPath(MazeState initState, ArrayList<MazePos> blockedList) {
         System.out.printf("Start: %s\n", initState.toString());
+        System.out.printf("  Drops: %s\n",mazeWorld.getDrops());
+        System.out.printf("  Golds: %s\n",mazeWorld.getFreeGolds());
+        System.out.printf("  Goals: %s\n",mazeWorld.getGoals());
+        System.out.printf("  Blacklist: %s\n",blockedList);
         int debugCount = 0;
 
         Set<MazeState> visitedPositions = new HashSet<MazeState>();
@@ -209,6 +213,7 @@ public class MotionPlanController {
             neighborsSet.clear();
         }
         System.out.println("No Path Found");
+        claimedTarget = null;
         return resultPath;
     }
     public Path searchForPathWithBlock(MazeState initState) {

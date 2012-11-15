@@ -211,9 +211,6 @@ public class CommandController {
             }
             return first;
         } else {
-            if (!trc.isGoldRemaining()) {
-                gameActive = false;
-            }
             return nullCommand;
         }
     }
@@ -381,10 +378,10 @@ public class CommandController {
             do{
                 message = cmc.comm.getIncomingMessage();
                 if (DEBUG_FLAG) {
-                    System.out.println(message);
+                    System.out.println("Incoming: \""+message+"\"");
                 }
                 if (message != null) {
-                    commands = message.split(";");
+                    commands = message.replace("\n","").replace("\r","").split(";");
                     for (String command : commands) {
                         args = command.split(" ");
                         if (args[0] == "Loc:") {
@@ -399,6 +396,7 @@ public class CommandController {
                                 otherPath.add(new MazePos(Integer.valueOf(loc[0]),
                                         Integer.valueOf(loc[1])));
                             }
+                            System.out.printf("Path blacklist: %s\n",otherPath.toString());
                             mpc.setBlockedList(otherPath);
                             if (mpc.pathCollide()) {
                                 exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
@@ -463,7 +461,12 @@ public class CommandController {
                 } else {
                     trc.removeDrop(Convert.RealPoseToMazeState(bac.getMazePose()));
                     cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
-                    trc.targetGold();
+                    if (trc.isGoldRemaining()) {
+                        trc.targetGold();
+                    } else {
+                        System.out.printf("No gold remaining.\n");
+                        gameActive = false;
+                    }
                 }
             }
             exe.setupTask(getNext(), bac.getMazePose());
