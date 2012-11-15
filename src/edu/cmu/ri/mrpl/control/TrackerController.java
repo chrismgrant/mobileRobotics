@@ -116,6 +116,7 @@ public class TrackerController {
                 }
             }
         }
+        System.out.printf("Reachable Cells: %s\n", reachable);
         return reachable;
     }
 
@@ -210,8 +211,7 @@ public class TrackerController {
     }
 
     boolean isGoldRemaining() {
-        Set<MazeState> golds = new HashSet<MazeState>();
-        golds.addAll(mazeWorld.getFreeGolds());
+        Set<MazeState> golds = new HashSet<MazeState>(mazeWorld.getFreeGolds());
         golds.retainAll(reachableCells);
         if (golds.isEmpty()){
             return false;
