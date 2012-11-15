@@ -3,6 +3,7 @@ package edu.cmu.ri.mrpl.control;
 import edu.cmu.ri.mrpl.CommClient;
 import edu.cmu.ri.mrpl.CommClient.CommException;
 import edu.cmu.ri.mrpl.kinematics2D.RealPoint2D;
+import edu.cmu.ri.mrpl.lab.Game;
 import edu.cmu.ri.mrpl.maze.MazePos;
 import edu.cmu.ri.mrpl.maze.MazeState;
 
@@ -20,12 +21,13 @@ public class CommClientController {
 	public CommClientController(){
 		comm = new CommClient("128.237.203.134");
         Partner = new String[1];
-        myName = "WD-40";
-        Partner[0] = "DuctTape";
-
-//        myName = "DuctTape";
-//        Partner[0] = "WD-40";
-		
+        if (Game.robot1) {
+            myName = "WD-40";
+            Partner[0] = "DuctTape";
+        } else {
+            myName = "DuctTape";
+            Partner[0] = "WD-40";
+        }
 	}
 	
 	public boolean connect(){
