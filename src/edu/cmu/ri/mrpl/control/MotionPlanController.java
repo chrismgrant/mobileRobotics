@@ -20,10 +20,12 @@ public class MotionPlanController {
     private MazeWorld mazeWorld;
     private ArrayList<MazePos> blockedList;
     ArrayList<MazePos> pathList;
+    private MazeState claimedTarget;
     public MotionPlanController(MazeWorld mazeWorld){
         this.mazeWorld = mazeWorld;
         blockedList = new ArrayList<MazePos>();
         pathList = new ArrayList<MazePos>();
+        claimedTarget = new MazeState(-1,-1, MazeWorld.Direction.North);
     }
     public void setBlockedList(ArrayList<MazePos> blockedList) {
         this.blockedList = blockedList;
@@ -37,6 +39,9 @@ public class MotionPlanController {
             }
         }
         return false;
+    }
+    public MazeState getClaimedTarget() {
+        return claimedTarget;
     }
     public ArrayList<MazePos> getPathList() {
         return pathList;
@@ -192,7 +197,7 @@ public class MotionPlanController {
                         if (!pathList.contains(neighborsSet.get(i).mazeState.pos())){
                             pathList.add(neighborsSet.get(i).mazeState.pos());
                         }
-
+                        claimedTarget = front;
                         System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
 

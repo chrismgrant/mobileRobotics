@@ -190,7 +190,9 @@ public class CommandController {
         if (DEBUG_FLAG) {
             System.out.print("Recalculating path to goal.\n");
         }
+        parseMessages();
         Path executePath = mpc.searchForPath(searchInitState);
+        cmc.sendMsg(mpc.getClaimedTarget());
         if (executePath.size() > 1) {
             Command.PathArgument pArg = new Command.PathArgument(executePath);
             Command.AngleArgument aArg = new Command.AngleArgument(
@@ -378,6 +380,9 @@ public class CommandController {
         try {
             do{
                 message = cmc.comm.getIncomingMessage();
+                if (DEBUG_FLAG) {
+                    System.out.println(message);
+                }
                 if (message != null) {
                     commands = message.split(";");
                     for (String command : commands) {

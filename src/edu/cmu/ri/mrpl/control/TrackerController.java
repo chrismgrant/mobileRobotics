@@ -204,6 +204,9 @@ public class TrackerController {
         if (drops.contains(rscState)){
             removeDrop(rscState);
         }
+        if (mazeWorld.atGoal(rscState)){
+            removeGoal(rscState);
+        }
     }
 
     boolean isGoldRemaining() {
