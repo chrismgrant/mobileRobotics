@@ -25,7 +25,7 @@ public class MotionPlanController {
         this.mazeWorld = mazeWorld;
         blockedList = new ArrayList<MazePos>();
         pathList = new ArrayList<MazePos>();
-        claimedTarget = new MazeState(-1,-1, MazeWorld.Direction.North);
+        claimedTarget = new MazeState(9000,9000, MazeWorld.Direction.North);
     }
     public void setBlockedList(ArrayList<MazePos> blockedList) {
         this.blockedList = blockedList;

@@ -82,19 +82,19 @@ public class CommClientController {
         String message = "Rsc: "+resource.x()+" "+resource.y()+" ";
         switch (resource.dir()) {
             case East: {
-                message.concat("0;");
+                message = message.concat("0;");
                 break;
             }
             case North: {
-                message.concat("1;");
+                message = message.concat("1;");
                 break;
             }
             case West: {
-                message.concat("2;");
+                message = message.concat("2;");
                 break;
             }
             case South: {
-                message.concat("3;");
+                message = message.concat("3;");
                 break;
             }
         }
