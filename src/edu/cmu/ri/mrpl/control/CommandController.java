@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Date;
 
 import edu.cmu.ri.mrpl.*;
 import edu.cmu.ri.mrpl.Robot;
@@ -57,6 +58,8 @@ public class CommandController {
     private boolean useVisualization;
     private boolean gameActive;
     boolean holdingGold;
+    private Date date;
+    private long lastSend;
 
     private MazeGraphics mg;
 
@@ -87,7 +90,8 @@ public class CommandController {
         pointsConsole = pc;
         cmc = new CommClientController();
         gc = new GameClient();
-
+        date = new Date();
+        lastSend = 0;
 
         exe = new ExecuteTask(this);
 
@@ -211,6 +215,7 @@ public class CommandController {
                     addCommand(new Command(Command.Type.PICKGOLD));
                 }
             }
+            cmc.sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
             return first;
         } else {
             return nullCommand;
@@ -270,6 +275,13 @@ public class CommandController {
 			e.printStackTrace();
 		}
 	}
+    void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path){
+        if (date.getTime() - lastSend > 20) {
+            cmc.sendMsg(myLoc, path);
+            lastSend = date.getTime();
+            date = new Date();
+        }
+    }
 	/**
 	 * Updates all controllers.
 	 * To be called before accessing controller information
@@ -284,7 +296,7 @@ public class CommandController {
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
-        cmc.sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
+        sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);
             robots.add(null);

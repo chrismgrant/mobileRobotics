@@ -157,7 +157,7 @@ public class TrackerController {
         mazeWorld.removeAllGoals();
         //TODO for competition, first target all golds that other team can reach, then go for our gold.
         for (MazeState state : mazeWorld.getFreeGolds()) {
-            if (reachableCells.contains(state.pos())) {
+            if (reachableCells.contains(state)) {
                 mazeWorld.addGoal(state);
             }
         }
@@ -169,7 +169,7 @@ public class TrackerController {
     void targetDrop() {
         mazeWorld.removeAllGoals();
         for (MazeState state : mazeWorld.getDrops()) {
-            if (reachableCells.contains(state.pos())) {
+            if (reachableCells.contains(state)) {
                 mazeWorld.addGoal(state);
             }
         }
