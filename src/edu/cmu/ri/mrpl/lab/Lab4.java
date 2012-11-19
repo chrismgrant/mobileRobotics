@@ -354,7 +354,7 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 				PrintWriter outCtrVel =  new PrintWriter(outFileCtrVel);
 				PrintWriter outData = new PrintWriter(outFileData);
 
-				outData.println("Bearring, Robot, Velocity, Comand");
+				outData.println("Bearing, Robot, Velocity, Command");
 
 				double robotDistance = 0;
 				while(!shouldStop()) {
@@ -483,6 +483,8 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 //			showSC();
 			robot.turnSonarsOn();
             cc = new CommandController();
+            cc.initRobot(robot);
+            cc.initMaze("in2.maze");
             cc.addCommandFromFile("in.txt");
 
 			try{
