@@ -69,8 +69,6 @@ public class Game extends JFrame implements ActionListener, TaskController {
     public Game() {
         super("Game");
 
-        cc = new CommandController(pc);
-
         preChecks = new boolean[8];
 
         initSoundButton = new JButton("Test Sound");
@@ -223,6 +221,9 @@ public class Game extends JFrame implements ActionListener, TaskController {
         } else {
             robot=new ScoutRobot();
         }
+
+        cc = new CommandController(pc);
+
     }
 
     // call from GUI thread

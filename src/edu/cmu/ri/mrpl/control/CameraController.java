@@ -100,7 +100,7 @@ public class CameraController {
     				}
     				
     			}
-    			System.out.println();
+//    			System.out.println();
     		}
         	return true;
         }
