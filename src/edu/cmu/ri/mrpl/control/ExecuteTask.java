@@ -24,7 +24,7 @@ import java.io.PrintWriter;
  */
 public class ExecuteTask{
 
-	private static final double DIST_THRESHOLD = .007;
+	private static final double DIST_THRESHOLD = .003;
 	private static final double ANG_THRESHOLD = .009;
 	private static final int SPEECH_PREC = 3;
     private static final int INITIAL_SONAR_PINGS = 20;

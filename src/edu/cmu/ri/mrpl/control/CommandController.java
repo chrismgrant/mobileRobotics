@@ -49,7 +49,8 @@ public class CommandController {
     //Path Searching enables continuous searching between robot pose and goal states
     private static final boolean PATH_SEARCH_FLAG = true;
     //Game Flag enables updating of goal states with respect to game
-    private static final boolean GAME_FLAG = true;
+    private static final boolean GAME_FLAG = false;
+    private static final boolean COMM_FLAG = false;
 
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
@@ -142,21 +143,26 @@ public class CommandController {
     }
 
     public void initComm(String robotID) {
-        cmc.connect();
+        if (COMM_FLAG) {
+            cmc.connect();
+        }
 //        gc.connectToServer("Combat Styrofoam", robotID, robotID + "other");
     }
     public void initMaze(String mazeFile) {
         trc = new TrackerController(Convert.getRobotPose(robot), mazeFile);
         bac = new BearingController(trc.getMazeInit(), Convert.getRobotPose(robot));
         mpc = new MotionPlanController(trc.getMaze());
-        exe.setupTask(nullCommand, bac.getMazePose());
-        exe.initPose();
+
 
         if (robot instanceof SimRobot) {
             ((SimRobot) robot).setPosition(bac.getInitMazePose().getX(),bac.getInitMazePose().getY(),
                     bac.getInitMazePose().getRotateTheta());
             bac.setInitMazePose(trc.getMazeInit(),Convert.getRobotPose(robot));
         }
+        System.out.printf("Rob Rec Pose: %s\n",Convert.getRobotPose(robot).toString());
+        System.out.printf("Rob Init Pos: %f, %f\n", bac.getInitMazePose().getX(),bac.getInitMazePose().getY());
+        exe.setupTask(nullCommand, bac.getMazePose());
+        exe.initPose();
 
         if (DEBUG_FLAG) {
             System.out.printf("Robot position: %s\nRobot maze position: %s\n",
@@ -196,7 +202,7 @@ public class CommandController {
         }
         parseMessages();
         Path executePath = mpc.searchForPath(searchInitState);
-        if (mpc.getClaimedTarget()!= null) {
+        if (COMM_FLAG && mpc.getClaimedTarget()!= null) {
             cmc.sendMsg(mpc.getClaimedTarget());
         }
         if (executePath.size() > 1) {
@@ -215,7 +221,9 @@ public class CommandController {
                     addCommand(new Command(Command.Type.PICKGOLD));
                 }
             }
-            cmc.sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
+            if (COMM_FLAG) {
+                cmc.sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
+            }
             return first;
         } else {
             return nullCommand;
@@ -276,7 +284,7 @@ public class CommandController {
 		}
 	}
     void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path){
-        if (date.getTime() - lastSend > 20) {
+        if (COMM_FLAG && date.getTime() - lastSend > 20) {
             cmc.sendMsg(myLoc, path);
             lastSend = date.getTime();
             date = new Date();
@@ -388,6 +396,9 @@ public class CommandController {
     private void parseMessages() {
         String message;
         String[] commands, args;
+        if (!COMM_FLAG) {
+            return;
+        }
         try {
             do{
                 message = cmc.comm.getIncomingMessage();
@@ -454,7 +465,6 @@ public class CommandController {
             } while (message != null);
         } catch (CommClient.CommException e) {
             System.err.println("Comm Exception: " + e.getMessage());
-
         }
     }
 
@@ -470,11 +480,15 @@ public class CommandController {
 //                holdingGold = cac.holdingGold();
                 if (holdingGold) {
                     trc.removeGold(Convert.RealPoseToMazeState(bac.getMazePose()));
-                    cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    if (COMM_FLAG) {
+                        cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    }
                     trc.targetDrop();
                 } else {
                     trc.removeDrop(Convert.RealPoseToMazeState(bac.getMazePose()));
-                    cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    if (COMM_FLAG) {
+                        cmc.sendMsg(Convert.RealPoseToMazeState(bac.getMazePose()));
+                    }
                     if (trc.isGoldRemaining()) {
                         trc.targetGold();
                     } else {

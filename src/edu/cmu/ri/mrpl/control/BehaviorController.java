@@ -26,7 +26,7 @@ public class BehaviorController {
 		radius = Double.POSITIVE_INFINITY;
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
-		forwardPID = new PIDController(1,1.9);//was 1,1.9
+		forwardPID = new PIDController(1,2.2);//was 1,1.9
 		turnPID = new PIDController(2,.6);//was 1,.22
 		shadowPID = new PIDController(1.5,2.1);
 	}
@@ -291,7 +291,7 @@ public class BehaviorController {
             speed[1] = clamp(lVel, MAX_SPEED);
             speed[0] =  clamp(turnPID.getOutput(theta),6*MAX_SPEED);
         }
-        else if (Math.abs(newRadius)<.3 && Math.abs(newRadius) > .15 ){
+        else if (Math.abs(newRadius)<=.3 && Math.abs(newRadius) > .15){
             if(Math.atan2(p.getX(),radius-p.getY()) < .1 || Math.atan2(p.getX(),radius-p.getY())>1.9){
                 radius = newRadius;
             }
@@ -308,7 +308,7 @@ public class BehaviorController {
             speed[1] = clamp(lVel, MAX_SPEED);
             speed[0] = curv * speed[1];
         }
-        else if(Math.abs(newRadius)<.15){
+        else if(Math.abs(newRadius)<=.15){
             radius = newRadius;
             theta = Math.atan2(p.getY(), p.getX());
             distance = 0;

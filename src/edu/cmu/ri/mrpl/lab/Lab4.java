@@ -178,6 +178,8 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 
 		robot=new SimRobot();
+        ((SimRobot) robot).loadMaze("in.maze");
+
 //		robot=new ScoutRobot();
 	}
 
@@ -484,7 +486,7 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 			robot.turnSonarsOn();
             cc = new CommandController();
             cc.initRobot(robot);
-            cc.initMaze("in2.maze");
+            cc.initMaze("in.maze");
             cc.addCommandFromFile("in.txt");
 
 			try{

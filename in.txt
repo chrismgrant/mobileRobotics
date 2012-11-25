@@ -1,1 +1,1 @@
-FOLLOWPATH Lab6.path
+FOLLOWPATH test.path
