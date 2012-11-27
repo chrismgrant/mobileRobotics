@@ -19,7 +19,7 @@ public class CommClientController {
 	String Partner[];
 	
 	public CommClientController(){
-		comm = new CommClient("128.237.206.25");
+		comm = new CommClient("128.237.196.245");
         Partner = new String[1];
         if (Game.robot1) {
             myName = "WD-40";
