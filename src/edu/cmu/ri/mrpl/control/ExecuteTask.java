@@ -82,6 +82,7 @@ public class ExecuteTask{
         switch (active.type){
             case DROPGOLD: {
                 speak("Dropping. Dropping.");
+//                parent.cmc.sendMsg(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                 break;
             }
             case PICKGOLD: {
@@ -106,6 +107,7 @@ public class ExecuteTask{
                     parent.trc.removeGold(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                     taskComplete = true;
                 }
+//                parent.cmc.sendMsg(Convert.RealPoseToMazeState(parent.bac.getMazePose()));
                 break;
             }
             case FOLLOWPATH: {
