@@ -505,7 +505,8 @@ public class CommandController {
         }
 	}
 	public synchronized void closeDebug() {
-		System.out.println("Halting...");
+        cmc.sendMsg(new RealPoint2D(-100,-100),new ArrayList<MazePos>());
+        System.out.println("Halting...");
         if (DEBUG_FLAG) {
             outRobo.close();
             outRoboEncode.close();
