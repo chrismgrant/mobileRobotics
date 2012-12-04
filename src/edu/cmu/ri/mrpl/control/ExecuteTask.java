@@ -251,7 +251,6 @@ public class ExecuteTask{
         //Loop VM
         switch (active.type){
             case DROPGOLD: {
-                //TODO implement
                 // Wait until gold is out of view
                 try {
                     Thread.sleep(5000);
@@ -266,7 +265,6 @@ public class ExecuteTask{
                 break;
             }
             case PICKGOLD: {
-                //TODO determine position in cell, and lunge towards wall center.
                 if (!taskComplete) {
                     Point2D result = null;
                     result = initPose.inverse().transform(parent.bac.getMazePose().getPosition(), result);
@@ -316,7 +314,6 @@ public class ExecuteTask{
                 if (stepFlag || isInThreshold(currentError, ArgType.DISTANCE)){
                     if (stepFlag || pathIndex == pthArg.size()-1){//If last target achieved
                         stepFlag = true;
-                        double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
 //                        System.out.println("Current error: "+currentError);
                         if (isInThreshold(currentError, ArgType.ANGLE)) {
@@ -330,8 +327,8 @@ public class ExecuteTask{
                             ey = currentPose.getY() - currentTarget.getY();
                             parent.bac.updateError(ex,ey,currentError);
                         } else {
-                            currentError = Angle.normalize(pthArg.get(pathIndex).getTh() -
-                                    (delta + BearingController.getRDirection(robot)));
+                            currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() -
+                                    parent.bac.getMazePose().getTh());
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
                             parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                             try {
@@ -396,7 +393,7 @@ public class ExecuteTask{
                 break;
             }
             case TURNTO:{
-                currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - BearingController.getRDirection(robot));
+                currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - parent.bac.getMazePose().getTh());
 //                System.out.println(currentError);
                 if (isInThreshold(currentError, ArgType.ANGLE)){
                     taskComplete = true;
@@ -413,7 +410,7 @@ public class ExecuteTask{
             }
             case GOTO:{
                 Point2D result = null;
-                result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
+                result = initPose.inverse().transform(parent.bac.getMazePose().getPosition(), result);
                 currentError = dblArg - result.getX();
 //                System.out.println(currentError);
                 if (isInThreshold(currentError, ArgType.DISTANCE)){
