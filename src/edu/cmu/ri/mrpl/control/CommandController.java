@@ -49,8 +49,8 @@ public class CommandController {
     //Path Searching enables continuous searching between robot pose and goal states
     private static final boolean PATH_SEARCH_FLAG = true;
     //Game Flag enables updating of goal states with respect to game
-    private static final boolean GAME_FLAG = false;
-    private static final boolean COMM_FLAG = false;
+    private static final boolean GAME_FLAG = true;
+    private static final boolean COMM_FLAG = true;
 
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
