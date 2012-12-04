@@ -61,6 +61,7 @@ public class CommandController {
     boolean holdingGold;
     private Date date;
     private long lastSend;
+    private MazePos lastPos;
 
     private MazeGraphics mg;
 
@@ -163,6 +164,7 @@ public class CommandController {
         System.out.printf("Rob Init Pos: %f, %f\n", bac.getInitMazePose().getX(),bac.getInitMazePose().getY());
         exe.setupTask(nullCommand, bac.getMazePose());
         exe.initPose();
+        lastPos = Convert.RealPoseToMazeState(bac.getMazePose()).pos();
 
         if (DEBUG_FLAG) {
             System.out.printf("Robot position: %s\nRobot maze position: %s\n",
@@ -306,6 +308,11 @@ public class CommandController {
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
         trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
+        if (!Convert.RealPoseToMazeState(bac.getMazePose()).pos().equals(lastPos)) {
+            mpc.removePosFromPath(lastPos);
+            lastPos = Convert.RealPoseToMazeState(bac.getMazePose()).pos();
+        }
+
         sendMsg(bac.getMazePose().getPosition(),mpc.getPathList());
         if (useVisualization){
             ArrayList<MazeGraphics.ContRobot> robots = new ArrayList<MazeGraphics.ContRobot>(2);

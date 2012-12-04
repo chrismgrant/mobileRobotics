@@ -450,6 +450,8 @@ public class ExecuteTask{
             }
             case NULL:
             default:{
+                parent.wc.setWheelVel(0,0);
+                parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                 taskComplete = true;
                 break;
             }
