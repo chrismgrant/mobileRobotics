@@ -285,7 +285,7 @@ public class BehaviorController {
             radius = newRadius;
             theta = Math.atan2(p.getY(), p.getX());
             distance = p.getX();
-            distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
+//            distance = (Math.abs(theta) > 2.87)?Math.abs(distance):distance;
 
             lVel = shadowPID.getOutput(distance);
             speed[1] = clamp(lVel, MAX_SPEED);
