@@ -314,7 +314,8 @@ public class ExecuteTask{
                 if (stepFlag || isInThreshold(currentError, ArgType.DISTANCE)){
                     if (stepFlag || pathIndex == pthArg.size()-1){//If last target achieved
                         stepFlag = true;
-                        currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
+                        double delta = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
+                        currentError = Angle.normalize(delta);
 //                        System.out.println("Current error: "+currentError);
                         if (isInThreshold(currentError, ArgType.ANGLE)) {
                             taskComplete = true;
@@ -327,8 +328,7 @@ public class ExecuteTask{
                             ey = currentPose.getY() - currentTarget.getY();
                             parent.bac.updateError(ex,ey,currentError);
                         } else {
-                            currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() -
-                                    parent.bac.getMazePose().getTh());
+                            currentError = Angle.normalize(delta);
                             parent.wc.setALVel(parent.bhc.turnTo(currentError), 0);
                             parent.wc.updateWheels(robot,parent.bc.isBumped(robot));
                             try {
