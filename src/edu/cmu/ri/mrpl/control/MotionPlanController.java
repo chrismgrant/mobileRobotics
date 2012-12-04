@@ -27,6 +27,10 @@ public class MotionPlanController {
         pathList = new ArrayList<MazePos>();
         claimedTarget = null;
     }
+    public void setBlockedPos(MazePos blockedPos) {
+        this.blockedList = new ArrayList<MazePos>();
+        this.blockedList.add(blockedPos);
+    }
     public void setBlockedList(ArrayList<MazePos> blockedList) {
         this.blockedList = blockedList;
     }

@@ -240,6 +240,8 @@ public class CommandController {
                 active = searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose()));
             } else {
                 active = nullCommand;
+                mpc.setBlockedPos(Convert.RealPoseToMazeState(bac.getMazePose()).pos());
+                cmc.sendMsg(bac.getMazePose().getPosition(), mpc.getPathList());
             }
             return active;
 
@@ -284,7 +286,7 @@ public class CommandController {
 		}
 	}
     void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path){
-        if (COMM_FLAG && date.getTime() - lastSend > 20) {
+        if (COMM_FLAG && date.getTime() - lastSend > 200) {
             cmc.sendMsg(myLoc, path);
             lastSend = date.getTime();
             date = new Date();
@@ -409,19 +411,19 @@ public class CommandController {
                     commands = message.replace("\n","").replace("\r","").split(";");
                     for (String command : commands) {
                         args = command.split(" ");
-                        if (args[0] == "Loc:") {
+                        if (args[0].equals("Loc:")) {
                             RealPoint2D partnerLoc = new RealPoint2D(Double.parseDouble(args[1]),
                                     Double.parseDouble(args[2]));
                             trc.parseRobotPose(partnerLoc);
                         }
-                        if (args[0] == "Path:") {
+                        if (args[0].equals("Path:")) {
                             ArrayList<MazePos> otherPath = new ArrayList<MazePos>();
                             for (int i = 1; i < args.length; i++){
                                 String[] loc = args[i].split(",");
                                 otherPath.add(new MazePos(Integer.valueOf(loc[0]),
                                         Integer.valueOf(loc[1])));
                             }
-                            System.out.printf("Received Path blacklist: %s\n",otherPath.toString());
+//                            System.out.printf("Received Path blacklist: %s\n",otherPath.toString());
                             mpc.setBlockedList(otherPath);
                             if (mpc.pathCollide()) {
                                 exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
@@ -431,7 +433,7 @@ public class CommandController {
                                 exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
                             }
                         }
-                        if (args[0] == "Rsc:") {
+                        if (args[0].equals("Rsc:")) {
                             switch (Integer.valueOf(args[3])) {
                                 case 0: {
                                     trc.removeRsc(new MazeState(Integer.valueOf(args[1]),
