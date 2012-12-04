@@ -153,7 +153,7 @@ public class ExecuteTask{
             }
         }
         speak(speech);
-        System.out.printf("Executing %s command\n",active.type);
+//        System.out.printf("Executing %s command\n",active.type);
     }
 
     void speak(String in) {
@@ -247,7 +247,7 @@ public class ExecuteTask{
         robot.getSonars(sonars);
         parent.updateControllers(sonars);
 
-        System.out.println("RobotMazePose:"+parent.bac.getMazePose());
+//        System.out.println("RobotMazePose:"+parent.bac.getMazePose());
         //Loop VM
         switch (active.type){
             case DROPGOLD: {
@@ -271,7 +271,7 @@ public class ExecuteTask{
                     Point2D result = null;
                     result = initPose.inverse().transform(parent.bac.getMazePose().getPosition(), result);
                     currentError = dblArg - result.getX();
-                    System.out.println(currentError);
+//                    System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.DISTANCE)){
                         if (parent.cac.holdingGold()) {
                             speak("Success. Success. Moving. Moving.");
@@ -318,7 +318,7 @@ public class ExecuteTask{
                         stepFlag = true;
                         double delta = parent.bac.getMazePose().getTh() - BearingController.getRDirection(robot);
                         currentError = Angle.normalize(pthArg.get(pathIndex).getTh() - parent.bac.getMazePose().getTh());
-                        System.out.println("Current error: "+currentError);
+//                        System.out.println("Current error: "+currentError);
                         if (isInThreshold(currentError, ArgType.ANGLE)) {
                             taskComplete = true;
                             stop();
@@ -366,12 +366,12 @@ public class ExecuteTask{
                 targetWRTRob = RealPose2D.multiply(parent.bac.getRPoseWithError(robot).inverse(),initPose);
                 targetWRTRob = RealPose2D.multiply(targetWRTRob, pseArg);
                 currentError = targetWRTRob.getPosition().distance(0,0);
-                System.out.println(currentError);
+//                System.out.println(currentError);
                 if (stepFlag || isInThreshold(currentError, ArgType.DISTANCE)){
                     // Begin rotate subtask
                     stepFlag = true;
                     currentError = Angle.normalize(pseArg.getRotateTheta() + initPose.getTh() - BearingController.getRDirection(robot));
-                    System.out.println(currentError);
+//                    System.out.println(currentError);
                     if (isInThreshold(currentError, ArgType.ANGLE)){
                         taskComplete = true;
                         stop();
@@ -397,7 +397,7 @@ public class ExecuteTask{
             }
             case TURNTO:{
                 currentError = Angle.normalize(angArg.angleValue() + initPose.getTh() - BearingController.getRDirection(robot));
-                System.out.println(currentError);
+//                System.out.println(currentError);
                 if (isInThreshold(currentError, ArgType.ANGLE)){
                     taskComplete = true;
                     stop();
@@ -415,7 +415,7 @@ public class ExecuteTask{
                 Point2D result = null;
                 result = initPose.inverse().transform(BearingController.getRPose(robot).getPosition(), result);
                 currentError = dblArg - result.getX();
-                System.out.println(currentError);
+//                System.out.println(currentError);
                 if (isInThreshold(currentError, ArgType.DISTANCE)){
                     taskComplete = true;
                     stop();

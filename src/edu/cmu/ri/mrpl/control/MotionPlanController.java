@@ -160,11 +160,11 @@ public class MotionPlanController {
         return 1;
     }
     public Path searchForPath(MazeState initState) {
-        System.out.printf("Start: %s\n", initState.toString());
-        System.out.printf("  Drops: %s\n",mazeWorld.getDrops());
-        System.out.printf("  Golds: %s\n",mazeWorld.getFreeGolds());
-        System.out.printf("  Goals: %s\n",mazeWorld.getGoals());
-        System.out.printf("  Blacklist: %s\n",blockedList);
+//        System.out.printf("Start: %s\n", initState.toString());
+//        System.out.printf("  Drops: %s\n",mazeWorld.getDrops());
+//        System.out.printf("  Golds: %s\n",mazeWorld.getFreeGolds());
+//        System.out.printf("  Goals: %s\n",mazeWorld.getGoals());
+//        System.out.printf("  Blacklist: %s\n",blockedList);
         int debugCount = 0;
 
         Set<MazeState> visitedPositions = new HashSet<MazeState>();
@@ -210,7 +210,7 @@ public class MotionPlanController {
                             pathList.add(neighborsSet.get(i).mazeState.pos());
                         }
                         claimedTarget = front;
-                        System.out.printf("Expanded %d nodes.\n", debugCount);
+//                        System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
 
                     } else {
@@ -272,7 +272,7 @@ public class MotionPlanController {
                         mazeWorld.removeGoal(left);
                         mazeWorld.removeGoal(right);
 //                        resultPath.addAll(searchForPath(front));
-                        System.out.printf("Expanded %d nodes.\n", debugCount);
+//                        System.out.printf("Expanded %d nodes.\n", debugCount);
                         return resultPath;
 
                     } else {
