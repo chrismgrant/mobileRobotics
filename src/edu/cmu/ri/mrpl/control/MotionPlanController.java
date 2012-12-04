@@ -155,7 +155,7 @@ public class MotionPlanController {
         if (state.dir() == other.dir().rear()) return 2;
         return 1;
     }
-    public Path searchForPath(MazeState initState, ArrayList<MazePos> blockedList) {
+    public Path searchForPath(MazeState initState) {
         System.out.printf("Start: %s\n", initState.toString());
         System.out.printf("  Drops: %s\n",mazeWorld.getDrops());
         System.out.printf("  Golds: %s\n",mazeWorld.getFreeGolds());
@@ -221,19 +221,12 @@ public class MotionPlanController {
         return resultPath;
     }
     public Path searchForPathWithBlock(MazeState initState) {
-        return searchForPath(initState, blockedList);
+        return searchForPath(initState);
     }
     public void updateBlockedList(ArrayList<MazePos> newBlockedList) {
         blockedList = newBlockedList;
     }
-    /**
-     *
-     * @param initState
-     * @return
-     */
-    public Path searchForPath(MazeState initState) {
-        return searchForPath(initState, new ArrayList<MazePos>());
-    }
+
 
     public Path searchForAStarPath(MazeState initState) {
         int debugCount = 0;
