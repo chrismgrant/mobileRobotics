@@ -421,14 +421,14 @@ public class CommandController {
                                 otherPath.add(new MazePos(Integer.valueOf(loc[0]),
                                         Integer.valueOf(loc[1])));
                             }
-                            System.out.printf("Path blacklist: %s\n",otherPath.toString());
+                            System.out.printf("Received Path blacklist: %s\n",otherPath.toString());
                             mpc.setBlockedList(otherPath);
                             if (mpc.pathCollide()) {
                                 exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
 //                System.out.printf("%s\n",executeQueue.toString());
                             }
                             if (active.type == Command.Type.NULL) {
-
+                                exe.setupTask(searchNextPath(Convert.RealPoseToMazeState(bac.getMazePose())), bac.getMazePose());
                             }
                         }
                         if (args[0] == "Rsc:") {
