@@ -23,13 +23,21 @@ import edu.cmu.ri.mrpl.control.CommandController;
 import edu.cmu.ri.mrpl.control.SonarController;
 import edu.cmu.ri.mrpl.control.TrackerController;
 import edu.cmu.ri.mrpl.control.WheelController;
+import edu.cmu.ri.mrpl.gui.PointsConsole;
 
 public class Lab4 extends JFrame implements ActionListener, TaskController {
+    public static final boolean SIM = true;
+    public static final boolean robot1 = true;
+    public static final String robotID = "Robot 0x0a61";
+    //    public static final String robotID = "WD-40";
+    public static final String knownMazeFile = "allMazes/Helms Deep No Shared A.maze";
+    public static final String realMazeFile = "allMazes/Helms Deep No Shared A.maze";
 	public String command;
 	public Robot robot;
 	private SonarConsole sc;
 	private SonarConsole sc2;
-	private JFrame scFrame;
+    public PointsConsole pc; // Added for displaying points. PMF
+    private JFrame scFrame;
 	private JFrame sc2Frame;
 
 	private JButton connectButton;
@@ -54,15 +62,19 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 	private Task curTask = null;
 
+    static final int DEFAULT_ROOM_SIZE = 4;
+
+    CommandController cc;
+
 	public Lab4() {
 		super("Lab4");
 
 		connectButton = new JButton("connect");
 		disconnectButton = new JButton("disconnect");
 
-		rotateButton = new JButton("Run Rotate!");
-		forwardButton = new JButton("Run Forward!");
-		bothButton = new JButton("Run Track!");
+		rotateButton = new JButton("x");
+		forwardButton = new JButton("x");
+		bothButton = new JButton("Run Path!");
 		stopButton = new JButton(">> stop <<");
 		quitButton = new JButton(">> quit <<");
 
@@ -170,6 +182,20 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 		sc2Frame.add(sc2);
 		sc2Frame.pack();
 
+        // PMF: Creating a new points console for displaying robot-relative points.
+        // takes arguments( top-left-x, top-left-y, window-width,window-height)
+        // next set the bounds of the viewport.
+        pc = new PointsConsole(768-640, 1024-640, 640, 640);
+        pc.setWorldViewport(-1.0 * DEFAULT_ROOM_SIZE, -1.0 * DEFAULT_ROOM_SIZE, 1.0 * DEFAULT_ROOM_SIZE - 0.5, 1.0 * DEFAULT_ROOM_SIZE - 0.5);
+        // PMF: End new code for Points console
+        // PMF: Creating a frame to put the PointsConsole panel in.
+        // get the panel that
+        Frame f = new Frame();
+        f.setTitle("Points Console");
+        f.add(pc.getPanel());
+        f.setSize(pc.getPanel().getSize());
+        f.setVisible(true);
+        // PMF: end of displaying PointsConsole
 		// construct tasks
 		programTask = new RotateTask(this);
 		sonarTask = new ForwardTask(this);
@@ -177,10 +203,14 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 
 
-		robot=new SimRobot();
-        ((SimRobot) robot).loadMaze("in.maze");
+        if (SIM) {
+            robot=new SimRobot();
+            ((SimRobot) robot).loadMaze(realMazeFile);
+        } else {
+            robot=new ScoutRobot();
+        }
 
-//		robot=new ScoutRobot();
+        cc = new CommandController(pc);
 	}
 
 	// call from GUI thread
@@ -424,7 +454,13 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 		public void taskRun() {
 			showSC();
-			robot.turnSonarsOn();
+            cc.initRobot(robot);
+            cc.initSonars();
+            cc.initMaze(knownMazeFile);
+            cc.bumpRight();
+            cc.bumpLeft();
+            robot.turnSonarsOn();
+
 			wc.setALVel(0,0);
 			double[] sonars = new double[16];
 			double speed = 0, target = 0;
@@ -475,8 +511,6 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 
 	class TrackTask extends Task {
 
-		CommandController cc;
-
 		TrackTask(TaskController tc) {
 			super(tc);
 		}
@@ -484,9 +518,11 @@ public class Lab4 extends JFrame implements ActionListener, TaskController {
 		public void taskRun() {
 //			showSC();
 			robot.turnSonarsOn();
-            cc = new CommandController();
             cc.initRobot(robot);
-            cc.initMaze("in.maze");
+            cc.initSonars();
+            cc.initMaze(knownMazeFile);
+            cc.bumpRight();
+            cc.bumpLeft();
             cc.addCommandFromFile("in.txt");
 
 			try{

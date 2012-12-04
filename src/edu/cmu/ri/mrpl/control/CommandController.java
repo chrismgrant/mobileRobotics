@@ -47,10 +47,10 @@ public class CommandController {
     //Debug Flag prints out all debug detail
     static final boolean DEBUG_FLAG = true;
     //Path Searching enables continuous searching between robot pose and goal states
-    private static final boolean PATH_SEARCH_FLAG = true;
+    private static final boolean PATH_SEARCH_FLAG = false;
     //Game Flag enables updating of goal states with respect to game
-    private static final boolean GAME_FLAG = true;
-    private static final boolean COMM_FLAG = true;
+    private static final boolean GAME_FLAG = false;
+    private static final boolean COMM_FLAG = false;
 
 	private ExecuteTask exe;
 	private final Command nullCommand = new Command();
@@ -505,7 +505,9 @@ public class CommandController {
         }
 	}
 	public synchronized void closeDebug() {
-        cmc.sendMsg(new RealPoint2D(-100,-100),new ArrayList<MazePos>());
+        if (COMM_FLAG) {
+            cmc.sendMsg(new RealPoint2D(-100,-100),new ArrayList<MazePos>());
+        }
         System.out.println("Halting...");
         if (DEBUG_FLAG) {
             outRobo.close();
