@@ -155,7 +155,21 @@ public class TrackerController {
      */
     void targetGold() {
         mazeWorld.removeAllGoals();
-        //TODO for competition, first target all golds that other team can reach, then go for our gold.
+        Set<MazeState> PriorityGold = new HashSet<MazeState>();
+        for (MazeState state : mazeWorld.getFreeGolds()) {
+            if (!(reachableCells.contains(state) && reachableCells.contains(state.symmetric()))) {
+                PriorityGold.add(state);
+            }
+        }
+        if (!PriorityGold.isEmpty()) {
+            for (MazeState state : PriorityGold) {
+                if (reachableCells.contains(state)) {
+                    mazeWorld.addGoal(state);
+                }
+            }
+            return;
+        }
+
         for (MazeState state : mazeWorld.getFreeGolds()) {
             if (reachableCells.contains(state)) {
                 mazeWorld.addGoal(state);
