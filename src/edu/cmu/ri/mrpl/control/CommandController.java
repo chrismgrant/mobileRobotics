@@ -288,7 +288,7 @@ public class CommandController {
 		}
 	}
     void sendMsg(RealPoint2D myLoc, ArrayList<MazePos> path){
-        if (COMM_FLAG && date.getTime() - lastSend > 200) {
+        if (COMM_FLAG && date.getTime() - lastSend > 20) {
             cmc.sendMsg(myLoc, path);
             lastSend = date.getTime();
             date = new Date();
@@ -309,6 +309,7 @@ public class CommandController {
         trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
         wallChanged = trc.updateTrackers(bac.getMazePose());
         if (!Convert.RealPoseToMazeState(bac.getMazePose()).pos().equals(lastPos)) {
+            System.out.printf("Removing %s\n", lastPos.toString());
             mpc.removePosFromPath(lastPos);
             lastPos = Convert.RealPoseToMazeState(bac.getMazePose()).pos();
         }
