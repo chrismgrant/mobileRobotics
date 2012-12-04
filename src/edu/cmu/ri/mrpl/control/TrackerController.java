@@ -44,7 +44,7 @@ public class TrackerController {
     private static final double MIN_HIT_RATIO = .8;
     private static final double MAX_HIT_RATIO = 1.1;
     private static final double WALL_EXPAND = .1;
-    private static final double MIN_ROBOT_CLEARANCE = 2;
+    private static final double MIN_ROBOT_CLEARANCE = .5;
 
     private RealPoint2D otherRobot;
 
@@ -167,12 +167,12 @@ public class TrackerController {
                     mazeWorld.addGoal(state);
                 }
             }
-            return;
         }
-
-        for (MazeState state : mazeWorld.getFreeGolds()) {
-            if (reachableCells.contains(state)) {
-                mazeWorld.addGoal(state);
+        if (mazeWorld.getGoals().isEmpty()) {
+            for (MazeState state : mazeWorld.getFreeGolds()) {
+                if (reachableCells.contains(state)) {
+                    mazeWorld.addGoal(state);
+                }
             }
         }
     }

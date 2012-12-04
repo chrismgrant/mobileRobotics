@@ -14,7 +14,7 @@ import fj.F;
 
 public class BehaviorController {
 
-	private final double MAX_SPEED = .25;//Robot's absolute max speed is .886
+	private final double MAX_SPEED = .2;//Robot's absolute max speed is .886
 	private final double THRESHOLD = .05;
 	private final static double POINT_DIST = .3;
 	private RealPoint2D targetPoint;
@@ -27,7 +27,7 @@ public class BehaviorController {
 		setHistory(new Path());
 		setTarget(new RealPoint2D(0,0)); 
 		forwardPID = new PIDController(1,2.2);//was 1,1.9
-		turnPID = new PIDController(2.5,.6);//was 1,.22
+		turnPID = new PIDController(2.1,.6);//was 1,.22
 		shadowPID = new PIDController(1.5,2.1);
 	}
 	
