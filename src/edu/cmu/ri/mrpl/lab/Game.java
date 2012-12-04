@@ -28,8 +28,8 @@ public class Game extends JFrame implements ActionListener, TaskController {
     public static final boolean robot1 = true;
     public static final String robotID = "Robot 1";
 //    public static final String robotID = "WD-40";
-    public static final String knownMazeFile = "game.maze";
-    public static final String realMazeFile = "game.maze";
+    public static final String knownMazeFile = "allMazes/KnossosA.maze";
+    public static final String realMazeFile = "allMazes/KnossosA.maze";
     public boolean[] preChecks;
     public String command;
     public Robot robot;
