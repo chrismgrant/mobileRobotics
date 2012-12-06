@@ -108,7 +108,11 @@ public class MotionPlanController {
             }
             if (mazeState.dir() == next) {
                 nextAction = "G";
-                nextPath.add(Convert.MazeStateToRealPose(mazeState));
+                if (dirToState.endsWith("G")) {
+                    nextPath.set(nextPath.size()-1, Convert.MazeStateToRealPose(mazeState));
+                } else {
+                    nextPath.add(Convert.MazeStateToRealPose(mazeState));
+                }
                 if (cellPathClone.size() == 0 || cellPathClone.get(cellPathToState.size()-1) != mazeState.pos()) {
                     cellPathClone.add(mazeState.pos());
                 }

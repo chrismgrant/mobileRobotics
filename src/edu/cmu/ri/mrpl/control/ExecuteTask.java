@@ -177,8 +177,11 @@ public class ExecuteTask{
 	 */
 	private boolean isInThreshold(double error, ArgType argtype){
 		double threshold = (argtype == ArgType.DISTANCE)?DIST_THRESHOLD:ANG_THRESHOLD;
-		return Math.abs(error) < ((isContinuous) ? 100*threshold:threshold) ;
-	}
+		return Math.abs(error) < ((isContinuous) ? 122.766*threshold:threshold) ;
+//        return Math.abs(error) < ((isContinuous) ? 274.5*threshold:threshold) ;
+//        return Math.abs(error) < ((isContinuous) ? 388.222*threshold:threshold) ;
+
+    }
 	/**
 	 * Stops the robot
 	 */

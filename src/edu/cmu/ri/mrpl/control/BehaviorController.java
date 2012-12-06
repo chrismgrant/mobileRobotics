@@ -1,6 +1,7 @@
 package edu.cmu.ri.mrpl.control;
 
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import edu.cmu.ri.mrpl.Path;
@@ -16,7 +17,7 @@ public class BehaviorController {
 
 	private final double MAX_SPEED = .2;//Robot's absolute max speed is .886
 	private final double THRESHOLD = .05;
-	private final static double POINT_DIST = .3;
+	private final static double POINT_DIST = .3683/4;
 	private RealPoint2D targetPoint;
 	private double radius;
 	private Path history;
@@ -180,6 +181,11 @@ public class BehaviorController {
 
 			//Make a line from start to next point
 			path.setLine(startPoint.getPosition(), nextPoint.getPosition());
+            if (LineSegment.radialPointsOnLineSegment(path, .7366, nextPoint.getPosition(), newPoints)) {
+                Point2D catchpoint = newPoints.get(0);
+                path.setLine(catchpoint, nextPoint.getPosition());
+            }
+
 			//Add points that are the right distance away
 			while(LineSegment.radialPointsOnLineSegment(path, POINT_DIST, startPoint.getPosition(), newPoints)){
 				newPoint = new RealPose2D(newPoints.get(0).x,newPoints.get(0).y,startPoint.getTh());
