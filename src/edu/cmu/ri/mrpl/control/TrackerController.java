@@ -318,9 +318,9 @@ public class TrackerController {
 
         //Update walls if close to cell center
 //        if (atCellEdge(newPose)) {
-        if (atCellCenter(newPose)) {
+//        if (atCellCenter(newPose)) {
 //            wallChanged = updateMazeWalls(newPose);
-        }
+//        }
         return wallChanged;
     }
 

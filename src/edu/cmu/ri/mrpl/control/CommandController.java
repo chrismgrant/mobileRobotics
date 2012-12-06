@@ -306,7 +306,9 @@ public class CommandController {
 		wc.updateWheels(robot, bc.isBumped(robot));
 
         lastDistance = bac.updateMazePoseByBearing(Convert.getRobotPose(robot));
-        trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
+        if (wc.getAVel() < .1) {
+            trc.addTrackersFromSonar(bac.getMazePose(),lastDistance, soc.getSonarReadings());
+        }
         wallChanged = trc.updateTrackers(bac.getMazePose());
         if (!Convert.RealPoseToMazeState(bac.getMazePose()).pos().equals(lastPos)) {
             System.out.printf("Removing %s\n", lastPos.toString());
